@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { BarChart3, ChevronLeft, ChevronRight, Layers, LayoutGrid, MessagesSquare, PlayCircle, Search, SlidersHorizontal, UserPlus, X, DollarSign, GraduationCap } from "lucide-react";
 import { courseLessons, courses, courseTypes, levels, programs, totals } from "@/data/courses";
 import { CourseCard } from "@/components/CourseCard";
+import { StartFreeLink } from "@/components/StartFreeLink";
 import type { CourseType, Level, ProgramId } from "@/lib/types";
 import { site } from "@/lib/site";
 
@@ -300,9 +301,9 @@ export function Catalog() {
           <h2 className="text-3xl font-extrabold text-ink">Ready to Start Your English Journey?</h2>
           <p className="mt-3 text-slate-600">Start today with a free course, short daily lessons and a team that answers your questions.</p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
-            <Link href="/register/" className="flex items-center gap-2 rounded-xl bg-[linear-gradient(100deg,#0b326d_0%,#1f66c8_60%,#efb52a_100%)] px-6 py-3 font-bold text-white shadow-lg hover:brightness-110">
+            <StartFreeLink className="flex items-center gap-2 rounded-xl bg-[linear-gradient(100deg,#0b326d_0%,#1f66c8_60%,#efb52a_100%)] px-6 py-3 font-bold text-white shadow-lg hover:brightness-110">
               <UserPlus className="h-5 w-5" /> Start for Free
-            </Link>
+            </StartFreeLink>
             <a href={site.whatsapp} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-6 py-3 font-bold text-ink hover:border-brand-400">
               <MessagesSquare className="h-5 w-5" /> Talk to Our Team
             </a>

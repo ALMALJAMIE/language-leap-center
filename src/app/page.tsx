@@ -4,6 +4,7 @@ import { ArrowRight, Brain, Check, Ear, Flame, Mic, PenLine, Sparkles, Zap } fro
 import mark from "@/assets/logo-mark-t.png";
 import { courses, levels, programs, totals } from "@/data/courses";
 import { CourseCard } from "@/components/CourseCard";
+import { StartFreeLink } from "@/components/StartFreeLink";
 import { SpeakBtn } from "@/components/lesson/Exercises";
 import type { Level } from "@/lib/types";
 
@@ -47,7 +48,7 @@ export default function Home() {
               Short lessons where you listen, speak and write. Interactive exercises that feel like a game. Smart review that keeps what you learn. From your first word to advanced level.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/courses/general-english-1/" className="btn-primary px-7 py-4 text-lg">Start for free</Link>
+              <StartFreeLink className="btn-primary px-7 py-4 text-lg">Start for free</StartFreeLink>
               <Link href="/placement/" className="rounded-2xl border-2 border-brand-200 bg-white px-7 py-3.5 text-lg font-bold text-brand-700 hover:border-brand-400">
                 Find your level
               </Link>

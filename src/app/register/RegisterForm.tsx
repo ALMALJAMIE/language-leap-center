@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BadgeCheck,
   Loader2,
@@ -48,6 +48,11 @@ function Radio({
 export function RegisterForm() {
   const router = useRouter();
   const openModal = useAuth((s) => s.openModal);
+  const user = useAuth((s) => s.user);
+  // already signed in → go straight to the dashboard
+  useEffect(() => {
+    if (user) router.replace("/dashboard/");
+  }, [user, router]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
