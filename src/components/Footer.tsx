@@ -7,10 +7,10 @@ import { programs } from "@/data/courses";
 
 export function Footer() {
   const path = usePathname();
-  if (path?.startsWith("/learn/") || path?.startsWith("/verify-email")) return null;
+  if (path?.startsWith("/learn/")) return null;
 
   return (
-    <footer className="brand-gradient mt-24 text-brand-100">
+    <footer className="no-print brand-gradient mt-24 text-brand-100">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-4">
         <div>
           <div className="inline-block rounded-2xl bg-white px-3 py-2">
@@ -41,7 +41,7 @@ export function Footer() {
             <li><Link href="/courses/" className="hover:text-gold-300">All courses</Link></li>
             <li><Link href="/placement/" className="hover:text-gold-300">Placement test</Link></li>
             <li><Link href="/review/" className="hover:text-gold-300">Spaced review</Link></li>
-            <li><Link href="/dashboard/" className="hover:text-gold-300">My progress</Link></li>
+            <li><Link href="/dashboard/" className="hover:text-gold-300">Learner dashboard</Link></li>
           </ul>
         </div>
 

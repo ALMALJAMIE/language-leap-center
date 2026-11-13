@@ -50,7 +50,7 @@ export default function VerifyEmail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-brand-50/60 via-white to-gold-50/50 px-4 py-12">
+    <div className="min-h-[70vh] bg-gradient-to-br from-brand-50/60 via-white to-gold-50/50 px-4 py-12">
       <div className="flex justify-center">
         <Link href="/" aria-label="Home">
           <Logo />

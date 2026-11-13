@@ -146,3 +146,33 @@ body {
 .shake {
   animation: shake 0.3s ease-in-out;
 }
+
+/* Printing (certificates) */
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 0;
+  }
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+  }
+  .certificate-page {
+    padding: 0 !important;
+    background: #fff !important;
+  }
+  .certificate {
+    max-width: none !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    aspect-ratio: auto !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

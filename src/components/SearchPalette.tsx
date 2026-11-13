@@ -40,10 +40,14 @@ const pages: Item[] = [
   },
   {
     href: "/dashboard/",
-    title: "My progress",
-    sub: "XP, streak and badges",
+    title: "Learner dashboard",
+    sub: "Continue learning",
     kind: "page",
   },
+  { href: "/my-courses/", title: "My courses", sub: "Courses you started", kind: "page" },
+  { href: "/certificates/", title: "Certificates", sub: "Your earned certificates", kind: "page" },
+  { href: "/progress/", title: "Progress", sub: "XP, streak and badges", kind: "page" },
+  { href: "/profile/", title: "Profile", sub: "Account and preferences", kind: "page" },
 ];
 
 const index: Item[] = [

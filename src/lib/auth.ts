@@ -38,8 +38,13 @@ export function startAuth() {
     }
   } catch {}
 
-  supabase.auth.getSession().then(({ data }) => useAuth.getState().setSession(data.session));
-  supabase.auth.onAuthStateChange((_e, session) => useAuth.getState().setSession(session));
+  const apply = (session: Session | null) => {
+    useAuth.getState().setSession(session);
+    // load lazily to keep the auth module small
+    import("./sync").then((m) => m.onUserChange(session?.user ?? null));
+  };
+  supabase.auth.getSession().then(({ data }) => apply(data.session));
+  supabase.auth.onAuthStateChange((_e, session) => apply(session));
 }
 
 export function setRemember(remember: boolean) {
@@ -54,6 +59,14 @@ export function setRemember(remember: boolean) {
 
 export const siteUrl = (path = "/") =>
   typeof window === "undefined" ? path : `${window.location.origin}${basePath}${path}`;
+
+export const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join("") || "?";
 
 export const displayName = (u: User | null) =>
   (u?.user_metadata?.full_name as string | undefined) || u?.email?.split("@")[0] || "";

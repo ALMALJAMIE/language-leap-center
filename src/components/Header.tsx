@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Flame, LayoutDashboard, LogOut, Menu, Search, X, Zap } from "lucide-react";
+import { ChevronDown, Flame, LogOut, Menu, Search, X, Zap } from "lucide-react";
 import { Logo } from "./Logo";
 import { ArabicToggle } from "./ArabicToggle";
 import { SearchPalette } from "./SearchPalette";
 import { AuthModal } from "./auth/AuthModal";
 import { dueCards, useMounted, useProgress } from "@/lib/store";
-import { displayName, startAuth, supabase, useAuth } from "@/lib/auth";
+import { displayName, initials, startAuth, supabase, useAuth } from "@/lib/auth";
+import { accountNav } from "./account/AccountShell";
 
 const nav = [
   { href: "/", label: "Home" },
@@ -21,6 +22,7 @@ const nav = [
 
 function UserMenu() {
   const user = useAuth((s) => s.user);
+  const path = usePathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -31,26 +33,38 @@ function UserMenu() {
   const name = displayName(user);
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 font-bold uppercase text-white ring-2 ring-gold-300" aria-label="Account">
-        {name[0] ?? "?"}
+      <button onClick={() => setOpen(!open)} className="flex items-center gap-2 rounded-xl py-1 pl-1 pr-2 transition hover:bg-slate-50" aria-haspopup="menu" aria-expanded={open}>
+        <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 text-xs font-bold text-white ring-2 ring-gold-300">{initials(name)}</span>
+        <span className="hidden max-w-[140px] truncate text-sm font-semibold text-ink md:block">{name}</span>
+        <ChevronDown className={`h-4 w-4 text-slate-400 transition ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="absolute right-0 top-12 w-60 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
-          <div className="border-b border-slate-100 px-4 py-3">
+        <div role="menu" className="absolute right-0 top-12 z-50 w-60 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-xl">
+          <div className="border-b border-slate-100 px-4 pb-2.5 pt-1 md:hidden">
             <div className="truncate font-bold">{name}</div>
             <div className="truncate text-xs text-slate-500">{user?.email}</div>
           </div>
-          <Link href="/dashboard/" onClick={() => setOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-slate-50">
-            <LayoutDashboard className="h-4 w-4 text-brand-600" /> My progress
-          </Link>
+          {accountNav.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className={`flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-slate-50 ${path?.startsWith(href.replace(/\/$/, "")) ? "font-semibold text-brand-700" : "text-slate-700"}`}
+            >
+              <Icon className="h-4 w-4 text-slate-500" /> {label}
+            </Link>
+          ))}
+          <div className="my-1.5 border-t border-slate-100" />
           <button
+            role="menuitem"
             onClick={async () => {
               setOpen(false);
               await supabase.auth.signOut();
             }}
-            className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
+            className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
           >
-            <LogOut className="h-4 w-4" /> Sign out
+            <LogOut className="h-4 w-4" /> Sign Out
           </button>
         </div>
       )}
@@ -79,13 +93,13 @@ export function Header() {
     return () => window.removeEventListener("keydown", h);
   }, []);
 
-  const hidden = path?.startsWith("/learn/") || path?.startsWith("/verify-email"); // full-screen pages
+  const hidden = path?.startsWith("/learn/"); // the lesson player is full screen
   const active = (href: string) => (href === "/" ? path === "/" : path?.startsWith(href.replace(/\/$/, "")));
 
   return (
     <>
       {!hidden && (
-        <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 shadow-sm backdrop-blur-md">
+        <header className="no-print sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 shadow-sm backdrop-blur-md">
           <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
             <Link href="/" aria-label="Home">
               <Logo />
@@ -144,7 +158,7 @@ export function Header() {
 
           {open && (
             <nav className="border-t border-slate-100 bg-white px-4 py-3 lg:hidden">
-              {[...nav, { href: "/dashboard/", label: "My Progress" }].map((n) => (
+              {[...nav, ...(user ? [] : [{ href: "/dashboard/", label: "Learner Dashboard" }])].map((n) => (
                 <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className={`block rounded-lg px-3 py-2.5 font-medium ${active(n.href) ? "bg-brand-50 text-brand-700" : "text-slate-700"}`}>
                   {n.label}
                 </Link>
