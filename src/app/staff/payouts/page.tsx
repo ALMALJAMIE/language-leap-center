@@ -27,6 +27,7 @@ function Payouts() {
   const [lessons, setLessons] = useState<PrivateLesson[]>([]);
   const [err, setErr] = useState("");
   const [payFor, setPayFor] = useState<Bal | null>(null);
+  const [pkgs, setPkgs] = useState<{ id: string; student: string; teacher_id: string; hours: number; price: number; paid: boolean; valid_until: string; created_at: string; minutes_left: number }[]>([]);
 
   const load = useCallback(async () => {
     const [b, h, l] = await Promise.all([
@@ -38,6 +39,8 @@ function Payouts() {
     setBal((b.data as Bal[]) ?? []);
     setHist((h.data as Payout[]) ?? []);
     setLessons((l.data as PrivateLesson[]) ?? []);
+    const pk = await supabase.rpc("finance_packages");
+    setPkgs(pk.data ?? []);
   }, []);
   useEffect(() => {
     const t = setTimeout(load, 0);
@@ -46,13 +49,13 @@ function Payouts() {
 
   if (bal === null) return <Loader2 className="mx-auto h-6 w-6 animate-spin text-slate-300" />;
   const name = (id: string) => bal.find((b) => b.teacher_id === id)?.name ?? "Teacher";
-  const unpaid = lessons.filter((l) => !l.paid);
+  const unpaid = lessons.filter((l) => !l.paid && !l.package_id).length + pkgs.filter((p) => !p.paid).length;
   const totalDue = bal.reduce((n, b) => n + Number(b.balance), 0);
 
   return (
     <>
       <ErrorNote text={err} />
-      <Tabs value={tab} onChange={setTab} items={[{ id: "teachers", label: "Pay teachers" }, { id: "learners", label: "Learner payments", count: unpaid.length }]} />
+      <Tabs value={tab} onChange={setTab} items={[{ id: "teachers", label: "Pay teachers" }, { id: "learners", label: "Learner payments", count: unpaid }]} />
 
       {tab === "teachers" ? (
         <div className="space-y-8">
@@ -97,7 +100,35 @@ function Payouts() {
           </section>
         </div>
       ) : (
+        <div className="space-y-6">
+        {pkgs.length > 0 && (
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+            <h3 className="border-b border-slate-100 px-4 py-3 font-bold">Hour packages</h3>
+            <table className="w-full min-w-[720px] text-sm">
+              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Teacher</th><th className="px-4 py-3">Package</th><th className="px-4 py-3">Left</th><th className="px-4 py-3">Price</th><th className="px-4 py-3">Paid by learner</th></tr>
+              </thead>
+              <tbody>
+                {pkgs.map((p) => (
+                  <tr key={p.id} className="border-t border-slate-100">
+                    <td className="px-4 py-3 font-semibold">{p.student}</td>
+                    <td className="px-4 py-3">{name(p.teacher_id)}</td>
+                    <td className="px-4 py-3 text-slate-600">{p.hours} h · bought {fmtDate(p.created_at)} · until {fmtDate(p.valid_until)}</td>
+                    <td className="px-4 py-3">{Math.floor(p.minutes_left / 60)}h {p.minutes_left % 60}m</td>
+                    <td className="px-4 py-3 font-semibold">{money(p.price)}</td>
+                    <td className="px-4 py-3">
+                      <button onClick={async () => { const { error } = await supabase.rpc("mark_package_paid", { p_id: p.id, p_paid: !p.paid }); if (error) setErr(rpcError(error)); load(); }} className={`h-6 w-11 rounded-full p-0.5 transition ${p.paid ? "bg-emerald-500" : "bg-slate-200"}`} aria-pressed={p.paid} aria-label="Paid">
+                        <span className={`block h-5 w-5 rounded-full bg-white shadow transition ${p.paid ? "translate-x-5" : ""}`} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
         <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+          <h3 className="border-b border-slate-100 px-4 py-3 font-bold">Single lessons</h3>
           <table className="w-full min-w-[720px] text-sm">
             <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
               <tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Teacher</th><th className="px-4 py-3">Lesson</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Price</th><th className="px-4 py-3">Paid by learner</th></tr>
@@ -110,16 +141,17 @@ function Payouts() {
                   <td className="px-4 py-3">{name(l.teacher_id)}</td>
                   <td className="px-4 py-3 text-slate-600">{fmtWhen(l.starts_at)} · {l.minutes} min</td>
                   <td className="px-4 py-3"><StatusBadge status={l.status} /></td>
-                  <td className="px-4 py-3 font-semibold">{money(l.price)}</td>
+                  <td className="px-4 py-3 font-semibold">{l.package_id ? <span className="font-normal text-slate-500">From package</span> : money(l.price)}</td>
                   <td className="px-4 py-3">
-                    <button onClick={async () => { const { error } = await supabase.rpc("mark_lesson_paid", { p_id: l.id, p_paid: !l.paid }); if (error) setErr(rpcError(error)); load(); }} className={`h-6 w-11 rounded-full p-0.5 transition ${l.paid ? "bg-emerald-500" : "bg-slate-200"}`} aria-pressed={l.paid} aria-label="Paid">
+                    {l.package_id ? <span className="text-xs text-slate-400">See package</span> : <button onClick={async () => { const { error } = await supabase.rpc("mark_lesson_paid", { p_id: l.id, p_paid: !l.paid }); if (error) setErr(rpcError(error)); load(); }} className={`h-6 w-11 rounded-full p-0.5 transition ${l.paid ? "bg-emerald-500" : "bg-slate-200"}`} aria-pressed={l.paid} aria-label="Paid">
                       <span className={`block h-5 w-5 rounded-full bg-white shadow transition ${l.paid ? "translate-x-5" : ""}`} />
-                    </button>
+                    </button>}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
         </div>
       )}
     </>

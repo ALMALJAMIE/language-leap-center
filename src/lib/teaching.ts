@@ -46,8 +46,34 @@ export interface PrivateLesson {
   homework: string | null;
   next_focus: string | null;
   cancel_reason: string | null;
+  package_id?: string | null;
   created_at: string;
 }
+
+/** Hour packages (same discounts as supabase/packages.sql) */
+export const packageTiers = [
+  { hours: 1, off: 0 },
+  { hours: 3, off: 0.04 },
+  { hours: 5, off: 0.06, popular: true },
+  { hours: 10, off: 0.1 },
+] as const;
+export const packagePrice = (hourly: number, hours: number) => {
+  const off = packageTiers.find((t) => t.hours === hours)?.off ?? 0;
+  return Math.round(hourly * hours * (1 - off) * 100) / 100;
+};
+export const PACKAGE_DAYS = 30;
+
+export interface LessonPackage {
+  id: string;
+  teacher_id: string;
+  hours: number;
+  price: number;
+  paid: boolean;
+  valid_until: string;
+  created_at: string;
+  minutes_left: number;
+}
+export const hm = (m: number) => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}` : `${m}m`);
 
 export interface Assignment {
   id: string;
