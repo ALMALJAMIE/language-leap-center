@@ -186,7 +186,7 @@ export function Catalog() {
 
           <div className="mt-5 flex flex-wrap items-center justify-center gap-2 text-sm">
             <span className="text-brand-200">Browse by:</span>
-            {(["programs", "levels"] as const).map((b) => (
+            {(["programs"] as const).map((b) => (
               <button
                 key={b}
                 onClick={() => setBrowse(browse === b ? null : b)}
@@ -196,6 +196,9 @@ export function Catalog() {
                 {b === "programs" ? "Programs" : "Levels"}
               </button>
             ))}
+            <Link href="/levels/" className="flex items-center gap-1.5 rounded-full border border-white/25 bg-white/5 px-4 py-1.5 hover:bg-white/10">
+              <BarChart3 className="h-3.5 w-3.5" /> Levels
+            </Link>
             <Link href="/private-lessons/" className="flex items-center gap-1.5 rounded-full border border-white/25 bg-white/5 px-4 py-1.5 hover:bg-white/10">
               <GraduationCap className="h-3.5 w-3.5" /> Private Lessons
             </Link>

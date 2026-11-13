@@ -48,9 +48,9 @@ export default function LearnerDashboard() {
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold-100 text-gold-600"><Compass className="h-5 w-5" /></span>
           <div className="flex-1">
             <div className="font-bold">Find the right level for you</div>
-            <p className="text-sm text-slate-600">New to English? Start with the free A1 course. Already know some? Take the 5-minute placement test to find where you fit.</p>
+            <p className="text-sm text-slate-600">New to English? We recommend starting with the free A1 course. Already know some? Browse the levels to find where you fit.</p>
           </div>
-          <Link href="/placement/" className="hidden shrink-0 rounded-xl bg-gold-500 px-4 py-2 text-sm font-bold text-white hover:bg-gold-600 sm:block">Find my level</Link>
+          <Link href="/levels/" className="hidden shrink-0 rounded-xl bg-gold-500 px-4 py-2 text-sm font-bold text-white hover:bg-gold-600 sm:block">Browse levels</Link>
           <button onClick={() => dismiss("level")} aria-label="Dismiss" className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5" /></button>
         </div>
       )}

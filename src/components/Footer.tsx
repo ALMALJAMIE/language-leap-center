@@ -34,7 +34,7 @@ export function Footer() {
           <h3 className="mb-4 font-bold text-white">Learning</h3>
           <ul className="space-y-2.5 text-sm">
             <li><Link href="/courses/" className="hover:text-gold-300">Browse all courses</Link></li>
-            <li><Link href="/courses/?level=A1" className="hover:text-gold-300">Course levels</Link></li>
+            <li><Link href="/levels/" className="hover:text-gold-300">Course levels</Link></li>
             {Object.entries(programs).map(([id, p]) => (
               <li key={id}><Link href={`/courses/?program=${id}`} className="hover:text-gold-300">{p.name}</Link></li>
             ))}
