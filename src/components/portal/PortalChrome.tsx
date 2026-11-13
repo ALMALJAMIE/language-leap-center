@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronLeft, ExternalLink, LogIn, LogOut, Mail, Menu, Search, X } from "lucide-react";
 import mark from "@/assets/logo-mark-t.png";
 import Image from "next/image";
 import { Logo } from "@/components/Logo";
-import { startedCourses } from "@/lib/account";
 import { displayName, supabase, useAuth } from "@/lib/auth";
 import { dueCards, useMounted, useProgress } from "@/lib/store";
 import { usePortalPrefs, useUI } from "@/lib/ui";
@@ -19,13 +18,13 @@ import { site } from "@/lib/site";
 function NavLink({ item, collapsed, onNavigate }: { item: NavItem; collapsed: boolean; onNavigate: () => void }) {
   const path = usePathname();
   const mounted = useMounted();
-  const { cards, completed } = useProgress();
-  const [open, setOpen] = useState(true);
+  const { cards } = useProgress();
+  const [open, setOpen] = useState(!!item.children && !!path?.startsWith("/my-courses"));
   const base = item.href.split("?")[0].replace(/\/$/, "");
   const active = !item.external && base !== "/coming-soon" && !!path && (path === base || path.startsWith(base + "/"));
   const due = item.badge === "due" && mounted ? dueCards(cards).length : 0;
   const Icon = item.icon;
-  const started = item.expandCourses && mounted ? startedCourses(completed) : [];
+  const subs = item.children ?? [];
 
   const cls = `group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] transition ${
     active ? "bg-brand-50 font-semibold text-brand-800 after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:rounded-full after:bg-brand-700" : "text-slate-700 hover:bg-slate-50"
@@ -39,17 +38,10 @@ function NavLink({ item, collapsed, onNavigate }: { item: NavItem; collapsed: bo
       {!collapsed && item.external && item.href !== "/" && <span className="text-[10px] font-bold uppercase text-emerald-600">Online</span>}
       {!collapsed && item.href === "/" && <ExternalLink className="h-3.5 w-3.5 text-slate-400" />}
       {due > 0 && <span className={`grid h-5 min-w-5 place-items-center rounded-full bg-gold-400 px-1 text-[11px] font-bold text-brand-900 ${collapsed ? "absolute right-1 top-1" : ""}`}>{due}</span>}
-      {!collapsed && started.length > 0 && (
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            setOpen(!open);
-          }}
-          aria-label="Show my courses"
-          className="rounded p-0.5 hover:bg-slate-200"
-        >
-          <ChevronDown className={`h-4 w-4 text-slate-400 transition ${open ? "" : "-rotate-90"}`} />
-        </button>
+      {!collapsed && subs.length > 0 && (
+        <span className="rounded p-0.5">
+          <ChevronDown className={`h-4 w-4 text-slate-400 transition ${open ? "rotate-180" : ""}`} />
+        </span>
       )}
     </>
   );
@@ -60,23 +52,44 @@ function NavLink({ item, collapsed, onNavigate }: { item: NavItem; collapsed: bo
         <a href={item.href} target="_blank" rel="noopener noreferrer" className={cls} title={collapsed ? item.label : undefined}>
           {inner}
         </a>
+      ) : subs.length > 0 && !collapsed ? (
+        <button type="button" onClick={() => setOpen(!open)} className={`${cls} w-full text-left`} aria-expanded={open}>
+          {inner}
+        </button>
       ) : (
         <Link href={item.href} onClick={onNavigate} className={cls} title={collapsed ? item.label : undefined}>
           {inner}
         </Link>
       )}
-      {!collapsed && open && started.length > 0 && (
-        <ul className="ml-9 mt-1 space-y-0.5 border-l border-slate-200 pl-3">
-          {started.map((c) => (
-            <li key={c.slug}>
-              <Link href={`/courses/${c.slug}/`} onClick={onNavigate} className="block truncate rounded-lg px-2 py-1.5 text-sm text-slate-600 hover:bg-slate-50 hover:text-ink">
-                {c.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      {!collapsed && open && subs.length > 0 && <SubLinks subs={subs} onNavigate={onNavigate} />}
     </li>
+  );
+}
+
+function SubLinksInner({ subs, onNavigate }: { subs: NonNullable<NavItem["children"]>; onNavigate: () => void }) {
+  const path = usePathname();
+  const tab = useSearchParams().get("tab") ?? "all";
+  return (
+    <ul className="ml-4 mt-1 space-y-0.5">
+      {subs.map(({ label, href, icon: Icon }) => {
+        const on = path?.startsWith("/my-courses") && href.endsWith(`tab=${tab}`);
+        return (
+          <li key={href}>
+            <Link href={href} onClick={onNavigate} className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${on ? "font-semibold text-brand-800" : "text-slate-600 hover:bg-slate-50 hover:text-ink"}`}>
+              <Icon className="h-4 w-4 text-slate-500" /> {label}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function SubLinks(props: { subs: NonNullable<NavItem["children"]>; onNavigate: () => void }) {
+  return (
+    <Suspense>
+      <SubLinksInner {...props} />
+    </Suspense>
   );
 }
 

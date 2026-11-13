@@ -1,5 +1,5 @@
 import {
-  Award, BarChart3, BookOpen, BookMarked, Brain, CalendarDays, ClipboardCheck, ClipboardList, Crown, Gauge, Gift, GraduationCap, Home,
+  Award, BarChart3, CircleCheck, CirclePlay, Heart, LayoutGrid, BookOpen, BookMarked, Brain, CalendarDays, ClipboardCheck, ClipboardList, Crown, Gauge, Gift, GraduationCap, Home,
   LifeBuoy, Mail, MailOpen, MessageCircle, MessagesSquare, Presentation, Search, Settings, SlidersHorizontal, Trophy, User, UserPlus, Users,
   type LucideIcon,
 } from "lucide-react";
@@ -12,8 +12,8 @@ export interface NavItem {
   color: string;
   soon?: boolean;
   external?: boolean;
-  /** shows the learner's started courses under it */
-  expandCourses?: boolean;
+  /** sub-items shown under this item */
+  children?: { label: string; href: string; icon: LucideIcon }[];
   badge?: "due";
 }
 
@@ -23,7 +23,18 @@ export const portalNav: NavItem[][] = [
   [
     { label: "Dashboard", href: "/dashboard/", icon: Gauge, color: "text-brand-600" },
     { label: "Advanced view", href: "/advanced/", icon: SlidersHorizontal, color: "text-indigo-500" },
-    { label: "My Courses", href: "/my-courses/", icon: BookOpen, color: "text-emerald-600", expandCourses: true },
+    {
+      label: "My Courses",
+      href: "/my-courses/",
+      icon: BookOpen,
+      color: "text-emerald-600",
+      children: [
+        { label: "All Courses", href: "/my-courses/?tab=all", icon: LayoutGrid },
+        { label: "Active Courses", href: "/my-courses/?tab=active", icon: CirclePlay },
+        { label: "Completed", href: "/my-courses/?tab=completed", icon: CircleCheck },
+        { label: "Wishlist", href: "/my-courses/?tab=wishlist", icon: Heart },
+      ],
+    },
     { label: "My Classes", href: soon("classes"), icon: Presentation, color: "text-teal-600", soon: true },
     { label: "Browse Courses", href: "/courses/", icon: Search, color: "text-sky-600" },
     { label: "My Progress", href: "/progress/", icon: BarChart3, color: "text-blue-600" },

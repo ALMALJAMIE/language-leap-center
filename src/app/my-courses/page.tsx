@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Award, CheckCircle2, Heart, Play } from "lucide-react";
 import { courses, levels } from "@/data/courses";
 import { CourseCover } from "@/components/CourseCard";
@@ -9,23 +10,30 @@ import { AccountShell } from "@/components/account/AccountShell";
 import { courseProgress, startedCourses } from "@/lib/account";
 import { useMounted, useProgress } from "@/lib/store";
 
-type Tab = "progress" | "completed" | "wishlist";
+type Tab = "all" | "active" | "completed" | "wishlist";
+const TABS: Tab[] = ["all", "active", "completed", "wishlist"];
 
-export default function MyCourses() {
+function MyCoursesInner() {
   const mounted = useMounted();
   const { completed, wishlist, toggleWish } = useProgress();
-  const [tab, setTab] = useState<Tab>("progress");
+  const router = useRouter();
+  const q = useSearchParams().get("tab") as Tab | null;
+  const tab: Tab = q && TABS.includes(q) ? q : "all";
+  const setTab = (t: Tab) => router.replace(`/my-courses/?tab=${t}`, { scroll: false });
 
   if (!mounted) return <AccountShell title="My Courses"><div className="min-h-[50vh]" /></AccountShell>;
 
   const started = startedCourses(completed).map((c) => ({ c, pr: courseProgress(c, completed) }));
+  const wished = courses.filter((c) => wishlist.includes(c.slug)).map((c) => ({ c, pr: courseProgress(c, completed) }));
   const lists: Record<Tab, typeof started> = {
-    progress: started.filter((x) => !x.pr.allPublishedDone),
+    all: [...started, ...wished.filter((w) => !started.some((s) => s.c.slug === w.c.slug))],
+    active: started.filter((x) => !x.pr.allPublishedDone),
     completed: started.filter((x) => x.pr.allPublishedDone),
-    wishlist: courses.filter((c) => wishlist.includes(c.slug)).map((c) => ({ c, pr: courseProgress(c, completed) })),
+    wishlist: wished,
   };
   const tabs: { id: Tab; label: string }[] = [
-    { id: "progress", label: "In progress" },
+    { id: "all", label: "All Courses" },
+    { id: "active", label: "Active Courses" },
     { id: "completed", label: "Completed" },
     { id: "wishlist", label: "Wishlist" },
   ];
@@ -48,7 +56,7 @@ export default function MyCourses() {
       {list.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-slate-200 p-10 text-center">
           <p className="text-slate-500">
-            {tab === "wishlist" ? "Tap the ♡ on any course to save it here." : tab === "completed" ? "Finished courses will appear here." : "You haven't started a course yet."}
+            {tab === "wishlist" ? "Tap the ♡ on any course to save it here." : tab === "completed" ? "Finished courses will appear here." : tab === "active" ? "You have no courses in progress." : "You haven't started or saved a course yet."}
           </p>
           <Link href="/courses/" className="btn-primary mt-5 inline-block px-6 py-3">Browse courses</Link>
         </div>
@@ -70,7 +78,7 @@ export default function MyCourses() {
                 </div>
               </div>
               <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3">
-                {tab === "wishlist" ? (
+                {tab === "wishlist" || (tab === "all" && pr.done === 0) ? (
                   <button onClick={() => toggleWish(c.slug)} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-red-500">
                     <Heart className="h-4 w-4 fill-red-500 text-red-500" /> Remove
                   </button>
@@ -92,5 +100,13 @@ export default function MyCourses() {
         </div>
       )}
     </AccountShell>
+  );
+}
+
+export default function MyCourses() {
+  return (
+    <Suspense>
+      <MyCoursesInner />
+    </Suspense>
   );
 }
