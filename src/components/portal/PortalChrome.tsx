@@ -8,10 +8,11 @@ import mark from "@/assets/logo-mark-t.png";
 import Image from "next/image";
 import { Logo } from "@/components/Logo";
 import { startedCourses } from "@/lib/account";
-import { displayName, initials, supabase, useAuth } from "@/lib/auth";
+import { displayName, supabase, useAuth } from "@/lib/auth";
 import { dueCards, useMounted, useProgress } from "@/lib/store";
 import { usePortalPrefs, useUI } from "@/lib/ui";
 import { NotificationBell } from "./Notifications";
+import { UserAvatar } from "@/components/account/UserAvatar";
 import { portalNav, type NavItem } from "./nav";
 import { site } from "@/lib/site";
 
@@ -115,7 +116,7 @@ function UserBlock() {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen(!open)} className="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-slate-50">
-        <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 text-sm font-bold text-white ring-2 ring-gold-300">{initials(name)}</span>
+        <UserAvatar name={name} />
         <span className="hidden text-left sm:block">
           <span className="block max-w-[160px] truncate text-sm font-semibold text-ink">{name}</span>
           <span className="block text-xs text-slate-500">Learner</span>
@@ -127,6 +128,7 @@ function UserBlock() {
           <div className="border-b border-slate-100 px-4 pb-2 pt-1 text-xs text-slate-500">{user.email}</div>
           {[
             ["My Profile", "/profile/"],
+            ["Complete your profile", "/advanced/"],
             ["Settings", "/settings/"],
             ["Main Website", "/"],
           ].map(([l, h]) => (

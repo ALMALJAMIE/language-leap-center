@@ -6,6 +6,7 @@ import { courseLessons, courses, levels } from "@/data/courses";
 import { CourseCover } from "@/components/CourseCard";
 import { dueCards, todayKey, useMounted, useProgress } from "@/lib/store";
 import { AccountShell } from "@/components/account/AccountShell";
+import { Analytics } from "@/components/account/Analytics";
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -179,6 +180,7 @@ export default function ProgressPage() {
         </div>
       </div>
 
+      <Analytics />
     </AccountShell>
   );
 }

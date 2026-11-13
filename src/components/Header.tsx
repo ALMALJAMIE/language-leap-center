@@ -7,7 +7,8 @@ import { ChevronDown, Flame, LogOut, Menu, Search, X, Zap } from "lucide-react";
 import { Logo } from "./Logo";
 import { ArabicToggle } from "./ArabicToggle";
 import { dueCards, useMounted, useProgress } from "@/lib/store";
-import { displayName, initials, supabase, useAuth } from "@/lib/auth";
+import { displayName, supabase, useAuth } from "@/lib/auth";
+import { UserAvatar } from "./account/UserAvatar";
 import { useUI } from "@/lib/ui";
 import { accountNav } from "./account/accountNav";
 
@@ -33,7 +34,7 @@ function UserMenu() {
   return (
     <div ref={ref} className="relative">
       <button onClick={() => setOpen(!open)} className="flex items-center gap-2 rounded-xl py-1 pl-1 pr-2 transition hover:bg-slate-50" aria-haspopup="menu" aria-expanded={open}>
-        <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 text-xs font-bold text-white ring-2 ring-gold-300">{initials(name)}</span>
+        <UserAvatar name={name} className="h-9 w-9 text-xs" />
         <span className="hidden max-w-[140px] truncate text-sm font-semibold text-ink md:block">{name}</span>
         <ChevronDown className={`h-4 w-4 text-slate-400 transition ${open ? "rotate-180" : ""}`} />
       </button>
