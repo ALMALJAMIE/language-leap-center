@@ -221,7 +221,7 @@ export default function LevelsPage() {
               <span className="flex-1"><b className="block">Browse by Program</b><span className="text-sm text-slate-500">General, Kids, Conversation, Business, IELTS</span></span>
               <ArrowRight className="h-5 w-5 text-slate-400" />
             </Link>
-            <Link href="/private-lessons/" className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-md">
+            <Link href="/instructors/" className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-md">
               <span className="grid h-11 w-11 place-items-center rounded-xl bg-gold-50 text-gold-600"><GraduationCap className="h-5 w-5" /></span>
               <span className="flex-1"><b className="block">Private Lessons</b><span className="text-sm text-slate-500">Practise 1-on-1 with a teacher</span></span>
               <ArrowRight className="h-5 w-5 text-slate-400" />

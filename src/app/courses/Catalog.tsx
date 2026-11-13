@@ -204,7 +204,7 @@ function CatalogView({ params }: { params: { get(name: string): string | null } 
             <Link href="/levels/" className="flex items-center gap-1.5 rounded-full border border-white/25 bg-white/5 px-4 py-1.5 hover:bg-white/10">
               <BarChart3 className="h-3.5 w-3.5" /> Levels
             </Link>
-            <Link href="/private-lessons/" className="flex items-center gap-1.5 rounded-full border border-white/25 bg-white/5 px-4 py-1.5 hover:bg-white/10">
+            <Link href="/instructors/" className="flex items-center gap-1.5 rounded-full border border-white/25 bg-white/5 px-4 py-1.5 hover:bg-white/10">
               <GraduationCap className="h-3.5 w-3.5" /> Private Lessons
             </Link>
           </div>

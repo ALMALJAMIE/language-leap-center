@@ -45,6 +45,7 @@ const pages: Item[] = [
     kind: "page",
   },
   { href: "/levels/", title: "Levels", sub: "All skill levels, A1 to C1", kind: "page" },
+  { href: "/instructors/", title: "Instructors", sub: "Our teachers and private lessons", kind: "page" },
   { href: "/my-courses/", title: "My courses", sub: "Courses you started", kind: "page" },
   { href: "/certificates/", title: "Certificates", sub: "Your earned certificates", kind: "page" },
   { href: "/progress/", title: "Progress", sub: "XP, streak and badges", kind: "page" },

@@ -209,7 +209,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                   <p className="leading-7 text-slate-700">
                     Our courses are written by the Language Leap Center teaching team for Arabic-speaking learners. Lessons explain only what you need, use real everyday English, and give you plenty of listening and speaking practice. Need a person? Book a private lesson or message us on WhatsApp.
                   </p>
-                  <Link href="/private-lessons/" className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm"><GraduationCap className="h-4 w-4" /> Book a private lesson</Link>
+                  <Link href={`/instructors/?specialty=${course.program}`} className="btn-primary inline-flex items-center gap-2 px-5 py-2.5 text-sm"><GraduationCap className="h-4 w-4" /> Book a private lesson</Link>
                 </div>
               )}
 
@@ -269,7 +269,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                   </div>
                 )}
 
-                <Link href="/private-lessons/" className="block rounded-2xl border border-gold-200 bg-gold-50/60 p-4 transition hover:border-gold-300">
+                <Link href={`/instructors/?specialty=${course.program}`} className="block rounded-2xl border border-gold-200 bg-gold-50/60 p-4 transition hover:border-gold-300">
                   <div className="flex items-center gap-1.5 text-sm font-bold text-gold-700"><GraduationCap className="h-4 w-4" /> Add live 1-on-1 lessons</div>
                   <p className="mt-1 text-xs text-slate-600">Practise this course with a teacher — 30, 60 or 90 minutes.</p>
                 </Link>

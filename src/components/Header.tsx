@@ -83,7 +83,7 @@ export function Header() {
 
   const hidden = path?.startsWith("/learn/"); // the lesson player is full screen
   const active = (href: string) =>
-    href === "/" ? path === "/" : href === "/courses/" ? !!path?.startsWith("/courses") || !!path?.startsWith("/levels") : path?.startsWith(href.replace(/\/$/, ""));
+    href === "/" ? path === "/" : href === "/courses/" ? !!path?.startsWith("/courses") || !!path?.startsWith("/levels") || !!path?.startsWith("/instructors") : path?.startsWith(href.replace(/\/$/, ""));
 
   return (
     <>

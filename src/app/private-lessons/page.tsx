@@ -1,6 +1,11 @@
 "use client";
 
-import { Check, Clock } from "lucide-react";
+import Link from "next/link";
+import { Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import { Check, Clock, Users } from "lucide-react";
+import { getInstructor } from "@/data/instructors";
+import { InstructorAvatar } from "@/components/Instructors";
 import { AccountShell } from "@/components/account/AccountShell";
 import { WhatsAppIcon } from "@/components/BrandIcons";
 import { displayName, useAuth } from "@/lib/auth";
@@ -16,12 +21,18 @@ export default function PrivateLessons() {
   const user = useAuth((s) => s.user);
   const book = (mins: number) => {
     const name = displayName(user);
-    const text = `Hello Language Leap Center! I'd like to book a ${mins}-minute private English lesson.${name ? ` My name is ${name}.` : ""}${user?.email ? ` Email: ${user.email}.` : ""}`;
+    const teacher = getInstructor(new URLSearchParams(window.location.search).get("teacher") ?? "");
+    const text = `Hello Language Leap Center! I'd like to book a ${mins}-minute private English lesson${teacher ? ` with ${teacher.name}` : ""}.${name ? ` My name is ${name}.` : ""}${user?.email ? ` Email: ${user.email}.` : ""}`;
     window.open(`${site.whatsapp}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
   };
 
   return (
-    <AccountShell title="Private Lessons" subtitle="Practise 1-on-1 with a teacher — no course needed">
+    <AccountShell
+      title="Private Lessons"
+      subtitle="Practise 1-on-1 with a teacher — no course needed"
+      actions={<Link href="/instructors/" className="flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 py-2 text-sm font-bold hover:border-brand-400"><Users className="h-4 w-4" /> Our Instructors</Link>}
+    >
+      <Suspense><Teacher /></Suspense>
       <div className="grid gap-5 md:grid-cols-3">
         {options.map((o, i) => (
           <div key={o.mins} className={`flex flex-col rounded-3xl border p-6 ${i === 1 ? "border-brand-300 bg-gradient-to-b from-brand-50 to-white shadow-lg" : "border-slate-200 bg-white"}`}>
@@ -46,5 +57,20 @@ export default function PrivateLessons() {
         </ul>
       </div>
     </AccountShell>
+  );
+}
+
+function Teacher() {
+  const t = getInstructor(useSearchParams().get("teacher") ?? "");
+  if (!t) return null;
+  return (
+    <div className="mb-6 flex items-center gap-4 rounded-2xl border border-brand-100 bg-brand-50/50 p-4">
+      <div className="origin-left scale-50 -mr-14 -my-7"><InstructorAvatar t={t} /></div>
+      <div className="flex-1">
+        <div className="text-xs font-bold uppercase tracking-wide text-slate-500">Booking with</div>
+        <div className="font-bold text-ink">{t.name}</div>
+      </div>
+      <Link href={`/instructors/profile/?id=${t.slug}`} className="text-sm font-semibold text-brand-700 hover:underline">View profile</Link>
+    </div>
   );
 }
