@@ -160,6 +160,17 @@ export default function LevelsPage() {
                   <h3 className="mt-3 text-lg font-bold text-ink">{l.title}</h3>
                   <p className="text-xs font-semibold text-slate-400">{programs[l.program].icon} {programs[l.program].name}</p>
                   <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{l.topics}</p>
+                  <ul className="mt-4 space-y-1.5">
+                    {l.courses.map((course) => (
+                      <li key={course.slug}>
+                        <Link href={`/courses/${course.slug}/`} className="relative z-10 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm font-semibold text-ink transition hover:bg-brand-50 hover:text-brand-700">
+                          <span>{course.cover.icon}</span>
+                          <span className="flex-1 truncate">{course.title}</span>
+                          <ChevronRight className="h-4 w-4 text-slate-400" />
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                   <div className="mt-5">
                     <div className="flex justify-between text-[11px] font-bold uppercase tracking-wide text-slate-500">
                       <span>Difficulty</span>
@@ -172,7 +183,7 @@ export default function LevelsPage() {
                 </div>
                 <div className="relative flex items-center justify-between border-t border-slate-100 px-6 py-3.5 text-sm">
                   <span className="flex items-center gap-1.5 text-slate-500"><BookOpen className="h-4 w-4" /> <b className="text-ink">{l.courses.length}</b> {l.courses.length === 1 ? "course" : "courses"}</span>
-                  <Link href={`/courses/?program=${l.program}&level=${l.level}`} className={`flex items-center gap-1 font-bold ${c.text}`}>
+                  <Link href={`/courses/?program=${l.program}&level=${l.level}#results`} className={`flex items-center gap-1 font-bold ${c.text}`}>
                     Explore <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>

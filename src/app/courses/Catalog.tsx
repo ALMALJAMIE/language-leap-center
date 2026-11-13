@@ -62,6 +62,11 @@ function FilterChip({ children, onRemove }: { children: React.ReactNode; onRemov
 
 export function Catalog() {
   const params = useSearchParams();
+  // remount when the query changes (e.g. footer/levels links while already on this page)
+  return <CatalogView key={params.toString()} params={params} />;
+}
+
+function CatalogView({ params }: { params: { get(name: string): string | null } }) {
   const p0 = params.get("program") as ProgramId | null;
   const l0 = params.get("level") as Level | null;
 

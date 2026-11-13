@@ -82,7 +82,8 @@ export function Header() {
   const due = mounted ? dueCards(cards).length : 0;
 
   const hidden = path?.startsWith("/learn/"); // the lesson player is full screen
-  const active = (href: string) => (href === "/" ? path === "/" : path?.startsWith(href.replace(/\/$/, "")));
+  const active = (href: string) =>
+    href === "/" ? path === "/" : href === "/courses/" ? !!path?.startsWith("/courses") || !!path?.startsWith("/levels") : path?.startsWith(href.replace(/\/$/, ""));
 
   return (
     <>
