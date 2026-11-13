@@ -7,7 +7,7 @@ import { programs } from "@/data/courses";
 
 export function Footer() {
   const path = usePathname();
-  if (path?.startsWith("/learn/")) return null;
+  if (path?.startsWith("/learn/") || path?.startsWith("/verify-email")) return null;
 
   return (
     <footer className="brand-gradient mt-24 text-brand-100">

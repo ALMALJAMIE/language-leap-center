@@ -7,7 +7,7 @@ import { InstagramIcon, SnapchatIcon, WhatsAppIcon } from "./BrandIcons";
 
 export function TopBar() {
   const path = usePathname();
-  if (path?.startsWith("/learn/")) return null;
+  if (path?.startsWith("/learn/") || path?.startsWith("/verify-email")) return null;
 
   return (
     <div className="bg-brand-900 text-[13px] text-brand-100">

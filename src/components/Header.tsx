@@ -79,7 +79,7 @@ export function Header() {
     return () => window.removeEventListener("keydown", h);
   }, []);
 
-  const hidden = path?.startsWith("/learn/"); // the lesson player is full screen
+  const hidden = path?.startsWith("/learn/") || path?.startsWith("/verify-email"); // full-screen pages
   const active = (href: string) => (href === "/" ? path === "/" : path?.startsWith(href.replace(/\/$/, "")));
 
   return (
