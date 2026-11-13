@@ -6,10 +6,12 @@ import { motion, AnimatePresence } from "motion/react";
 import { Headset, LifeBuoy, Mail, MessagesSquare, Phone, X } from "lucide-react";
 import { site } from "@/lib/site";
 import { WhatsAppIcon } from "./BrandIcons";
+import { useChatUI } from "@/lib/chat";
 
 /** Support + chat buttons fixed at the bottom-right of every page */
 export function FloatingHelp() {
   const [open, setOpen] = useState(false);
+  const openChat = useChatUI((s) => s.setOpen);
   return (
     <div className="no-print fixed bottom-5 right-5 z-40 flex flex-col items-end gap-3">
       <AnimatePresence>
@@ -57,15 +59,16 @@ export function FloatingHelp() {
       >
         {open ? <X className="h-6 w-6" /> : <Headset className="h-6 w-6" />}
       </button>
-      <a
-        href={site.whatsapp}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label="Chat with us on WhatsApp"
-        className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-brand-700 to-brand-950 text-white shadow-lg shadow-brand-900/30 transition hover:scale-105"
+      <button
+        onClick={() => {
+          setOpen(false);
+          openChat(true);
+        }}
+        aria-label="Chat with our team"
+        className="relative grid h-14 w-14 place-items-center rounded-full bg-[linear-gradient(135deg,#0b326d,#061a37_60%,#845b13)] text-white shadow-lg shadow-brand-900/30 transition hover:scale-105"
       >
         <MessagesSquare className="h-6 w-6" />
-      </a>
+      </button>
     </div>
   );
 }

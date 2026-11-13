@@ -12,6 +12,7 @@ import { dueCards, useMounted, useProgress } from "@/lib/store";
 import { usePortalPrefs, useUI } from "@/lib/ui";
 import { NotificationBell } from "./Notifications";
 import { UserAvatar } from "@/components/account/UserAvatar";
+import { useChatUI, useIsStaff } from "@/lib/chat";
 import { portalNav, type NavItem } from "./nav";
 import { site } from "@/lib/site";
 
@@ -19,6 +20,7 @@ function NavLink({ item, collapsed, onNavigate }: { item: NavItem; collapsed: bo
   const path = usePathname();
   const mounted = useMounted();
   const { cards } = useProgress();
+  const openChat = useChatUI((s) => s.setOpen);
   const [open, setOpen] = useState(!!item.children && !!path?.startsWith("/my-courses"));
   const base = item.href.split("?")[0].replace(/\/$/, "");
   const active = !item.external && base !== "/coming-soon" && !!path && (path === base || path.startsWith(base + "/"));
@@ -45,6 +47,15 @@ function NavLink({ item, collapsed, onNavigate }: { item: NavItem; collapsed: bo
       )}
     </>
   );
+
+  if (item.action === "chat")
+    return (
+      <li>
+        <button type="button" onClick={() => { onNavigate(); openChat(true); }} className={`${cls} w-full text-left`} title={collapsed ? item.label : undefined}>
+          {inner}
+        </button>
+      </li>
+    );
 
   return (
     <li>
@@ -109,6 +120,7 @@ function Sidebar({ collapsed, onNavigate }: { collapsed: boolean; onNavigate: ()
 
 function UserBlock() {
   const { user, ready, openModal } = useAuth();
+  const isStaff = useIsStaff();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -140,6 +152,7 @@ function UserBlock() {
         <div className="absolute right-0 top-14 z-50 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-xl">
           <div className="border-b border-slate-100 px-4 pb-2 pt-1 text-xs text-slate-500">{user.email}</div>
           {[
+            ...(isStaff ? [["Support Inbox", "/admin/inbox/"]] : []),
             ["My Profile", "/profile/"],
             ["Complete your profile", "/advanced/"],
             ["Settings", "/settings/"],
@@ -164,6 +177,7 @@ export function PortalChrome({ children }: { children: React.ReactNode }) {
   const { collapsed: collapsedPref, toggleCollapsed } = usePortalPrefs();
   const collapsed = mounted && collapsedPref;
   const { drawer, setDrawer, setSearch } = useUI();
+  const openChatTop = useChatUI((s) => s.setOpen);
 
   return (
     <div className="min-h-screen bg-slate-50/60">
@@ -213,9 +227,9 @@ export function PortalChrome({ children }: { children: React.ReactNode }) {
           </div>
           <div className="flex items-center gap-1 sm:gap-3">
             <NotificationBell />
-            <Link href="/coming-soon/?f=messages" aria-label="Messages" className="grid h-10 w-10 place-items-center rounded-xl text-slate-600 hover:bg-slate-100">
+            <button onClick={() => openChatTop(true)} aria-label="Messages" className="grid h-10 w-10 place-items-center rounded-xl text-slate-600 hover:bg-slate-100">
               <Mail className="h-5 w-5" />
-            </Link>
+            </button>
             <UserBlock />
           </div>
         </header>

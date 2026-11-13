@@ -9,6 +9,7 @@ import { SearchPalette } from "./SearchPalette";
 import { AuthModal } from "./auth/AuthModal";
 import { PortalChrome } from "./portal/PortalChrome";
 import { FloatingHelp } from "./FloatingHelp";
+import { ChatPanel } from "./chat/ChatPanel";
 import { startAuth } from "@/lib/auth";
 import { isPortal, useUI } from "@/lib/ui";
 
@@ -46,6 +47,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       {!lesson && <FloatingHelp />}
       <SearchPalette open={searchOpen} onClose={() => setSearch(false)} />
       <AuthModal />
+      <ChatPanel />
     </>
   );
 }

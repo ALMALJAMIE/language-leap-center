@@ -9,7 +9,10 @@ export const supabase = createClient(supabaseConfig.url, supabaseConfig.key, {
 });
 
 interface AuthState {
+  /** signed-in learner (null for visitors, including anonymous chat sessions) */
   user: User | null;
+  /** id of whoever is signed in, including an anonymous chat visitor */
+  sessionUserId: string | null;
   ready: boolean;
   modal: null | "signin" | "forgot";
   openModal: (m: AuthState["modal"]) => void;
@@ -18,10 +21,11 @@ interface AuthState {
 
 export const useAuth = create<AuthState>()((set) => ({
   user: null,
+  sessionUserId: null,
   ready: false,
   modal: null,
   openModal: (modal) => set({ modal }),
-  setSession: (s) => set({ user: s?.user ?? null, ready: true }),
+  setSession: (s) => set({ user: s?.user && !s.user.is_anonymous ? s.user : null, sessionUserId: s?.user?.id ?? null, ready: true }),
 }));
 
 let started = false;
@@ -41,7 +45,8 @@ export function startAuth() {
   const apply = (session: Session | null) => {
     useAuth.getState().setSession(session);
     // load lazily to keep the auth module small
-    import("./sync").then((m) => m.onUserChange(session?.user ?? null));
+    const real = session?.user && !session.user.is_anonymous ? session.user : null;
+    import("./sync").then((m) => m.onUserChange(real));
   };
   supabase.auth.getSession().then(({ data }) => apply(data.session));
   supabase.auth.onAuthStateChange((_e, session) => apply(session));

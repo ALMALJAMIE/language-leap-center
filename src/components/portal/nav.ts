@@ -3,7 +3,6 @@ import {
   LifeBuoy, Mail, MailOpen, MessageCircle, MessagesSquare, Presentation, Search, Settings, SlidersHorizontal, Trophy, User, UserPlus, Users,
   type LucideIcon,
 } from "lucide-react";
-import { site } from "@/lib/site";
 
 export interface NavItem {
   label: string;
@@ -15,6 +14,8 @@ export interface NavItem {
   /** sub-items shown under this item */
   children?: { label: string; href: string; icon: LucideIcon }[];
   badge?: "due";
+  /** opens the chat panel instead of navigating */
+  action?: "chat";
 }
 
 const soon = (key: string) => `/coming-soon/?f=${key}`;
@@ -42,8 +43,8 @@ export const portalNav: NavItem[][] = [
     { label: "Daily Review", href: "/review/", icon: Brain, color: "text-violet-600", badge: "due" },
     { label: "Assignments", href: soon("assignments"), icon: ClipboardList, color: "text-orange-500", soon: true },
     { label: "Certificates", href: "/certificates/", icon: Award, color: "text-gold-500" },
-    { label: "Messages", href: soon("messages"), icon: Mail, color: "text-blue-500", soon: true },
-    { label: "Live Chat", href: site.whatsapp, icon: MessagesSquare, color: "text-cyan-600", external: true },
+    { label: "Messages", href: "#messages", icon: Mail, color: "text-blue-500", action: "chat" },
+    { label: "Live Chat", href: "#chat", icon: MessagesSquare, color: "text-cyan-600", action: "chat" },
     { label: "Schedule", href: soon("schedule"), icon: CalendarDays, color: "text-amber-600", soon: true },
     { label: "Private Lessons", href: "/private-lessons/", icon: GraduationCap, color: "text-pink-600" },
   ],
