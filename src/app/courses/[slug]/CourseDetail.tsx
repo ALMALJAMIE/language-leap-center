@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import {
-  ArrowRight, Award, BarChart3, LayoutGrid, BookOpen, Calendar, Check, ChevronDown, ChevronRight, Clock, GraduationCap, Headphones, Heart, Link2, Lock, Mic,
+  ArrowRight, Award, BarChart3, LayoutGrid, ShoppingCart, BookOpen, Calendar, Check, ChevronDown, ChevronRight, Clock, GraduationCap, Headphones, Heart, Link2, Lock, Mic,
   PenLine, Play, PlayCircle, Sparkles, Star, Target, Users, BadgeCheck,
 } from "lucide-react";
 import mark from "@/assets/logo-mark-t.png";
@@ -13,6 +13,8 @@ import { CourseCard, CourseCover } from "@/components/CourseCard";
 import { FacebookIcon, WhatsAppIcon } from "@/components/BrandIcons";
 import { useMounted, useProgress } from "@/lib/store";
 import { siteUrl } from "@/lib/auth";
+import { payments } from "@/lib/site";
+import { useCourseAccess } from "@/lib/enrollments";
 import type { Course, Level } from "@/lib/types";
 
 const skillIcon: Record<string, React.ReactNode> = {
@@ -52,6 +54,8 @@ export function CourseDetail({ slug }: { slug: string }) {
   const nextLesson = lessons.find((l) => !isDone(l.id)) ?? lessons[0];
   const doneCount = lessons.filter((l) => isDone(l.id)).length;
   const available = isAvailable(course);
+  const access = useCourseAccess(course);
+  const locked = access !== "open";
   const totalWords = lessons.reduce((n, l) => n + l.words.length, 0);
   const upcoming = course.modules.reduce((n, m) => n + (m.upcoming?.length ?? 0), 0);
   const wished = mounted && wishlist.includes(slug);
@@ -175,13 +179,13 @@ export function CourseDetail({ slug }: { slug: string }) {
                           const done = isDone(l.id);
                           return (
                             <li key={l.id}>
-                              <Link href={`/learn/${slug}/${l.id}/`} className="flex items-center gap-4 px-6 py-4 transition hover:bg-brand-50/50">
+                              <Link href={locked ? `/checkout/?course=${slug}` : `/learn/${slug}/${l.id}/`} className="flex items-center gap-4 px-6 py-4 transition hover:bg-brand-50/50">
                                 <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold ${done ? "bg-emerald-500 text-white" : "bg-brand-100 text-brand-700"}`}>
                                   {done ? <Check className="h-5 w-5" /> : globalIndex}
                                 </span>
                                 <div className="flex-1 font-semibold">{l.title}</div>
                                 <span className="hidden text-xs text-slate-500 sm:block">{l.words.length} words · {l.minutes} min</span>
-                                <Play className="h-4 w-4 text-brand-500" />
+                                {locked ? <Lock className="h-4 w-4 text-slate-400" /> : <Play className="h-4 w-4 text-brand-500" />}
                               </Link>
                             </li>
                           );
@@ -230,7 +234,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                     <span className={`text-2xl font-extrabold ${course.price === 0 ? "text-emerald-600" : "text-ink"}`}>{formatPrice(course.price)}</span>
                   </div>
                   <p className="mt-2 text-xs text-slate-500">
-                    {course.price === 0 ? "Free forever — no card needed" : "One-time price · published lessons are free to try during launch"}
+                    {course.price === 0 ? "Free forever — no card needed" : `One-time payment · ${payments.accessMonths} months access`}
                   </p>
                 </div>
 
@@ -242,10 +246,21 @@ export function CourseDetail({ slug }: { slug: string }) {
                         <p className="mt-1 text-xs text-slate-500">{doneCount} of {lessons.length} lessons completed</p>
                       </div>
                     )}
-                    <Link href={`/learn/${slug}/${nextLesson.id}/`} className="btn-primary flex w-full items-center justify-center gap-2 py-3.5 text-base">
-                      <Play className="h-5 w-5 fill-white" />
-                      {doneCount === 0 ? "Start Learning" : doneCount === lessons.length ? "Review the course" : "Continue Learning"}
-                    </Link>
+                    {course.price > 0 && access === "open" && (
+                      <p className="flex items-center justify-center gap-1.5 rounded-xl bg-emerald-50 py-2 text-sm font-bold text-emerald-700"><Check className="h-4 w-4" /> You&apos;re enrolled</p>
+                    )}
+                    {locked && (
+                      <Link href={`/checkout/?course=${slug}`} className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-950 py-3.5 text-base font-bold text-white shadow-lg transition hover:bg-brand-800">
+                        <ShoppingCart className="h-5 w-5" /> Enroll Now — {formatPrice(course.price)}
+                      </Link>
+                    )}
+                    {!locked && (
+                      <Link href={`/learn/${slug}/${nextLesson.id}/`} className="btn-primary flex w-full items-center justify-center gap-2 py-3.5 text-base">
+                        <Play className="h-5 w-5 fill-white" />
+                        {doneCount === 0 ? "Start Learning" : doneCount === lessons.length ? "Review the course" : "Continue Learning"}
+                      </Link>
+                    )}
+                    {locked && <p className="text-center text-xs text-slate-500">Lessons open as soon as your enrollment is confirmed.</p>}
                   </>
                 ) : (
                   <div className="rounded-2xl bg-mist p-4 text-center text-sm text-slate-600">

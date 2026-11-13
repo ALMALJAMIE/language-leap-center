@@ -86,6 +86,7 @@ async function push(userId: string) {
 export async function onUserChange(user: User | null) {
   if (user?.id === currentUser) return;
   import("./profile").then((m) => m.loadProfile(user?.id ?? null));
+  import("./enrollments").then((m) => m.loadEnrollments(user?.id ?? null));
   unsub?.();
   unsub = null;
 

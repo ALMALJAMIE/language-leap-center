@@ -103,7 +103,7 @@ export function CourseCard({ course }: { course: Course }) {
           </span>
           {available ? (
             <Link href={`/courses/${course.slug}/`} className="whitespace-nowrap text-sm font-bold text-brand-600 hover:text-brand-800">
-              {done > 0 ? "Continue →" : "Start course →"}
+              {done > 0 ? "Continue →" : course.price > 0 ? "View course →" : "Start course →"}
             </Link>
           ) : (
             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">Coming soon</span>

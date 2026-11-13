@@ -51,6 +51,7 @@ export const portalRoutes = [
   "/refer",
   "/help",
   "/coming-soon",
+  "/checkout",
 ];
 
 export const isPortal = (path: string | null) => !!path && portalRoutes.some((r) => path === r || path.startsWith(r + "/"));

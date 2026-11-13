@@ -23,3 +23,22 @@ export const oauthEnabled = {
 };
 
 export const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+/**
+ * Payments
+ * - links: paste a payment link per course (Stripe / Xendit / Billplz / ToyyibPay…).
+ *   If a course has no link yet, "Complete Enrollment" sends the order to WhatsApp instead.
+ * - addOns and coupons are examples: change names, prices and codes freely.
+ */
+export const payments = {
+  currency: "USD",
+  accessMonths: 12,
+  links: {} as Record<string, string>,
+  addOns: [
+    { id: "live30", title: "Live Speaking Session (30 min)", desc: "One 1-on-1 video session with a teacher to practise this course's speaking topics.", price: 15 },
+    { id: "writing", title: "Teacher-Reviewed Writing Task", desc: "Submit one writing task and get personal written feedback from a teacher.", price: 10 },
+  ],
+  coupons: {
+    WELCOME10: { percent: 10, label: "Welcome discount — 10% off" },
+  } as Record<string, { percent: number; label: string }>,
+};
