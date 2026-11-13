@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Flame, LogOut, Menu, Search, X, Zap } from "lucide-react";
+import { ChevronDown, Flame, LogOut, Menu, Search, ShieldCheck, X, Zap } from "lucide-react";
 import { Logo } from "./Logo";
 import { ArabicToggle } from "./ArabicToggle";
 import { dueCards, useMounted, useProgress } from "@/lib/store";
@@ -11,6 +11,7 @@ import { displayName, supabase, useAuth } from "@/lib/auth";
 import { UserAvatar } from "./account/UserAvatar";
 import { useUI } from "@/lib/ui";
 import { accountNav } from "./account/accountNav";
+import { useRole } from "@/lib/roles";
 
 const nav = [
   { href: "/", label: "Home" },
@@ -30,6 +31,7 @@ function UserMenu() {
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
+  const role = useRole((s) => s.role);
   const name = displayName(user);
   return (
     <div ref={ref} className="relative">
@@ -44,7 +46,7 @@ function UserMenu() {
             <div className="truncate font-bold">{name}</div>
             <div className="truncate text-xs text-slate-500">{user?.email}</div>
           </div>
-          {accountNav.map(({ href, label, icon: Icon }) => (
+          {[...(role ? [{ href: "/staff/", label: "Team Workspace", icon: ShieldCheck }] : []), ...accountNav].map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}

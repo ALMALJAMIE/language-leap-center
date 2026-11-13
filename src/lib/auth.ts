@@ -47,6 +47,7 @@ export function startAuth() {
     // load lazily to keep the auth module small
     const real = session?.user && !session.user.is_anonymous ? session.user : null;
     import("./sync").then((m) => m.onUserChange(real));
+    import("./roles").then((m) => m.loadRole(real?.id ?? null));
   };
   supabase.auth.getSession().then(({ data }) => apply(data.session));
   supabase.auth.onAuthStateChange((_e, session) => apply(session));

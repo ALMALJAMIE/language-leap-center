@@ -104,11 +104,16 @@ function SignIn({ close, toForgot }: { close: () => void; toForgot: () => void }
     setBusy(true);
     setMsg(null);
     setRemember(remember);
-    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+    if (error) {
+      setBusy(false);
+      return setMsg({ text: authError(error.message) });
+    }
+    // team members open their workspace, learners their dashboard
+    const { data: staff } = await supabase.from("staff").select("user_id").eq("user_id", data.user.id).maybeSingle();
     setBusy(false);
-    if (error) return setMsg({ text: authError(error.message) });
     close();
-    router.push("/dashboard/");
+    router.push(staff ? "/staff/" : "/dashboard/");
   };
 
   return (

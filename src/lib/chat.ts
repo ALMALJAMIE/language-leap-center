@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { create } from "zustand";
+import { useRole } from "./roles";
 import { displayName, supabase, useAuth } from "./auth";
 
 export interface Conversation {
@@ -161,23 +162,11 @@ export function useMessages(conversationId: string | null) {
 }
 
 /** Is the current user on the support team? */
+/** true for team members who answer the support inbox (support + admin) */
 export function useIsStaff() {
   const user = useAuth((s) => s.user);
-  const [staff, setStaff] = useState(false);
-  useEffect(() => {
-    if (!user) return;
-    let alive = true;
-    supabase
-      .from("staff")
-      .select("user_id")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => alive && setStaff(!!data));
-    return () => {
-      alive = false;
-    };
-  }, [user]);
-  return !!user && staff;
+  const role = useRole((s) => s.role);
+  return !!user && (role === "admin" || role === "support");
 }
 
 export const chatName = (u: ReturnType<typeof useAuth.getState>["user"]) => displayName(u);

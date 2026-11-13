@@ -1,33 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, Headset, Inbox, Loader2, RotateCcw, ShieldAlert } from "lucide-react";
-import { supabase, useAuth } from "@/lib/auth";
-import { isUnread, useConversations, useIsStaff } from "@/lib/chat";
+import { CheckCircle2, Headset, Inbox, Loader2, RotateCcw } from "lucide-react";
+import { supabase } from "@/lib/auth";
+import { isUnread, useConversations } from "@/lib/chat";
 import { ConversationView } from "@/components/chat/ChatPanel";
-import { SignInPrompt } from "@/components/account/AccountShell";
-import { useMounted } from "@/lib/store";
+import { StaffShell } from "@/components/staff/StaffShell";
 
 type Filter = "open" | "closed" | "all";
 
-export default function SupportInbox() {
-  const mounted = useMounted();
-  const { user, ready } = useAuth();
-  const isStaff = useIsStaff();
-  const { list, error, loading } = useConversations(!!user && isStaff);
+export default function SupportInboxPage() {
+  return (
+    <StaffShell page="/staff/inbox/" title="Support Inbox" wide>
+      <SupportInbox />
+    </StaffShell>
+  );
+}
+
+function SupportInbox() {
+  const { list, error, loading } = useConversations(true);
   const [active, setActive] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("open");
-
-  if (!mounted || !ready) return <div className="min-h-[60vh]" />;
-  if (!user) return <div className="mx-auto max-w-2xl px-6 py-12"><SignInPrompt text="Sign in with a team account to open the support inbox." /></div>;
-  if (!isStaff)
-    return (
-      <div className="mx-auto max-w-xl px-6 py-16 text-center">
-        <ShieldAlert className="mx-auto h-10 w-10 text-slate-400" />
-        <h1 className="mt-4 text-2xl font-bold">Team members only</h1>
-        <p className="mt-2 text-slate-600">This inbox is for the Language Leap Center support team.</p>
-      </div>
-    );
 
   const shown = list.filter((c) => filter === "all" || c.status === filter);
   const current = list.find((c) => c.id === active) ?? null;

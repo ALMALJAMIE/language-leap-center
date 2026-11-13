@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Award, BarChart3, Brain, ClipboardCheck, ClipboardList, Compass, Flame, GraduationCap, Play, Rocket, Target, X, Zap } from "lucide-react";
+import { roleInfo, useRole, type Role } from "@/lib/roles";
+import { ArrowRight, Award, BarChart3, Brain, ClipboardCheck, ClipboardList, Compass, Flame, GraduationCap, Play, Rocket, ShieldCheck, Target, X, Zap } from "lucide-react";
 import { courses, levels } from "@/data/courses";
 import { CourseCover } from "@/components/CourseCard";
 import { courseProgress, startedCourses } from "@/lib/account";
@@ -17,6 +18,7 @@ function greeting() {
 export default function LearnerDashboard() {
   const mounted = useMounted();
   const p = useProgress();
+  const role = useRole((s) => s.role);
   const user = useAuth((s) => s.user);
   const { dismissed, dismiss } = usePortalPrefs();
 
@@ -41,6 +43,8 @@ export default function LearnerDashboard() {
         </h1>
         <p className="relative mt-2 text-lg text-slate-500">Ready to learn some English today?</p>
       </div>
+
+      {role && <StaffBanner role={role} />}
 
       {/* Find your level */}
       {!p.placement && !dismissed.includes("level") && (
@@ -179,6 +183,19 @@ export default function LearnerDashboard() {
         <span className="flex-1 text-sm">Live classes, assignments and teacher messages are coming soon.</span>
         <ArrowRight className="h-4 w-4" />
       </Link>
+    </div>
+  );
+}
+
+function StaffBanner({ role }: { role: Role }) {
+  return (
+    <div className="flex items-center gap-4 rounded-2xl bg-gradient-to-r from-brand-900 to-brand-700 p-5 text-white">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/10"><ShieldCheck className="h-5 w-5 text-gold-300" /></span>
+      <div className="flex-1">
+        <div className="font-bold">You have a team account — {roleInfo[role].label}</div>
+        <p className="text-sm text-brand-100">Your tools are in the Team Workspace.</p>
+      </div>
+      <Link href="/staff/" className="shrink-0 rounded-xl bg-gold-400 px-4 py-2 text-sm font-bold text-brand-950 hover:bg-gold-300">Open workspace</Link>
     </div>
   );
 }

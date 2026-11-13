@@ -12,8 +12,9 @@ import { dueCards, useMounted, useProgress } from "@/lib/store";
 import { usePortalPrefs, useUI } from "@/lib/ui";
 import { NotificationBell } from "./Notifications";
 import { UserAvatar } from "@/components/account/UserAvatar";
-import { useChatUI, useIsStaff } from "@/lib/chat";
-import { portalNav, type NavItem } from "./nav";
+import { useChatUI } from "@/lib/chat";
+import { portalNav, staffNav, type NavItem } from "./nav";
+import { roleInfo, useRole } from "@/lib/roles";
 import { site } from "@/lib/site";
 
 function NavLink({ item, collapsed, onNavigate }: { item: NavItem; collapsed: boolean; onNavigate: () => void }) {
@@ -23,7 +24,8 @@ function NavLink({ item, collapsed, onNavigate }: { item: NavItem; collapsed: bo
   const openChat = useChatUI((s) => s.setOpen);
   const [open, setOpen] = useState(!!item.children && !!path?.startsWith("/my-courses"));
   const base = item.href.split("?")[0].replace(/\/$/, "");
-  const active = !item.external && base !== "/coming-soon" && !!path && (path === base || path.startsWith(base + "/"));
+  const active =
+    !item.external && base !== "/coming-soon" && base !== "/staff/soon" && !!path && (base === "/staff" ? path.replace(/\/$/, "") === base : path === base || path.startsWith(base + "/"));
   const due = item.badge === "due" && mounted ? dueCards(cards).length : 0;
   const Icon = item.icon;
   const subs = item.children ?? [];
@@ -105,9 +107,19 @@ function SubLinks(props: { subs: NonNullable<NavItem["children"]>; onNavigate: (
 }
 
 function Sidebar({ collapsed, onNavigate }: { collapsed: boolean; onNavigate: () => void }) {
+  const path = usePathname();
+  const role = useRole((s) => s.role);
+  const staffArea = !!path?.startsWith("/staff");
+  const nav = staffArea ? staffNav(role) : portalNav;
   return (
     <nav className="flex-1 overflow-y-auto px-3 pb-6">
-      {portalNav.map((group, gi) => (
+      {staffArea && !collapsed && (
+        <div className="mb-3 rounded-xl bg-gradient-to-r from-brand-900 to-brand-700 px-3 py-2.5 text-white">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-gold-300">Team Workspace</div>
+          <div className="text-sm font-semibold">{role ? roleInfo[role].label : "Team"}</div>
+        </div>
+      )}
+      {nav.map((group, gi) => (
         <ul key={gi} className={`space-y-0.5 ${gi > 0 ? "mt-3 border-t border-slate-200 pt-3" : ""}`}>
           {group.map((item) => (
             <NavLink key={item.label} item={item} collapsed={collapsed} onNavigate={onNavigate} />
@@ -120,7 +132,8 @@ function Sidebar({ collapsed, onNavigate }: { collapsed: boolean; onNavigate: ()
 
 function UserBlock() {
   const { user, ready, openModal } = useAuth();
-  const isStaff = useIsStaff();
+  const role = useRole((s) => s.role);
+  const path = usePathname();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -144,7 +157,7 @@ function UserBlock() {
         <UserAvatar name={name} />
         <span className="hidden text-left sm:block">
           <span className="block max-w-[160px] truncate text-sm font-semibold text-ink">{name}</span>
-          <span className="block text-xs text-slate-500">Learner</span>
+          <span className="block text-xs text-slate-500">{role ? roleInfo[role].label : "Learner"}</span>
         </span>
         <ChevronDown className={`h-4 w-4 text-slate-400 transition ${open ? "rotate-180" : ""}`} />
       </button>
@@ -152,7 +165,7 @@ function UserBlock() {
         <div className="absolute right-0 top-14 z-50 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-xl">
           <div className="border-b border-slate-100 px-4 pb-2 pt-1 text-xs text-slate-500">{user.email}</div>
           {[
-            ...(isStaff ? [["Support Inbox", "/admin/inbox/"]] : []),
+            ...(role ? (path?.startsWith("/staff") ? [["Learner Portal", "/dashboard/"]] : [["Team Workspace", "/staff/"]]) : []),
             ["My Profile", "/profile/"],
             ["Settings", "/settings/"],
             ["Help & Support", "/help/"],

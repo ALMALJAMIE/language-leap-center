@@ -1,5 +1,6 @@
 "use client";
 
+import { useRole } from "./roles";
 import { create } from "zustand";
 import { supabase, useAuth } from "./auth";
 import type { Course } from "./types";
@@ -30,7 +31,9 @@ export async function loadEnrollments(userId: string | null) {
 export function useCourseAccess(course: Course): "open" | "locked" | "checking" {
   const { user, ready } = useAuth();
   const { slugs, loaded, userId } = useEnrollments();
+  const role = useRole((s) => s.role);
   if (course.price === 0) return "open";
+  if (user && role) return "open"; // team members can open every course to check it
   if (!ready) return "checking";
   if (!user) return "locked";
   if (!loaded || userId !== user.id) return "checking";
