@@ -135,7 +135,7 @@ export default function ProgressPage() {
             <div className="space-y-4">
               {inProgress.map(({ c, done, total, next }) => (
                 <div key={c.slug} className="flex items-center gap-4 rounded-2xl border border-slate-100 p-3">
-                  <CourseCover course={c} className="h-20 w-28 shrink-0 rounded-xl" />
+                  <CourseCover course={c} className="h-20 w-28 shrink-0 rounded-xl" mini />
                   <div className="flex-1">
                     <div className="font-bold">{c.title}</div>
                     <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">

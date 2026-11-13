@@ -6,7 +6,7 @@ import type { Course } from "@/lib/types";
 import { courseLessons, courseTypes, formatPrice, isAvailable, lessonCount, levels, programs } from "@/data/courses";
 import { useMounted, useProgress } from "@/lib/store";
 
-export function CourseCover({ course, className = "" }: { course: Course; className?: string }) {
+export function CourseCover({ course, className = "", mini = false }: { course: Course; className?: string; mini?: boolean }) {
   return (
     <div
       className={`relative overflow-hidden ${className}`}
@@ -15,10 +15,10 @@ export function CourseCover({ course, className = "" }: { course: Course; classN
       {/* rings inspired by the C in the logo */}
       <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-[18px] border-white/10" />
       <div className="absolute -bottom-16 left-6 h-36 w-36 rounded-full border-[14px] border-gold-300/25" />
-      <span className="absolute bottom-3 right-4 text-5xl drop-shadow-lg">{course.cover.icon}</span>
-      <span className="absolute left-4 top-4 rounded-md bg-white/15 px-2 py-0.5 text-xs font-bold tracking-wider text-white backdrop-blur">
+      <span className={`absolute drop-shadow-lg ${mini ? "bottom-1 right-1.5 text-2xl" : "bottom-3 right-4 text-5xl"}`}>{course.cover.icon}</span>
+      {!mini && <span className="absolute left-4 top-4 rounded-md bg-white/15 px-2 py-0.5 text-xs font-bold tracking-wider text-white backdrop-blur">
         {course.code}
-      </span>
+      </span>}
     </div>
   );
 }

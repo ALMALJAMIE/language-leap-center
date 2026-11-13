@@ -1,133 +1,184 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Award, Brain, ClipboardCheck, Flame, Play, Target, Zap } from "lucide-react";
+import { ArrowRight, Award, BarChart3, Brain, ClipboardCheck, ClipboardList, Compass, Flame, GraduationCap, Play, Rocket, Target, X, Zap } from "lucide-react";
 import { courses, levels } from "@/data/courses";
 import { CourseCover } from "@/components/CourseCard";
-import { AccountShell } from "@/components/account/AccountShell";
 import { courseProgress, startedCourses } from "@/lib/account";
 import { displayName, useAuth } from "@/lib/auth";
 import { dueCards, todayKey, useMounted, useProgress } from "@/lib/store";
+import { usePortalPrefs } from "@/lib/ui";
+
+function greeting() {
+  const h = new Date().getHours();
+  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+}
 
 export default function LearnerDashboard() {
   const mounted = useMounted();
   const p = useProgress();
   const user = useAuth((s) => s.user);
-  const name = displayName(user);
+  const { dismissed, dismiss } = usePortalPrefs();
 
-  if (!mounted) return <AccountShell title="Learner Dashboard"><div className="min-h-[50vh]" /></AccountShell>;
+  if (!mounted) return <div className="min-h-[60vh]" />;
 
-  const started = startedCourses(p.completed);
-  const current = started.map((c) => ({ c, ...courseProgress(c, p.completed) })).find((x) => x.next);
+  const name = displayName(user) || p.name;
+  const started = startedCourses(p.completed).map((c) => ({ c, pr: courseProgress(c, p.completed) }));
+  const current = started.find((x) => x.pr.next);
   const due = dueCards(p.cards).length;
   const today = p.xpByDay[todayKey()] ?? 0;
   const certs = courses.filter((c) => courseProgress(c, p.completed).certified).length;
-  const suggested = courses.find((c) => c.program === "GE" && c.level === (p.placement?.level ?? "A1")) ?? courses[0];
 
   return (
-    <AccountShell title={`Welcome back${name ? `, ${name.split(" ")[0]}` : ""} 👋`} subtitle="Pick up where you left off">
-      {/* Continue learning */}
-      <div className="brand-gradient relative overflow-hidden rounded-3xl p-6 text-white sm:p-8">
-        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full border-[30px] border-white/5" />
-        <div className="absolute -bottom-20 right-24 h-40 w-40 rounded-full border-[22px] border-gold-400/20" />
+    <div className="mx-auto max-w-5xl space-y-6 px-4 py-8 sm:px-8">
+      {/* Greeting */}
+      <div className="relative overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-brand-50/80 to-white px-8 py-9">
+        <span className="pointer-events-none absolute -right-6 -top-10 select-none text-[10rem] font-black leading-none text-brand-100/60">C</span>
+        <span className="pointer-events-none absolute bottom-2 right-40 select-none text-6xl font-black text-gold-100">L</span>
+        <h1 className="relative text-3xl font-extrabold text-ink sm:text-4xl">
+          {greeting()}
+          {name ? `, ${name}` : ""}! 👋
+        </h1>
+        <p className="relative mt-2 text-lg text-slate-500">Ready to learn some English today?</p>
+      </div>
+
+      {/* Find your level */}
+      {!p.placement && !dismissed.includes("level") && (
+        <div className="flex items-start gap-4 rounded-2xl border border-gold-200 bg-gold-50/60 p-5 sm:items-center">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold-100 text-gold-600"><Compass className="h-5 w-5" /></span>
+          <div className="flex-1">
+            <div className="font-bold">Find the right level for you</div>
+            <p className="text-sm text-slate-600">New to English? Start with the free A1 course. Already know some? Take the 5-minute placement test to find where you fit.</p>
+          </div>
+          <Link href="/placement/" className="hidden shrink-0 rounded-xl bg-gold-500 px-4 py-2 text-sm font-bold text-white hover:bg-gold-600 sm:block">Find my level</Link>
+          <button onClick={() => dismiss("level")} aria-label="Dismiss" className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5" /></button>
+        </div>
+      )}
+
+      {/* 1-on-1 lessons */}
+      {!dismissed.includes("private") && (
+        <div className="flex items-start gap-4 rounded-2xl border border-brand-100 bg-brand-50/50 p-5 sm:items-center">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-brand-100 text-brand-700"><GraduationCap className="h-5 w-5" /></span>
+          <div className="flex-1">
+            <div className="font-bold">Practise 1-on-1 with a teacher</div>
+            <p className="text-sm text-slate-600">Book a private live lesson of 30, 60 or 90 minutes. No course needed.</p>
+          </div>
+          <Link href="/private-lessons/" className="hidden shrink-0 rounded-xl bg-brand-900 px-4 py-2 text-sm font-bold text-white hover:bg-brand-800 sm:block">Book a lesson</Link>
+          <button onClick={() => dismiss("private")} aria-label="Dismiss" className="text-slate-400 hover:text-slate-600"><X className="h-5 w-5" /></button>
+        </div>
+      )}
+
+      {/* Hero: get started or continue */}
+      <div className="relative overflow-hidden rounded-3xl bg-brand-950 px-8 py-12 text-center text-white">
+        <span className="pointer-events-none absolute -bottom-8 left-6 select-none text-[9rem] font-black leading-none text-white/5">LLC</span>
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full border-[36px] border-gold-400/10" />
         {current ? (
-          <div className="relative flex flex-wrap items-center justify-between gap-6">
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-gold-300">Continue learning</div>
-              <h2 className="mt-2 text-2xl font-extrabold">{current.next!.title}</h2>
-              <p className="mt-1 text-brand-100">{current.c.title}</p>
-              <div className="mt-4 flex items-center gap-3">
-                <div className="h-2 w-48 overflow-hidden rounded-full bg-white/20">
-                  <div className="h-full rounded-full bg-gold-400" style={{ width: `${current.pct * 100}%` }} />
-                </div>
-                <span className="text-sm text-brand-100">{current.done}/{current.total} lessons</span>
+          <div className="relative">
+            <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-white/10"><Play className="h-7 w-7 fill-white" /></div>
+            <div className="mt-5 text-xs font-bold uppercase tracking-widest text-gold-300">Continue learning</div>
+            <h2 className="mt-2 text-3xl font-extrabold">{current.pr.next!.title}</h2>
+            <p className="mt-2 text-brand-200">{current.c.title}</p>
+            <div className="mx-auto mt-5 flex max-w-xs items-center gap-3">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/15">
+                <div className="h-full rounded-full bg-gold-400" style={{ width: `${current.pr.pct * 100}%` }} />
               </div>
+              <span className="text-sm text-brand-200">{current.pr.done}/{current.pr.total}</span>
             </div>
-            <Link href={`/learn/${current.c.slug}/${current.next!.id}/`} className="btn-gold flex items-center gap-2 px-6 py-3.5">
-              <Play className="h-5 w-5 fill-brand-900" /> Continue
+            <Link href={`/learn/${current.c.slug}/${current.pr.next!.id}/`} className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 font-bold text-ink shadow-lg hover:bg-gold-50">
+              <Play className="h-5 w-5 fill-ink" /> Continue lesson
             </Link>
           </div>
         ) : (
-          <div className="relative flex flex-wrap items-center justify-between gap-6">
-            <div>
-              <div className="text-xs font-bold uppercase tracking-wider text-gold-300">{started.length ? "Great work!" : "Get started"}</div>
-              <h2 className="mt-2 text-2xl font-extrabold">{started.length ? "You've finished all published lessons" : "Start your first lesson"}</h2>
-              <p className="mt-1 text-brand-100">Suggested for you: {suggested.title}</p>
-            </div>
-            <Link href={`/courses/${suggested.slug}/`} className="btn-gold flex items-center gap-2 px-6 py-3.5">
-              Open course <ArrowRight className="h-5 w-5" />
+          <div className="relative">
+            <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-white/10"><Rocket className="h-7 w-7" /></div>
+            <h2 className="mt-5 text-3xl font-extrabold">{started.length ? "Ready for your next leap?" : "Let's get started!"}</h2>
+            <p className="mx-auto mt-3 max-w-md text-brand-200">
+              {started.length
+                ? "You've finished every published lesson in your courses. Pick a new course to keep going."
+                : "Pick your first course or take a quick test to find the perfect level for you. Your English adventure begins here."}
+            </p>
+            <Link href="/courses/" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 font-bold text-ink shadow-lg hover:bg-gold-50">
+              <Compass className="h-5 w-5" /> Browse Courses
             </Link>
           </div>
         )}
       </div>
 
-      {/* Stats */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {/* Quick actions */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {[
-          { icon: <Flame />, v: p.streak, l: "Day streak", c: "text-orange-500 bg-orange-50", href: "/progress/" },
-          { icon: <Zap />, v: p.xp, l: "Total XP", c: "text-gold-600 bg-gold-50", href: "/progress/" },
-          { icon: <Target />, v: `${today}/${p.dailyGoal}`, l: "Today's goal", c: "text-brand-600 bg-brand-50", href: "/progress/" },
-          { icon: <Award />, v: certs, l: "Certificates", c: "text-emerald-600 bg-emerald-50", href: "/certificates/" },
-        ].map((s) => (
-          <Link key={s.l} href={s.href} className="flex items-center gap-4 rounded-3xl border border-slate-200 bg-white p-5 transition hover:shadow-md">
-            <div className={`grid h-12 w-12 place-items-center rounded-2xl ${s.c}`}>{s.icon}</div>
-            <div>
-              <div className="text-2xl font-extrabold">{s.v}</div>
-              <div className="text-sm text-slate-500">{s.l}</div>
-            </div>
+          { href: "/courses/", label: "Browse Courses", icon: Compass, c: "bg-gold-50 text-gold-600" },
+          { href: "/progress/", label: "My Progress", icon: BarChart3, c: "bg-emerald-50 text-emerald-600" },
+          { href: "/review/", label: due ? `Daily Review (${due})` : "Daily Review", icon: Brain, c: "bg-sky-50 text-sky-600" },
+          { href: "/assessments/", label: "Assessments", icon: ClipboardCheck, c: "bg-violet-50 text-violet-600" },
+        ].map(({ href, label, icon: Icon, c }) => (
+          <Link key={href} href={href} className="rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:shadow-md">
+            <span className={`grid h-11 w-11 place-items-center rounded-xl ${c}`}><Icon className="h-5 w-5" /></span>
+            <div className="mt-4 text-sm font-semibold">{label}</div>
           </Link>
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-3">
-        {/* My courses preview */}
-        <div className="rounded-3xl border border-slate-200 p-6 xl:col-span-2">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-bold">My courses</h2>
-            <Link href="/my-courses/" className="text-sm font-bold text-brand-600">View all →</Link>
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {[
+          { icon: <Flame />, v: p.streak, l: "Day streak", c: "text-orange-500" },
+          { icon: <Zap />, v: p.xp, l: "Total XP", c: "text-gold-500" },
+          { icon: <Target />, v: `${today}/${p.dailyGoal}`, l: "Today's XP goal", c: "text-brand-600" },
+          { icon: <Award />, v: certs, l: "Certificates", c: "text-emerald-600" },
+        ].map((s) => (
+          <div key={s.l} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+            <span className={s.c}>{s.icon}</span>
+            <div>
+              <div className="text-xl font-extrabold">{s.v}</div>
+              <div className="text-xs text-slate-500">{s.l}</div>
+            </div>
           </div>
-          {started.length === 0 ? (
-            <p className="rounded-2xl bg-mist p-6 text-center text-slate-500">Courses you start will appear here.</p>
-          ) : (
-            <div className="space-y-3">
-              {started.slice(0, 3).map((c) => {
-                const pr = courseProgress(c, p.completed);
-                return (
-                  <Link key={c.slug} href={`/courses/${c.slug}/`} className="flex items-center gap-4 rounded-2xl border border-slate-100 p-3 transition hover:bg-slate-50">
-                    <CourseCover course={c} className="h-16 w-24 shrink-0 rounded-xl" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate font-semibold">{c.title}</div>
-                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
-                        <div className="h-full rounded-full bg-gold-400" style={{ width: `${pr.pct * 100}%` }} />
-                      </div>
-                    </div>
-                    <span className="text-sm font-bold text-slate-500">{Math.round(pr.pct * 100)}%</span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Side tasks */}
-        <div className="space-y-4">
-          <Link href="/review/" className="flex items-center gap-4 rounded-3xl border border-slate-200 p-5 transition hover:shadow-md">
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-brand-50 text-brand-600"><Brain /></div>
-            <div className="flex-1">
-              <div className="font-bold">Review words</div>
-              <div className="text-sm text-slate-500">{due ? `${due} cards are due now` : "Nothing due — well done"}</div>
-            </div>
-            {due > 0 && <span className="rounded-full bg-gold-400 px-2.5 py-1 text-xs font-bold text-brand-900">{due}</span>}
-          </Link>
-          <Link href="/placement/" className="flex items-center gap-4 rounded-3xl border border-slate-200 p-5 transition hover:shadow-md">
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gold-50 text-gold-600"><ClipboardCheck /></div>
-            <div className="flex-1">
-              <div className="font-bold">{p.placement ? `Your level: ${p.placement.level}` : "Find your level"}</div>
-              <div className="text-sm text-slate-500">{p.placement ? levels[p.placement.level].name : "15-question placement test"}</div>
-            </div>
-          </Link>
-        </div>
+        ))}
       </div>
-    </AccountShell>
+
+      {/* My courses */}
+      <div className="rounded-3xl border border-slate-200 bg-white p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="font-bold">My courses</h2>
+          <Link href="/my-courses/" className="flex items-center gap-1 text-sm font-bold text-brand-600">View all <ArrowRight className="h-4 w-4" /></Link>
+        </div>
+        {started.length === 0 ? (
+          <div className="grid gap-4 sm:grid-cols-3">
+            {courses.filter((c) => c.price === 0 || c.isNew).slice(0, 3).map((c) => (
+              <Link key={c.slug} href={`/courses/${c.slug}/`} className="overflow-hidden rounded-2xl border border-slate-100 transition hover:shadow-md">
+                <CourseCover course={c} className="h-24" />
+                <div className="p-3">
+                  <div className="text-xs font-bold text-gold-600">{c.level} · {levels[c.level].name}</div>
+                  <div className="mt-1 text-sm font-semibold">{c.title}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {started.map(({ c, pr }) => (
+              <Link key={c.slug} href={pr.next ? `/learn/${c.slug}/${pr.next.id}/` : `/courses/${c.slug}/`} className="flex items-center gap-4 rounded-2xl border border-slate-100 p-3 transition hover:bg-slate-50">
+                <CourseCover course={c} className="h-14 w-20 shrink-0 rounded-xl" mini />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-semibold">{c.title}</div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div className={`h-full rounded-full ${pr.allPublishedDone ? "bg-emerald-500" : "bg-gold-400"}`} style={{ width: `${pr.pct * 100}%` }} />
+                  </div>
+                </div>
+                <span className="text-sm font-bold text-slate-500">{Math.round(pr.pct * 100)}%</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Coming soon teaser */}
+      <Link href="/coming-soon/?f=assignments" className="flex items-center gap-4 rounded-2xl border border-dashed border-slate-300 bg-white p-5 text-slate-500 hover:border-slate-400">
+        <ClipboardList className="h-5 w-5" />
+        <span className="flex-1 text-sm">Live classes, assignments and teacher messages are coming soon.</span>
+        <ArrowRight className="h-4 w-4" />
+      </Link>
+    </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Eye, EyeOff, Loader2, LogIn, UserPlus, X, KeyRound, ArrowLeft } from "lucide-react";
@@ -91,6 +92,7 @@ export const primaryBtn =
   "flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold text-white shadow-lg shadow-brand-900/20 transition hover:brightness-110 disabled:opacity-60 bg-[linear-gradient(100deg,#0b326d_0%,#1f66c8_55%,#ce961d_100%)]";
 
 function SignIn({ close, toForgot }: { close: () => void; toForgot: () => void }) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [remember, setRem] = useState(true);
@@ -106,6 +108,7 @@ function SignIn({ close, toForgot }: { close: () => void; toForgot: () => void }
     setBusy(false);
     if (error) return setMsg({ text: authError(error.message) });
     close();
+    router.push("/dashboard/");
   };
 
   return (

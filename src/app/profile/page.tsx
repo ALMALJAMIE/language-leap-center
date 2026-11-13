@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Check, KeyRound, Loader2, LogOut, Save, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { KeyRound, Loader2, LogOut, Save, Settings as SettingsIcon } from "lucide-react";
 import { AccountShell, SignInPrompt } from "@/components/account/AccountShell";
-import { ArabicToggle } from "@/components/ArabicToggle";
 import { Field } from "@/components/auth/AuthModal";
 import { authError, displayName, supabase, useAuth } from "@/lib/auth";
-import { useMounted, useProgress } from "@/lib/store";
+import { useMounted } from "@/lib/store";
 import type { User } from "@supabase/supabase-js";
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
@@ -99,38 +99,9 @@ function Password() {
   );
 }
 
-function Preferences() {
-  const { dailyGoal, setGoal } = useProgress();
-  return (
-    <Card title="Learning preferences">
-      <div className="space-y-5">
-        <div>
-          <div className="mb-2 text-sm font-medium text-slate-700">Daily goal</div>
-          <div className="flex flex-wrap gap-2">
-            {[{ n: 10, l: "Casual" }, { n: 30, l: "Regular" }, { n: 50, l: "Serious" }, { n: 80, l: "Intense" }].map((g) => (
-              <button
-                key={g.n}
-                onClick={() => setGoal(g.n)}
-                className={`flex items-center gap-1.5 rounded-xl border-2 px-4 py-2 text-sm font-bold ${dailyGoal === g.n ? "border-brand-500 bg-brand-50 text-brand-700" : "border-slate-200 text-slate-500"}`}
-              >
-                {dailyGoal === g.n && <Check className="h-4 w-4" />} {g.l} · {g.n} XP
-              </button>
-            ))}
-          </div>
-        </div>
-        <div>
-          <div className="mb-2 text-sm font-medium text-slate-700">Arabic translations in lessons</div>
-          <ArabicToggle />
-        </div>
-      </div>
-    </Card>
-  );
-}
-
 export default function Profile() {
   const mounted = useMounted();
   const { user, ready } = useAuth();
-  const reset = useProgress((s) => s.reset);
 
   return (
     <AccountShell title="Profile" subtitle="Your account details and preferences">
@@ -139,25 +110,18 @@ export default function Profile() {
       ) : !user ? (
         <div className="space-y-6">
           <SignInPrompt text="Sign in to manage your profile and keep your progress on every device." />
-          <Preferences />
         </div>
       ) : (
         <div className="grid gap-6 xl:grid-cols-2">
           <Details key={user.id} user={user} />
-          <div className="space-y-6">
-            <Preferences />
-            <Password />
-          </div>
+          <Password />
           <div className="flex flex-wrap gap-3 xl:col-span-2">
             <button onClick={() => supabase.auth.signOut()} className="flex items-center gap-2 rounded-xl border-2 border-slate-200 px-5 py-2.5 text-sm font-bold hover:border-red-300 hover:text-red-600">
               <LogOut className="h-4 w-4" /> Sign out
             </button>
-            <button
-              onClick={() => confirm("This will erase all your progress, XP and review cards. Are you sure?") && reset()}
-              className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-slate-400 hover:text-red-600"
-            >
-              <Trash2 className="h-4 w-4" /> Reset my progress
-            </button>
+            <Link href="/settings/" className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-slate-500 hover:text-ink">
+              <SettingsIcon className="h-4 w-4" /> Learning preferences
+            </Link>
           </div>
         </div>
       )}

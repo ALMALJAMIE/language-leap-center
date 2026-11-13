@@ -6,11 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Flame, LogOut, Menu, Search, X, Zap } from "lucide-react";
 import { Logo } from "./Logo";
 import { ArabicToggle } from "./ArabicToggle";
-import { SearchPalette } from "./SearchPalette";
-import { AuthModal } from "./auth/AuthModal";
 import { dueCards, useMounted, useProgress } from "@/lib/store";
-import { displayName, initials, startAuth, supabase, useAuth } from "@/lib/auth";
-import { accountNav } from "./account/AccountShell";
+import { displayName, initials, supabase, useAuth } from "@/lib/auth";
+import { useUI } from "@/lib/ui";
+import { accountNav } from "./account/accountNav";
 
 const nav = [
   { href: "/", label: "Home" },
@@ -75,23 +74,11 @@ function UserMenu() {
 export function Header() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const setSearch = useUI((s) => s.setSearch);
   const mounted = useMounted();
   const { xp, streak, cards } = useProgress();
   const { user, ready, openModal } = useAuth();
   const due = mounted ? dueCards(cards).length : 0;
-
-  useEffect(() => {
-    startAuth();
-    const h = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault();
-        setSearchOpen(true);
-      }
-    };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, []);
 
   const hidden = path?.startsWith("/learn/"); // the lesson player is full screen
   const active = (href: string) => (href === "/" ? path === "/" : path?.startsWith(href.replace(/\/$/, "")));
@@ -124,7 +111,7 @@ export function Header() {
             </nav>
 
             <div className="flex items-center gap-2">
-              <button onClick={() => setSearchOpen(true)} aria-label="Search (Ctrl+K)" title="Search (Ctrl+K)" className="grid h-10 w-10 place-items-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-brand-700">
+              <button onClick={() => setSearch(true)} aria-label="Search (Ctrl+K)" title="Search (Ctrl+K)" className="grid h-10 w-10 place-items-center rounded-xl text-slate-600 transition hover:bg-slate-100 hover:text-brand-700">
                 <Search className="h-5 w-5" />
               </button>
 
@@ -173,8 +160,6 @@ export function Header() {
           )}
         </header>
       )}
-      <SearchPalette open={searchOpen} onClose={() => setSearchOpen(false)} />
-      <AuthModal />
     </>
   );
 }
