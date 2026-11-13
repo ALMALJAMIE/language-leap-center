@@ -1,9 +1,11 @@
 "use client";
 
-import { Check, LogOut, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Check, KeyRound, Loader2, LogOut, Trash2 } from "lucide-react";
+import { Field } from "@/components/auth/AuthModal";
 import { AccountShell } from "@/components/account/AccountShell";
 import { ArabicToggle } from "@/components/ArabicToggle";
-import { supabase, useAuth } from "@/lib/auth";
+import { authError, supabase, useAuth } from "@/lib/auth";
 import { useProgress } from "@/lib/store";
 import { usePortalPrefs } from "@/lib/ui";
 
@@ -16,6 +18,37 @@ function Row({ title, desc, children }: { title: string; desc: string; children:
       </div>
       {children}
     </div>
+  );
+}
+
+function ChangePassword() {
+  const [pw, setPw] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok?: boolean; text: string } | null>(null);
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pw.length < 8) return setMsg({ text: "Password must be at least 8 characters." });
+    if (pw !== confirm) return setMsg({ text: "Passwords don't match." });
+    setBusy(true);
+    const { error } = await supabase.auth.updateUser({ password: pw });
+    setBusy(false);
+    if (error) return setMsg({ text: authError(error.message) });
+    setPw("");
+    setConfirm("");
+    setMsg({ ok: true, text: "Your password has been changed." });
+  };
+  return (
+    <form onSubmit={save} className="grid gap-4 py-5 sm:grid-cols-2">
+      <Field label="New Password" type="password" value={pw} onChange={setPw} placeholder="Minimum 8 characters" autoComplete="new-password" />
+      <Field label="Confirm New Password" type="password" value={confirm} onChange={setConfirm} autoComplete="new-password" />
+      <div className="flex items-center gap-3 sm:col-span-2">
+        <button disabled={busy} className="flex items-center gap-2 rounded-xl border-2 border-slate-200 px-4 py-2 text-sm font-bold hover:border-brand-400">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />} Update password
+        </button>
+        {msg && <span className={`text-sm ${msg.ok ? "text-emerald-600" : "text-red-600"}`}>{msg.text}</span>}
+      </div>
+    </form>
   );
 }
 
@@ -49,6 +82,15 @@ export default function Settings() {
           </button>
         </Row>
       </div>
+
+      {user && (
+        <>
+          <h2 className="mb-3 mt-8 font-bold">Password</h2>
+          <div className="rounded-3xl border border-slate-200 bg-white px-6">
+            <ChangePassword />
+          </div>
+        </>
+      )}
 
       <h2 className="mb-3 mt-8 font-bold text-red-600">Danger zone</h2>
       <div className="rounded-3xl border border-red-200 bg-white px-6">

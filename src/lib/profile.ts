@@ -140,3 +140,17 @@ export const sectionDone = {
   interests: (d: ProfileData) => filled(d.about) || filled(d.interests),
   advanced: (d: ProfileData) => filled(d.currentLevel) && filled(d.learningPath),
 };
+
+const generalKeys: (keyof ProfileData)[] = ["firstName", "lastName", "username", "phone", "dob", "gender", "country", "city", "languages", "about", "occupation", "education", "interests"];
+const learningKeys: (keyof ProfileData)[] = ["currentLevel", "motivation", "classType", "learningPath", "goals", "targetLevel", "learningStyles", "topics"];
+
+/** Completion split like the profile card: general details vs. learning preferences */
+export function completionParts(data: ProfileData, avatar: string | null) {
+  const g = generalKeys.filter((k) => filled(data[k])).length + (avatar ? 1 : 0);
+  const l = learningKeys.filter((k) => filled(data[k])).length;
+  return {
+    general: Math.round((g / (generalKeys.length + 1)) * 100),
+    learning: Math.round((l / learningKeys.length) * 100),
+    total: completion(data, avatar),
+  };
+}

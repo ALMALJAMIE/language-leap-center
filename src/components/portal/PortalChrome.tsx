@@ -154,8 +154,8 @@ function UserBlock() {
           {[
             ...(isStaff ? [["Support Inbox", "/admin/inbox/"]] : []),
             ["My Profile", "/profile/"],
-            ["Complete your profile", "/advanced/"],
             ["Settings", "/settings/"],
+            ["Help & Support", "/help/"],
             ["Main Website", "/"],
           ].map(([l, h]) => (
             <Link key={h} href={h} onClick={() => setOpen(false)} className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
@@ -164,7 +164,7 @@ function UserBlock() {
           ))}
           <div className="my-1 border-t border-slate-100" />
           <button onClick={() => supabase.auth.signOut()} className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
-            <LogOut className="h-4 w-4" /> Sign Out
+            <LogOut className="h-4 w-4" /> Logout
           </button>
         </div>
       )}
