@@ -243,7 +243,7 @@ export function MatchEx({ ex, complete, status }: ExProps<"match">) {
       const nd = [...done, l];
       setDone(nd);
       if (nd.length === ex.pairs.length)
-        complete({ correct: misses.current <= 1, note: misses.current > 1 ? "أكملت التوصيل مع بعض الأخطاء" : undefined });
+        complete({ correct: true, note: misses.current > 1 ? `أكملت التوصيل بعد ${misses.current} محاولات خاطئة` : undefined });
     } else {
       misses.current++;
       setWrong(l + r);
