@@ -56,6 +56,10 @@ export const pageAccess: Record<string, Role[]> = {
 /** Pages outside /staff/ that team accounts may open (everything else in the learner portal sends them to /staff/) */
 export const staffAlsoAllowed = ["/settings", "/help"];
 
+/** Public-site pages team accounts may open: lesson previews, teacher pages, password reset.
+ *  Everything made for learners (home, catalog, placement, review, checkout…) sends them to /staff/. */
+export const staffPublicAllowed = ["/learn", "/instructors", "/reset-password"];
+
 export const can = (role: Role | null, page: string) =>
   !!role && (role === "admin" || (pageAccess[page] ?? []).includes(role));
 

@@ -7,6 +7,7 @@ import { getCourse, programs } from "@/data/courses";
 import { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { supabase } from "@/lib/auth";
+import { useRole } from "@/lib/roles";
 import { loadTeachers, useTeacherList } from "@/lib/teaching";
 import { CourseCard } from "@/components/CourseCard";
 import { InstructorAvatar, Price, Rating, Stats, bookHref } from "@/components/Instructors";
@@ -18,6 +19,7 @@ export function ProfileView() {
     loadTeachers();
   }, []);
   const t = list.find((i) => i.slug === id);
+  const staff = !!useRole((s) => s.role);
 
   if (!t && !loaded) return <div className="min-h-[60vh]" />;
   if (!t) {
@@ -109,7 +111,7 @@ export function ProfileView() {
           <div className="space-y-5 rounded-3xl border border-slate-200 bg-white p-6 text-center shadow-sm">
             <Stats t={t} />
             <Price t={t} />
-            {t.privateLessons ? (
+            {staff ? null : t.privateLessons ? (
               <Link href={bookHref(t)} className="flex items-center justify-center gap-2 rounded-xl bg-gold-500 py-3 font-bold text-brand-950 transition hover:bg-gold-400">
                 <CalendarPlus className="h-4 w-4" /> Book a private lesson
               </Link>

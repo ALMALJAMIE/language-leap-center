@@ -13,6 +13,7 @@ import { loadTeachers, useTeacherList } from "@/lib/teaching";
 import { InstructorCard } from "@/components/Instructors";
 import { WhatsAppIcon } from "@/components/BrandIcons";
 import { site } from "@/lib/site";
+import { useRole } from "@/lib/roles";
 import type { ProgramId } from "@/lib/types";
 
 const sorts = {
@@ -47,6 +48,7 @@ function View({ params }: { params: URLSearchParams }) {
   const [draft, setDraft] = useState<Filters>(start);
   const [applied, setApplied] = useState<Filters>(start);
   const instructors = useTeacherList((s) => s.list);
+  const staff = !!useRole((s) => s.role);
   useEffect(() => {
     loadTeachers();
   }, []);
@@ -183,7 +185,7 @@ function View({ params }: { params: URLSearchParams }) {
       </section>
 
       {/* Explore more */}
-      <section className="-mb-24 bg-brand-50/40 py-16">
+      <section hidden={staff} className="-mb-24 bg-brand-50/40 py-16">
         <div className="mx-auto max-w-3xl px-6 text-center">
           <h2 className="text-3xl font-extrabold text-ink sm:text-4xl">Explore More Learning Options</h2>
           <p className="mt-3 text-slate-500">Browse courses by program or difficulty level to find the perfect match</p>

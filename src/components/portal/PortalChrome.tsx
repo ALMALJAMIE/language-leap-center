@@ -165,7 +165,7 @@ function UserBlock() {
         <div className="absolute right-0 top-14 z-50 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-xl">
           <div className="border-b border-slate-100 px-4 pb-2 pt-1 text-xs text-slate-500">{user.email}</div>
           {(role
-            ? [["Team Workspace", "/staff/"], ...(role === "teacher" ? [["My Public Profile", "/staff/my-profile/"]] : []), ["Settings", "/settings/"], ["Help & Support", "/help/"], ["Main Website", "/"]]
+            ? [["Team Workspace", "/staff/"], ...(role === "teacher" ? [["My Public Profile", "/staff/my-profile/"]] : []), ["Settings", "/settings/"], ["Help & Support", "/help/"]]
             : [["My Profile", "/profile/"], ["Settings", "/settings/"], ["Help & Support", "/help/"], ["Main Website", "/"]]
           ).map(([l, h]) => (
             <Link key={h} href={h} onClick={() => setOpen(false)} className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
@@ -207,7 +207,7 @@ export function PortalChrome({ children }: { children: React.ReactNode }) {
       {/* Desktop sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-slate-200 bg-white transition-[width] lg:flex ${collapsed ? "w-[76px]" : "w-[260px]"}`}>
         <div className={`flex h-[72px] shrink-0 items-center border-b border-slate-200 ${collapsed ? "justify-center" : "px-5"}`}>
-          <Link href="/" aria-label="Main website">
+          <Link href={role ? "/staff/" : "/"} aria-label={role ? "Workspace" : "Main website"}>
             {collapsed ? <Image src={mark} alt="LLC" className="h-9 w-auto" /> : <Logo />}
           </Link>
         </div>

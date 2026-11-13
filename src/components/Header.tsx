@@ -93,11 +93,11 @@ export function Header() {
       {!hidden && (
         <header className="no-print sticky top-0 z-40 border-b border-slate-200/70 bg-white/90 shadow-sm backdrop-blur-md">
           <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-            <Link href="/" aria-label="Home">
+            <Link href={staffRole ? "/staff/" : "/"} aria-label="Home">
               <Logo />
             </Link>
 
-            <nav className="hidden items-center gap-1 lg:flex">
+            <nav className={`hidden items-center gap-1 ${staffRole ? "" : "lg:flex"}`}>
               {nav.map((n) => (
                 <Link
                   key={n.href}
@@ -127,7 +127,7 @@ export function Header() {
                 </Link>
               )}
 
-              <ArabicToggle className="hidden xl:flex" />
+              {!staffRole && <ArabicToggle className="hidden xl:flex" />}
 
               {ready && user ? (
                 <UserMenu />

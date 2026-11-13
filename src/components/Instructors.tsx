@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, CalendarPlus, Star } from "lucide-react";
 import { basePath } from "@/lib/site";
+import { useRole } from "@/lib/roles";
 import type { Instructor } from "@/data/instructors";
 
 const initialsOf = (name: string) =>
@@ -86,6 +87,7 @@ export function Price({ t }: { t: Instructor }) {
 }
 
 export function InstructorCard({ t }: { t: Instructor }) {
+  const staff = !!useRole((s) => s.role);
   return (
     <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-sm transition hover:shadow-lg">
       <div className="mx-auto">
@@ -105,7 +107,7 @@ export function InstructorCard({ t }: { t: Instructor }) {
         <Link href={profileHref(t)} className="flex items-center justify-center gap-2 rounded-xl bg-[linear-gradient(90deg,#0a2852,#0f4ca7_55%,#efb52a)] py-3 font-bold text-white shadow transition hover:brightness-110">
           View Profile <ArrowRight className="h-4 w-4" />
         </Link>
-        {t.privateLessons && (
+        {t.privateLessons && !staff && (
           <Link href={bookHref(t)} className="flex items-center justify-center gap-2 rounded-xl bg-gold-500 py-2.5 text-sm font-bold text-brand-950 transition hover:bg-gold-400">
             <CalendarPlus className="h-4 w-4" /> Book a private lesson
           </Link>

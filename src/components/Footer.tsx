@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "./Logo";
+import { useRole } from "@/lib/roles";
 import { programs } from "@/data/courses";
 import { Mail, Phone } from "lucide-react";
 import { site } from "@/lib/site";
@@ -10,7 +11,8 @@ import { InstagramIcon, SnapchatIcon, WhatsAppIcon } from "./BrandIcons";
 
 export function Footer() {
   const path = usePathname();
-  if (path?.startsWith("/learn/")) return null;
+  const role = useRole((s) => s.role);
+  if (path?.startsWith("/learn/") || role) return null;
 
   return (
     <footer className="no-print brand-gradient mt-24 text-brand-100">

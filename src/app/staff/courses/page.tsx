@@ -67,7 +67,6 @@ function CoursesTable() {
                   <td className="px-4 py-3 text-center font-bold">{c.price === 0 ? <span className="font-normal text-slate-400">Free</span> : paidCount ? paidCount[c.slug] ?? 0 : "—"}</td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-2">
-                      <Link href={`/courses/${c.slug}/`} className="rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold hover:border-brand-400">Page</Link>
                       {first && <Link href={`/learn/${c.slug}/${first.id}/`} className="flex items-center gap-1 rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold hover:border-brand-400">Preview <ExternalLink className="h-3 w-3" /></Link>}
                     </div>
                   </td>

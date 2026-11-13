@@ -102,7 +102,6 @@ const it = {
 const common: NavItem[] = [
   { label: "Settings", href: "/settings/", icon: Settings, color: "text-slate-600" },
   { label: "Help & Support", href: "/help/", icon: LifeBuoy, color: "text-emerald-600" },
-  { label: "Main Website", href: "/", icon: Home, color: "text-slate-600", external: true },
 ];
 
 export function staffNav(role: StaffRole | null): NavItem[][] {

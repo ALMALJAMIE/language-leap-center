@@ -9,6 +9,7 @@ import type { Course, Exercise, LessonSpec } from "@/lib/types";
 import { courseLessons } from "@/data/courses";
 import { generateExercises, isGraded } from "@/lib/generate";
 import { useProgress } from "@/lib/store";
+import { useRole } from "@/lib/roles";
 import { LessonQuestions } from "./LessonQuestions";
 import { useVoicesReady } from "@/lib/speech";
 import {
@@ -43,6 +44,7 @@ const praise = ["Well done!", "Excellent!", "Great job!", "Correct!", "Keep it u
 export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesson: LessonSpec; nextId?: string }) {
   useVoicesReady();
   const completeLesson = useProgress((s) => s.completeLesson);
+  const role = useRole((s) => s.role);
   const pool = useMemo(() => courseLessons(course).flatMap((l) => l.words), [course]);
   const base = useMemo(() => generateExercises(lesson, pool), [lesson, pool]);
 
@@ -87,7 +89,7 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
   const finish = useCallback(() => {
     const accuracy = gradedTotal === 0 ? 1 : Math.max(0, (graded - mistakes) / graded);
     const xp = 10 + Math.round(accuracy * 10) + (mistakes === 0 ? 5 : 0);
-    completeLesson(course.slug, lesson.id, xp, accuracy, lesson.words);
+    if (!useRole.getState().role) completeLesson(course.slug, lesson.id, xp, accuracy, lesson.words); // team previews don't count as study
     setFinished({ xp, accuracy, secs: Math.round((Date.now() - startedAt.current) / 1000) });
     const end = Date.now() + 900;
     (function frame() {
@@ -156,7 +158,7 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
           ) : (
             <Link href={`/courses/${course.slug}/`} className="btn-primary py-3.5 text-lg">Back to course</Link>
           )}
-          <Link href="/review/" className="btn-gold py-3">Review words now</Link>
+          {role ? <Link href="/staff/" className="btn-gold py-3">Back to workspace</Link> : <Link href="/review/" className="btn-gold py-3">Review words now</Link>}
           <LessonQuestions course={course.slug} lesson={lesson.id} title={lesson.title} variant="button" />
           <Link href={`/courses/${course.slug}/`} className="py-2 font-bold text-slate-500">Course content</Link>
         </div>
