@@ -3,12 +3,22 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Check, Loader2, MailCheck, UserPlus } from "lucide-react";
+import { BadgeCheck, Loader2, Lock, LogIn, MailCheck, Rocket, ShieldCheck } from "lucide-react";
 import { authError, siteUrl, supabase, useAuth } from "@/lib/auth";
+import { site } from "@/lib/site";
 import { Divider, Field, OAuthButtons, primaryBtn } from "@/components/auth/AuthModal";
-import { Logo } from "@/components/Logo";
 
-const perks = ["Free A1 course — no card needed", "Audio for every word and sentence", "Progress, XP and streaks saved to your account"];
+type Org = "none" | "institution" | "code";
+type For = "self" | "child";
+
+function Radio({ checked, onChange, children }: { checked: boolean; onChange: () => void; children: React.ReactNode }) {
+  return (
+    <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-700">
+      <input type="radio" checked={checked} onChange={onChange} className="h-4 w-4 accent-brand-700" />
+      {children}
+    </label>
+  );
+}
 
 export function RegisterForm() {
   const router = useRouter();
@@ -17,24 +27,40 @@ export function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [org, setOrg] = useState<Org>("none");
+  const [institution, setInstitution] = useState("");
+  const [code, setCode] = useState("");
+  const [forWho, setForWho] = useState<For>("self");
+  const [childName, setChildName] = useState("");
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
 
-  const strength = [password.length >= 8, /[A-Z]/.test(password) && /[a-z]/.test(password), /\d/.test(password), /[^A-Za-z0-9]/.test(password)].filter(Boolean).length;
-
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMsg(null);
-    if (password.length < 6) return setMsg("Password must be at least 6 characters.");
+    if (password.length < 8) return setMsg("Password must be at least 8 characters.");
     if (password !== confirm) return setMsg("Passwords don't match.");
-    if (!agree) return setMsg("Please accept the Terms and Privacy Policy.");
+    if (org === "institution" && !institution.trim()) return setMsg("Please enter your institution's name.");
+    if (org === "code" && !code.trim()) return setMsg("Please enter your invitation code.");
+    if (forWho === "child" && !childName.trim()) return setMsg("Please enter your child's name.");
+    if (!agree) return setMsg("Please accept the Terms of Service and Privacy Policy.");
+
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
-      options: { data: { full_name: name.trim() }, emailRedirectTo: siteUrl("/dashboard/") },
+      options: {
+        emailRedirectTo: siteUrl("/dashboard/"),
+        data: {
+          full_name: name.trim(),
+          account_for: forWho,
+          child_name: forWho === "child" ? childName.trim() : null,
+          institution: org === "institution" ? institution.trim() : null,
+          invitation_code: org === "code" ? code.trim() : null,
+        },
+      },
     });
     setBusy(false);
     if (error) return setMsg(authError(error.message));
@@ -43,95 +69,118 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-b from-brand-50/60 to-white">
-      <div className="absolute -right-40 top-10 h-[480px] w-[480px] rounded-full border-[64px] border-brand-100/60" />
-      <div className="absolute -left-24 bottom-0 h-72 w-72 rounded-full border-[40px] border-gold-200/40" />
-
-      <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-14 lg:grid-cols-2">
-        <div className="hidden lg:block">
-          <Logo />
-          <h1 className="mt-8 text-4xl font-extrabold leading-tight text-ink">
-            Start your <span className="text-gold-gradient">leap</span> to fluent English today
-          </h1>
-          <p className="mt-4 max-w-md text-lg leading-8 text-slate-600">Create a free account to save your progress and continue on any device.</p>
-          <ul className="mt-8 space-y-3">
-            {perks.map((p) => (
-              <li key={p} className="flex items-center gap-3 text-slate-700">
-                <span className="grid h-6 w-6 place-items-center rounded-full bg-gold-100 text-gold-600"><Check className="h-4 w-4" /></span>
-                {p}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-2xl shadow-brand-900/10 sm:p-8">
-          {sentTo ? (
-            <div className="py-6 text-center">
-              <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-emerald-50 text-emerald-600"><MailCheck className="h-8 w-8" /></div>
-              <h2 className="mt-5 text-2xl font-extrabold">Check your email</h2>
-              <p className="mt-2 text-slate-600">
-                We sent a confirmation link to <b>{sentTo}</b>. Click it to activate your account, then sign in.
-              </p>
-              <button onClick={() => openModal("signin")} className={`${primaryBtn} mt-6`}>Go to sign in</button>
+    <div className="bg-gradient-to-br from-brand-50/50 via-white to-gold-50/40 px-4 py-10">
+      <div className="mx-auto w-full max-w-md rounded-3xl border border-slate-200 bg-white p-7 shadow-xl shadow-brand-900/10 sm:p-8">
+        {sentTo ? (
+          <div className="py-6 text-center">
+            <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-emerald-50 text-emerald-600">
+              <MailCheck className="h-8 w-8" />
             </div>
-          ) : (
-            <form onSubmit={submit}>
-              <h2 className="text-center text-2xl font-extrabold text-ink">Create Your Account</h2>
-              <p className="mt-1 text-center text-sm text-slate-500">Join Language Leap Center and start learning for free</p>
-
-              <OAuthButtonsWrapper onMessage={setMsg} />
-
-              <Divider>Or sign up with email</Divider>
-
-              <div className="space-y-4">
-                <Field label="Full Name" value={name} onChange={setName} placeholder="Your full name" autoComplete="name" />
-                <Field label="Email Address" type="email" value={email} onChange={setEmail} placeholder="you@example.com" autoComplete="email" />
-                <div>
-                  <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="At least 8 characters" autoComplete="new-password" />
-                  {password && (
-                    <div className="mt-2 flex items-center gap-2">
-                      <div className="flex flex-1 gap-1">
-                        {[0, 1, 2, 3].map((i) => (
-                          <span key={i} className={`h-1.5 flex-1 rounded-full ${i < strength ? (strength <= 1 ? "bg-red-400" : strength <= 2 ? "bg-gold-400" : "bg-emerald-500") : "bg-slate-200"}`} />
-                        ))}
-                      </div>
-                      <span className="text-xs text-slate-500">{["Weak", "Weak", "Fair", "Good", "Strong"][strength]}</span>
-                    </div>
-                  )}
-                </div>
-                <Field label="Confirm Password" type="password" value={confirm} onChange={setConfirm} placeholder="Repeat your password" autoComplete="new-password" />
-              </div>
-
-              <label className="mt-4 flex cursor-pointer items-start gap-2 text-sm text-slate-600">
-                <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-brand-600" />
-                <span>I agree to the <span className="font-semibold text-brand-700">Terms of Service</span> and <span className="font-semibold text-brand-700">Privacy Policy</span></span>
-              </label>
-
-              {msg && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{msg}</p>}
-
-              <button disabled={busy} className={`${primaryBtn} mt-5`}>
-                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <UserPlus className="h-5 w-5" />} Create Account
-              </button>
-
-              <p className="mt-6 text-center text-sm text-slate-600">
-                Already have an account?{" "}
-                <button type="button" onClick={() => openModal("signin")} className="font-bold text-brand-700 hover:text-brand-900">Sign in</button>
-              </p>
-            </form>
-          )}
-          <div className="mt-6 flex justify-center gap-3 text-xs text-slate-400">
-            <Link href="/" className="hover:text-slate-600">Home</Link>·<a href="mailto:llcent.mgmt@gmail.com" className="hover:text-slate-600">Contact</a>·<Link href="/#faq" className="hover:text-slate-600">Help</Link>
+            <h1 className="mt-5 text-2xl font-extrabold">Check your email</h1>
+            <p className="mt-2 text-slate-600">
+              We sent a confirmation link to <b>{sentTo}</b>. Click it to activate your account, then sign in.
+            </p>
+            <button onClick={() => openModal("signin")} className={`${primaryBtn} mt-6`}>
+              <LogIn className="h-5 w-5" /> Go to sign in
+            </button>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+        ) : (
+          <form onSubmit={submit}>
+            <h1 className="text-center text-2xl font-extrabold text-ink">Create Your Account</h1>
+            <p className="mt-1 text-center text-sm text-slate-500">Start your English learning journey today</p>
 
-function OAuthButtonsWrapper({ onMessage }: { onMessage: (m: string) => void }) {
-  return (
-    <div className="mt-6">
-      <OAuthButtons onMessage={onMessage} />
+            <div className="mt-6 space-y-4">
+              <Field label="Full Name" value={name} onChange={setName} placeholder="Enter your full name" autoComplete="name" autoFocus />
+              <Field label="Email Address" type="email" value={email} onChange={setEmail} placeholder="you@example.com" autoComplete="email" />
+              <div>
+                <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="Create a strong password" autoComplete="new-password" />
+                <p className={`mt-1 text-xs ${password && password.length < 8 ? "text-red-500" : "text-slate-500"}`}>Minimum 8 characters</p>
+              </div>
+              <Field label="Confirm Password" type="password" value={confirm} onChange={setConfirm} placeholder="Confirm your password" autoComplete="new-password" />
+            </div>
+
+            <fieldset className="mt-5">
+              <legend className="mb-2 text-sm font-medium text-slate-700">Are you part of an institution or have an invitation code?</legend>
+              <div className="flex flex-wrap gap-x-5 gap-y-2">
+                <Radio checked={org === "none"} onChange={() => setOrg("none")}>No</Radio>
+                <Radio checked={org === "institution"} onChange={() => setOrg("institution")}>Select institution</Radio>
+                <Radio checked={org === "code"} onChange={() => setOrg("code")}>Invitation code</Radio>
+              </div>
+              {org === "institution" && (
+                <input
+                  value={institution}
+                  onChange={(e) => setInstitution(e.target.value)}
+                  placeholder="School, university or company name"
+                  className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-[15px] outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
+                />
+              )}
+              {org === "code" && (
+                <input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  placeholder="Enter your invitation code"
+                  className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-2.5 font-mono tracking-widest outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
+                />
+              )}
+            </fieldset>
+
+            <fieldset className="mt-5">
+              <legend className="mb-2 text-sm font-medium text-slate-700">Who is this account for?</legend>
+              <div className="space-y-2">
+                <Radio checked={forWho === "self"} onChange={() => setForWho("self")}>I am registering for myself.</Radio>
+                <Radio checked={forWho === "child"} onChange={() => setForWho("child")}>I am a parent or guardian registering my child.</Radio>
+              </div>
+              {forWho === "child" && (
+                <input
+                  value={childName}
+                  onChange={(e) => setChildName(e.target.value)}
+                  placeholder="Your child's name"
+                  className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-[15px] outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-100"
+                />
+              )}
+              <p className="mt-3 rounded-xl border border-slate-200 bg-mist px-3 py-2.5 text-xs leading-5 text-slate-500">
+                Students under the age of 13 may access Language Leap Center only through an account created and managed by their parent or legal guardian.
+              </p>
+            </fieldset>
+
+            <label className="mt-5 flex cursor-pointer items-start gap-2 text-sm text-slate-600">
+              <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 rounded border-slate-300 accent-brand-700" />
+              <span>
+                I agree to the <span className="font-semibold text-brand-800">Terms of Service</span> and <span className="font-semibold text-brand-800">Privacy Policy</span>
+              </span>
+            </label>
+
+            {msg && <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{msg}</p>}
+
+            <button disabled={busy} className={`${primaryBtn} mt-5`}>
+              {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Rocket className="h-5 w-5" />} Create Account
+            </button>
+
+            <Divider>Or continue with</Divider>
+            <OAuthButtons onMessage={setMsg} />
+
+            <Divider>Already have an account?</Divider>
+            <button
+              type="button"
+              onClick={() => openModal("signin")}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 py-3 text-sm font-bold text-ink transition hover:border-brand-400 hover:bg-brand-50"
+            >
+              <LogIn className="h-4 w-4" /> Sign In Instead
+            </button>
+
+            <div className="mt-6 flex justify-center gap-5 border-t border-slate-100 pt-5 text-xs text-slate-500">
+              <span className="flex items-center gap-1"><ShieldCheck className="h-3.5 w-3.5 text-brand-700" /> Secure</span>
+              <span className="flex items-center gap-1"><Lock className="h-3.5 w-3.5 text-gold-500" /> Private</span>
+              <span className="flex items-center gap-1"><BadgeCheck className="h-3.5 w-3.5 text-brand-700" /> Free to Start</span>
+            </div>
+          </form>
+        )}
+      </div>
+      <div className="mt-6 flex justify-center gap-3 text-xs text-slate-500">
+        <Link href="/" className="hover:text-ink">Home</Link>·
+        <a href={`mailto:${site.email}`} className="hover:text-ink">Contact</a>·
+        <Link href="/#faq" className="hover:text-ink">Help</Link>
+      </div>
     </div>
   );
 }
