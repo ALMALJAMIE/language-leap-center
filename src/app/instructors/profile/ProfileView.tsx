@@ -4,14 +4,22 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Award, BookOpen, CalendarPlus, ChevronRight, Globe, Languages, MapPin, UserX } from "lucide-react";
 import { getCourse, programs } from "@/data/courses";
-import { getInstructor } from "@/data/instructors";
+import { useEffect, useState } from "react";
+import { Star } from "lucide-react";
+import { supabase } from "@/lib/auth";
+import { loadTeachers, useTeacherList } from "@/lib/teaching";
 import { CourseCard } from "@/components/CourseCard";
 import { InstructorAvatar, Price, Rating, Stats, bookHref } from "@/components/Instructors";
 
 export function ProfileView() {
   const id = useSearchParams().get("id") ?? "";
-  const t = getInstructor(id);
+  const { list, loaded } = useTeacherList();
+  useEffect(() => {
+    loadTeachers();
+  }, []);
+  const t = list.find((i) => i.slug === id);
 
+  if (!t && !loaded) return <div className="min-h-[60vh]" />;
   if (!t) {
     return (
       <div className="mx-auto max-w-xl px-6 py-24 text-center">
@@ -85,6 +93,8 @@ export function ProfileView() {
             </section>
           ) : null}
 
+          {t.id && <Reviews teacherId={t.id} />}
+
           {taught.length > 0 && (
             <section>
               <h2 className="mb-4 flex items-center gap-2 text-lg font-bold"><BookOpen className="h-5 w-5 text-brand-600" /> Courses by {t.name}</h2>
@@ -113,5 +123,30 @@ export function ProfileView() {
         </aside>
       </div>
     </div>
+  );
+}
+
+function Reviews({ teacherId }: { teacherId: string }) {
+  const [rows, setRows] = useState<{ rating: number; comment: string; first_name: string; created_at: string }[]>([]);
+  useEffect(() => {
+    supabase.rpc("teacher_public_reviews", { p_teacher: teacherId }).then(({ data }) => setRows(data ?? []));
+  }, [teacherId]);
+  if (!rows.length) return null;
+  return (
+    <section className="rounded-3xl border border-slate-200 bg-white p-6">
+      <h2 className="text-lg font-bold">What learners say</h2>
+      <ul className="mt-4 divide-y divide-slate-100">
+        {rows.map((r, i) => (
+          <li key={i} className="py-4">
+            <div className="flex items-center gap-2">
+              <span className="flex">{[1, 2, 3, 4, 5].map((n) => <Star key={n} className={`h-4 w-4 ${n <= r.rating ? "fill-gold-400 text-gold-400" : "text-slate-200"}`} />)}</span>
+              <span className="text-sm font-semibold">{r.first_name}</span>
+              <span className="text-xs text-slate-400">{new Date(r.created_at).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</span>
+            </div>
+            <p className="mt-1.5 text-sm leading-6 text-slate-700">{r.comment}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

@@ -1,20 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { ChevronDown, ChevronLeft, ExternalLink, LogIn, LogOut, Mail, Menu, Search, X } from "lucide-react";
 import mark from "@/assets/logo-mark-t.png";
 import Image from "next/image";
 import { Logo } from "@/components/Logo";
-import { displayName, supabase, useAuth } from "@/lib/auth";
+import { displayName, signOut, supabase, useAuth } from "@/lib/auth";
 import { dueCards, useMounted, useProgress } from "@/lib/store";
 import { usePortalPrefs, useUI } from "@/lib/ui";
 import { NotificationBell } from "./Notifications";
 import { UserAvatar } from "@/components/account/UserAvatar";
 import { useChatUI } from "@/lib/chat";
 import { portalNav, staffNav, type NavItem } from "./nav";
-import { roleInfo, useRole } from "@/lib/roles";
+import { roleInfo, staffAlsoAllowed, useRole } from "@/lib/roles";
 import { site } from "@/lib/site";
 
 function NavLink({ item, collapsed, onNavigate }: { item: NavItem; collapsed: boolean; onNavigate: () => void }) {
@@ -109,7 +109,7 @@ function SubLinks(props: { subs: NonNullable<NavItem["children"]>; onNavigate: (
 function Sidebar({ collapsed, onNavigate }: { collapsed: boolean; onNavigate: () => void }) {
   const path = usePathname();
   const role = useRole((s) => s.role);
-  const staffArea = !!path?.startsWith("/staff");
+  const staffArea = !!role || !!path?.startsWith("/staff");
   const nav = staffArea ? staffNav(role) : portalNav;
   return (
     <nav className="flex-1 overflow-y-auto px-3 pb-6">
@@ -164,19 +164,16 @@ function UserBlock() {
       {open && (
         <div className="absolute right-0 top-14 z-50 w-56 overflow-hidden rounded-2xl border border-slate-200 bg-white py-2 shadow-xl">
           <div className="border-b border-slate-100 px-4 pb-2 pt-1 text-xs text-slate-500">{user.email}</div>
-          {[
-            ...(role ? (path?.startsWith("/staff") ? [["Learner Portal", "/dashboard/"]] : [["Team Workspace", "/staff/"]]) : []),
-            ["My Profile", "/profile/"],
-            ["Settings", "/settings/"],
-            ["Help & Support", "/help/"],
-            ["Main Website", "/"],
-          ].map(([l, h]) => (
+          {(role
+            ? [["Team Workspace", "/staff/"], ...(role === "teacher" ? [["My Public Profile", "/staff/my-profile/"]] : []), ["Settings", "/settings/"], ["Help & Support", "/help/"], ["Main Website", "/"]]
+            : [["My Profile", "/profile/"], ["Settings", "/settings/"], ["Help & Support", "/help/"], ["Main Website", "/"]]
+          ).map(([l, h]) => (
             <Link key={h} href={h} onClick={() => setOpen(false)} className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50">
               {l}
             </Link>
           ))}
           <div className="my-1 border-t border-slate-100" />
-          <button onClick={() => supabase.auth.signOut()} className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
+          <button onClick={() => signOut()} className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
             <LogOut className="h-4 w-4" /> Logout
           </button>
         </div>
@@ -185,7 +182,20 @@ function UserBlock() {
   );
 }
 
+/** Team accounts only use the workspace: learner pages send them to /staff/ */
+function useStaffOnly() {
+  const path = usePathname() ?? "";
+  const router = useRouter();
+  const role = useRole((s) => s.role);
+  const blocked = !!role && !path.startsWith("/staff") && !staffAlsoAllowed.some((p) => path === p || path.startsWith(p + "/"));
+  useEffect(() => {
+    if (blocked) router.replace("/staff/");
+  }, [blocked, router]);
+  return { role, blocked };
+}
+
 export function PortalChrome({ children }: { children: React.ReactNode }) {
+  const { role, blocked } = useStaffOnly();
   const mounted = useMounted();
   const { collapsed: collapsedPref, toggleCollapsed } = usePortalPrefs();
   const collapsed = mounted && collapsedPref;
@@ -239,14 +249,16 @@ export function PortalChrome({ children }: { children: React.ReactNode }) {
             </button>
           </div>
           <div className="flex items-center gap-1 sm:gap-3">
-            <NotificationBell />
-            <button onClick={() => openChatTop(true)} aria-label="Messages" className="grid h-10 w-10 place-items-center rounded-xl text-slate-600 hover:bg-slate-100">
-              <Mail className="h-5 w-5" />
-            </button>
+            {!role && <NotificationBell />}
+            {!role && (
+              <button onClick={() => openChatTop(true)} aria-label="Messages" className="grid h-10 w-10 place-items-center rounded-xl text-slate-600 hover:bg-slate-100">
+                <Mail className="h-5 w-5" />
+              </button>
+            )}
             <UserBlock />
           </div>
         </header>
-        <main className="min-h-[calc(100vh-72px-57px)]">{children}</main>
+        <main className="min-h-[calc(100vh-72px-57px)]">{blocked ? null : children}</main>
         <footer className="no-print flex flex-wrap items-center justify-center gap-6 border-t border-slate-200 bg-white px-4 py-4 text-sm text-slate-500">
           <Link href="/about/" className="hover:text-ink">About</Link>
           <a href={`mailto:${site.email}`} className="hover:text-ink">Contact</a>

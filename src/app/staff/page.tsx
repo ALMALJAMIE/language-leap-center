@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, BookOpen, GraduationCap, Headset, Ticket, UserPlus, Users, Activity, ShieldCheck } from "lucide-react";
+import { ArrowRight, Headset, Ticket, UserPlus, Users, Activity, ShieldCheck } from "lucide-react";
+import { TeacherHome } from "./TeacherHome";
 import { displayName, supabase, useAuth } from "@/lib/auth";
 import { roleInfo, rpcError, useRole, type Role } from "@/lib/roles";
 import { staffNav, comingSoon } from "@/components/portal/nav";
@@ -25,6 +26,9 @@ const liveText: Record<string, string> = {
   "/staff/enrollments/": "Open a paid course for a learner after payment, or remove access.",
   "/staff/courses/": "Every course with its lessons, price, status and paid learners.",
   "/staff/inbox/": "Answer visitors and learners in real time.",
+  "/staff/teachers/": "Publish teacher profiles and set learner prices and teacher pay.",
+  "/staff/payouts/": "Teacher balances, payments to teachers and learner lesson payments.",
+  "/staff/questions/": "Answer learners' questions about the lessons.",
 };
 
 function greeting() {
@@ -87,7 +91,7 @@ function Home() {
         </div>
       )}
 
-      {live.length > 0 && (
+      {live.length > 0 && role !== "teacher" && (
         <section className="mt-8">
           <h2 className="mb-4 text-lg font-bold">Your tools</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -102,18 +106,7 @@ function Home() {
         </section>
       )}
 
-      {role === "teacher" && (
-        <section className="mt-8 rounded-3xl border border-emerald-200 bg-emerald-50/50 p-6">
-          <h2 className="flex items-center gap-2 font-bold text-emerald-900"><GraduationCap className="h-5 w-5" /> Your teaching workspace is being prepared</h2>
-          <p className="mt-2 text-sm leading-6 text-emerald-900/80">
-            Below are the tools you&apos;ll use to teach on Language Leap Center. Until they are live, the team will send you your learners and lesson times directly.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-3 text-sm">
-            <Link href="/instructors/" className="rounded-xl bg-white px-4 py-2 font-semibold text-emerald-800 shadow-sm hover:shadow">Instructors page</Link>
-            <Link href="/courses/" className="flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 font-semibold text-emerald-800 shadow-sm hover:shadow"><BookOpen className="h-4 w-4" /> Course catalog</Link>
-          </div>
-        </section>
-      )}
+      {role === "teacher" && <TeacherHome />}
 
       {soon.length > 0 && (
         <section className="mt-8">

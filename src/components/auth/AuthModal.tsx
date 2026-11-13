@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Eye, EyeOff, Loader2, LogIn, UserPlus, X, KeyRound, ArrowLeft } from "lucide-react";
-import { authError, setRemember, siteUrl, supabase, useAuth } from "@/lib/auth";
+import { authError, displayName, setRemember, signOut, siteUrl, supabase, useAuth } from "@/lib/auth";
 import { oauthEnabled } from "@/lib/site";
 import { FacebookIcon, GoogleIcon } from "../BrandIcons";
 
@@ -91,6 +91,9 @@ export function OAuthButtons({ onMessage }: { onMessage: (m: string) => void }) 
 export const primaryBtn =
   "flex w-full items-center justify-center gap-2 rounded-xl py-3.5 font-bold text-white shadow-lg shadow-brand-900/20 transition hover:brightness-110 disabled:opacity-60 bg-[linear-gradient(100deg,#0b326d_0%,#1f66c8_55%,#ce961d_100%)]";
 
+/** set while this tab is signing in, so the modal doesn't switch to "already signed in" midway */
+const signingIn = { now: false };
+
 function SignIn({ close, toForgot }: { close: () => void; toForgot: () => void }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -104,8 +107,10 @@ function SignIn({ close, toForgot }: { close: () => void; toForgot: () => void }
     setBusy(true);
     setMsg(null);
     setRemember(remember);
+    signingIn.now = true;
     const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     if (error) {
+      signingIn.now = false;
       setBusy(false);
       return setMsg({ text: authError(error.message) });
     }
@@ -113,6 +118,7 @@ function SignIn({ close, toForgot }: { close: () => void; toForgot: () => void }
     const { data: staff } = await supabase.from("staff").select("user_id").eq("user_id", data.user.id).maybeSingle();
     setBusy(false);
     close();
+    signingIn.now = false;
     router.push(staff ? "/staff/" : "/dashboard/");
   };
 
@@ -188,8 +194,9 @@ function Forgot({ back }: { back: () => void }) {
 }
 
 export function AuthModal() {
-  const { modal, openModal } = useAuth();
+  const { modal, openModal, user } = useAuth();
   const close = () => openModal(null);
+  const signedIn = !!user && !signingIn.now;
 
   useEffect(() => {
     if (!modal) return;
@@ -222,10 +229,27 @@ export function AuthModal() {
             <button onClick={close} aria-label="Close" className="absolute right-4 top-4 rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
               <X className="h-5 w-5" />
             </button>
-            {modal === "signin" ? <SignIn close={close} toForgot={() => openModal("forgot")} /> : <Forgot back={() => openModal("signin")} />}
+            {signedIn ? <AlreadySignedIn close={close} /> : modal === "signin" ? <SignIn close={close} toForgot={() => openModal("forgot")} /> : <Forgot back={() => openModal("signin")} />}
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+/** Only one account can be open in a browser: ask to sign out first */
+function AlreadySignedIn({ close }: { close: () => void }) {
+  const user = useAuth((s) => s.user);
+  return (
+    <div className="text-center">
+      <h2 className="text-2xl font-extrabold">You&apos;re already signed in</h2>
+      <p className="mt-2 text-slate-600">
+        This browser is signed in as <b>{displayName(user)}</b> ({user?.email}). Sign out first to use another account.
+      </p>
+      <div className="mt-6 flex flex-col gap-3">
+        <button onClick={close} className="btn-primary py-3">Continue as {displayName(user)}</button>
+        <button onClick={() => signOut()} className="rounded-xl border-2 border-slate-200 py-3 font-bold hover:border-red-300 hover:text-red-600">Sign out</button>
+      </div>
+    </div>
   );
 }

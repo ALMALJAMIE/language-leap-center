@@ -1,6 +1,6 @@
 import {
   Award, BarChart3, CircleCheck, CirclePlay, Heart, LayoutGrid, BookOpen, BookMarked, Brain, CalendarDays, ClipboardCheck, ClipboardList, Crown, Gauge, Gift, GraduationCap, Home,
-  LifeBuoy, Mail, Banknote, BadgePercent, FileBarChart, FileCheck2, Headset, LayoutDashboard, ListChecks, Receipt, RotateCcw, ServerCog, ShieldCheck, Star, Ticket, Undo2, UserCog, Wallet, MailOpen, MessageCircle, MessagesSquare, Presentation, Search, Settings, SlidersHorizontal, Trophy, User, UserPlus, Users,
+  LifeBuoy, Mail, Banknote, CalendarClock, BadgePercent, FileBarChart, FileCheck2, Headset, LayoutDashboard, ListChecks, Receipt, RotateCcw, ServerCog, ShieldCheck, Star, Ticket, Undo2, UserCog, Wallet, MailOpen, MessageCircle, MessagesSquare, Presentation, Search, Settings, SlidersHorizontal, Trophy, User, UserPlus, Users,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,7 +41,7 @@ export const portalNav: NavItem[][] = [
     { label: "My Progress", href: "/progress/", icon: BarChart3, color: "text-blue-600" },
     { label: "Assessments & Quizzes", href: "/assessments/", icon: ClipboardCheck, color: "text-rose-600" },
     { label: "Daily Review", href: "/review/", icon: Brain, color: "text-violet-600", badge: "due" },
-    { label: "Assignments", href: soon("assignments"), icon: ClipboardList, color: "text-orange-500", soon: true },
+    { label: "Assignments", href: "/assignments/", icon: ClipboardList, color: "text-orange-500" },
     { label: "Certificates", href: "/certificates/", icon: Award, color: "text-gold-500" },
     { label: "Messages", href: "#messages", icon: Mail, color: "text-blue-500", action: "chat" },
     { label: "Live Chat", href: "#chat", icon: MessagesSquare, color: "text-cyan-600", action: "chat" },
@@ -87,18 +87,21 @@ const it = {
   tickets: { label: "Tickets", href: s("st-tickets"), icon: LifeBuoy, color: "text-emerald-600", soon: true },
   system: { label: "System Status", href: s("st-system"), icon: ServerCog, color: "text-slate-600", soon: true },
   settings: { label: "Site Settings", href: s("st-settings"), icon: UserCog, color: "text-slate-600", soon: true },
+  teachers: { label: "Teachers & Prices", href: "/staff/teachers/", icon: GraduationCap, color: "text-pink-600" },
+  teacherPay: { label: "Teacher Payouts", href: "/staff/payouts/", icon: Wallet, color: "text-teal-600" },
+  questions: { label: "Lesson Questions", href: "/staff/questions/", icon: MessageCircle, color: "text-cyan-600" },
   // teacher
-  students: { label: "My Students", href: s("t-students"), icon: Users, color: "text-sky-600", soon: true },
-  lessons: { label: "Private Lessons", href: s("t-lessons"), icon: GraduationCap, color: "text-pink-600", soon: true },
-  classes: { label: "My Classes", href: s("t-classes"), icon: Presentation, color: "text-teal-600", soon: true },
-  homework: { label: "Assignments & Grading", href: s("t-assignments"), icon: ClipboardList, color: "text-orange-500", soon: true },
-  schedule: { label: "Schedule & Availability", href: s("t-schedule"), icon: CalendarDays, color: "text-amber-600", soon: true },
-  publicProfile: { label: "My Public Profile", href: s("t-profile"), icon: User, color: "text-brand-600", soon: true },
-  earnings: { label: "My Earnings", href: s("t-earnings"), icon: Banknote, color: "text-lime-600", soon: true },
+  lessons: { label: "Lessons", href: "/staff/lessons/", icon: CalendarDays, color: "text-pink-600" },
+  students: { label: "My Students", href: "/staff/students/", icon: Users, color: "text-sky-600" },
+  homework: { label: "Assignments", href: "/staff/assignments/", icon: ClipboardList, color: "text-orange-500" },
+  availability: { label: "Availability", href: "/staff/availability/", icon: CalendarClock, color: "text-amber-600" },
+  earnings: { label: "Earnings", href: "/staff/earnings/", icon: Banknote, color: "text-lime-600" },
+  publicProfile: { label: "My Public Profile", href: "/staff/my-profile/", icon: User, color: "text-brand-600" },
 } satisfies Record<string, NavItem>;
 
 const common: NavItem[] = [
-  { label: "Learner Portal", href: "/dashboard/", icon: Gauge, color: "text-slate-600" },
+  { label: "Settings", href: "/settings/", icon: Settings, color: "text-slate-600" },
+  { label: "Help & Support", href: "/help/", icon: LifeBuoy, color: "text-emerald-600" },
   { label: "Main Website", href: "/", icon: Home, color: "text-slate-600", external: true },
 ];
 
@@ -106,16 +109,17 @@ export function staffNav(role: StaffRole | null): NavItem[][] {
   switch (role) {
     case "admin":
       return [
-        [it.overview, it.users, it.team, it.enrollments, it.courses, it.inbox],
-        [it.instructors, it.payments, it.coupons, it.reports, it.certificates, it.settings],
+        [it.overview, it.users, it.team, it.teachers, it.enrollments, it.teacherPay],
+        [it.courses, it.questions, it.inbox],
+        [it.payments, it.reports, it.settings],
         common,
       ];
     case "teacher":
-      return [[it.overview, it.students, it.lessons, it.classes, it.homework, it.schedule], [it.publicProfile, it.earnings], common];
+      return [[it.overview, it.lessons, it.students, it.homework, it.questions], [it.availability, it.earnings, it.publicProfile], common];
     case "finance":
-      return [[it.overview, it.enrollments, it.users], [it.payments, it.coupons, it.refunds, it.payouts, it.reports], common];
+      return [[it.overview, it.enrollments, it.teacherPay, it.teachers, it.users], [it.payments, it.coupons, it.refunds, it.reports], common];
     case "academic":
-      return [[it.overview, it.courses, it.users], [it.placement, it.certificates, it.quality, it.instructors], common];
+      return [[it.overview, it.courses, it.questions, it.teachers, it.users], [it.placement, it.certificates, it.quality], common];
     case "support":
       return [[it.overview, it.inbox, it.users], [it.tickets, it.system], common];
     default:

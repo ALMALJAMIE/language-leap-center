@@ -42,15 +42,38 @@ export function startAuth() {
     }
   } catch {}
 
+  // One account per browser: every tab shares the same session. When the account
+  // changes in another tab (or the user signs out), this tab reloads so it never
+  // keeps showing the previous person's data.
+  let shownId: string | null | undefined; // undefined = first load
   const apply = (session: Session | null) => {
+    const real = session?.user && !session.user.is_anonymous ? session.user : null;
+    const nextId = real?.id ?? null;
+    if (shownId && nextId !== shownId) {
+      if (!nextId) window.location.assign(siteUrl("/"));
+      else window.location.reload();
+      return;
+    }
+    shownId = nextId;
     useAuth.getState().setSession(session);
     // load lazily to keep the auth module small
-    const real = session?.user && !session.user.is_anonymous ? session.user : null;
     import("./sync").then((m) => m.onUserChange(real));
     import("./roles").then((m) => m.loadRole(real?.id ?? null));
   };
   supabase.auth.getSession().then(({ data }) => apply(data.session));
   supabase.auth.onAuthStateChange((_e, session) => apply(session));
+  // fallback for browsers without BroadcastChannel: react to the shared storage key
+  window.addEventListener("storage", (e) => {
+    if (e.key?.endsWith("-auth-token")) supabase.auth.getSession().then(({ data }) => apply(data.session));
+  });
+}
+
+/** Sign out and go to the home page so no private data stays on screen */
+export async function signOut() {
+  try {
+    await supabase.auth.signOut();
+  } catch {}
+  window.location.assign(siteUrl("/"));
 }
 
 export function setRemember(remember: boolean) {

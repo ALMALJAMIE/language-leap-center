@@ -7,7 +7,7 @@ import { ChevronDown, Flame, LogOut, Menu, Search, ShieldCheck, X, Zap } from "l
 import { Logo } from "./Logo";
 import { ArabicToggle } from "./ArabicToggle";
 import { dueCards, useMounted, useProgress } from "@/lib/store";
-import { displayName, supabase, useAuth } from "@/lib/auth";
+import { displayName, signOut, supabase, useAuth } from "@/lib/auth";
 import { UserAvatar } from "./account/UserAvatar";
 import { useUI } from "@/lib/ui";
 import { accountNav } from "./account/accountNav";
@@ -46,7 +46,7 @@ function UserMenu() {
             <div className="truncate font-bold">{name}</div>
             <div className="truncate text-xs text-slate-500">{user?.email}</div>
           </div>
-          {[...(role ? [{ href: "/staff/", label: "Team Workspace", icon: ShieldCheck }] : []), ...accountNav].map(({ href, label, icon: Icon }) => (
+          {(role ? [{ href: "/staff/", label: "Team Workspace", icon: ShieldCheck }] : accountNav).map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
@@ -62,7 +62,7 @@ function UserMenu() {
             role="menuitem"
             onClick={async () => {
               setOpen(false);
-              await supabase.auth.signOut();
+              await signOut();
             }}
             className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
           >
@@ -81,6 +81,7 @@ export function Header() {
   const mounted = useMounted();
   const { xp, streak, cards } = useProgress();
   const { user, ready, openModal } = useAuth();
+  const staffRole = useRole((s) => s.role);
   const due = mounted ? dueCards(cards).length : 0;
 
   const hidden = path?.startsWith("/learn/"); // the lesson player is full screen
@@ -119,7 +120,7 @@ export function Header() {
                 <Search className="h-5 w-5" />
               </button>
 
-              {mounted && (xp > 0 || streak > 0) && (
+              {mounted && !staffRole && (xp > 0 || streak > 0) && (
                 <Link href="/dashboard/" className="hidden items-center gap-3 rounded-xl bg-mist px-3 py-2 text-sm font-bold xl:flex">
                   <span className="flex items-center gap-1 text-orange-500" title="Day streak"><Flame className="h-4 w-4" />{streak}</span>
                   <span className="flex items-center gap-1 text-gold-500" title="XP"><Zap className="h-4 w-4" />{xp}</span>

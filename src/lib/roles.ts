@@ -41,7 +41,20 @@ export const pageAccess: Record<string, Role[]> = {
   "/staff/enrollments/": ["finance"],
   "/staff/courses/": ["academic", "finance"],
   "/staff/inbox/": ["support"],
+  "/staff/teachers/": ["finance", "academic"],
+  "/staff/payouts/": ["finance"],
+  "/staff/questions/": ["teacher", "academic"],
+  "/staff/lessons/": ["teacher"],
+  "/staff/students/": ["teacher"],
+  "/staff/assignments/": ["teacher"],
+  "/staff/availability/": ["teacher"],
+  "/staff/earnings/": ["teacher"],
+  "/staff/my-profile/": ["teacher"],
+  "/staff/soon/": roles,
 };
+
+/** Pages outside /staff/ that team accounts may open (everything else in the learner portal sends them to /staff/) */
+export const staffAlsoAllowed = ["/settings", "/help"];
 
 export const can = (role: Role | null, page: string) =>
   !!role && (role === "admin" || (pageAccess[page] ?? []).includes(role));

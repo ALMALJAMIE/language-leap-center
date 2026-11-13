@@ -9,6 +9,7 @@ import type { Course, Exercise, LessonSpec } from "@/lib/types";
 import { courseLessons } from "@/data/courses";
 import { generateExercises, isGraded } from "@/lib/generate";
 import { useProgress } from "@/lib/store";
+import { LessonQuestions } from "./LessonQuestions";
 import { useVoicesReady } from "@/lib/speech";
 import {
   BuildEx, ChoiceMeaningEx, ChoiceWordEx, DialogueEx, DictationEx, FillEx, GrammarEx, ListenEx, MatchEx, NewWordEx, SpeakEx,
@@ -156,6 +157,7 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
             <Link href={`/courses/${course.slug}/`} className="btn-primary py-3.5 text-lg">Back to course</Link>
           )}
           <Link href="/review/" className="btn-gold py-3">Review words now</Link>
+          <LessonQuestions course={course.slug} lesson={lesson.id} title={lesson.title} variant="button" />
           <Link href={`/courses/${course.slug}/`} className="py-2 font-bold text-slate-500">Course content</Link>
         </div>
       </div>
@@ -203,6 +205,7 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
             </motion.span>
           )}
         </AnimatePresence>
+        <LessonQuestions course={course.slug} lesson={lesson.id} title={lesson.title} />
       </div>
 
       {/* Exercise */}

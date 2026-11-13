@@ -23,7 +23,7 @@ export function InstructorAvatar({ t, size = "md" }: { t: Instructor; size?: "md
     <div className={`relative ${box}`}>
       {t.photo ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={`${basePath}${t.photo}`} alt={t.name} className="h-full w-full rounded-full object-cover shadow-md ring-4 ring-white" />
+        <img src={/^(data:|https?:)/.test(t.photo) ? t.photo : `${basePath}${t.photo}`} alt={t.name} className="h-full w-full rounded-full object-cover shadow-md ring-4 ring-white" />
       ) : (
         <div className="grid h-full w-full place-items-center rounded-full bg-gradient-to-br from-brand-500 to-brand-800 font-extrabold text-white shadow-md ring-4 ring-white">
           {initialsOf(t.name)}
@@ -52,6 +52,7 @@ export function Rating({ t }: { t: Instructor }) {
 export function Stats({ t }: { t: Instructor }) {
   const items = [
     { v: t.courses?.length, l: "Courses", c: "text-gold-600" },
+    { v: (t as { lessonsTaught?: number }).lessonsTaught, l: "Lessons", c: "text-gold-600" },
     { v: t.students, l: "Students", c: "text-ink" },
     { v: t.experienceYears, l: "Years exp.", c: "text-brand-700" },
   ].filter((i) => i.v);

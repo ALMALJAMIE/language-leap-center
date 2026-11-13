@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BadgeCheck, BarChart3, CalendarPlus, ChevronDown, ChevronRight, GraduationCap, Heart, LayoutGrid,
   MessageCircleQuestion, Presentation, Search, SlidersHorizontal, Sparkles, Users, X,
 } from "lucide-react";
 import { programs } from "@/data/courses";
-import { instructors, languageOptions, type Instructor } from "@/data/instructors";
+import type { Instructor } from "@/data/instructors";
+import { loadTeachers, useTeacherList } from "@/lib/teaching";
 import { InstructorCard } from "@/components/Instructors";
 import { WhatsAppIcon } from "@/components/BrandIcons";
 import { site } from "@/lib/site";
@@ -45,7 +46,11 @@ function View({ params }: { params: URLSearchParams }) {
   };
   const [draft, setDraft] = useState<Filters>(start);
   const [applied, setApplied] = useState<Filters>(start);
-  const langs = useMemo(() => languageOptions(), []);
+  const instructors = useTeacherList((s) => s.list);
+  useEffect(() => {
+    loadTeachers();
+  }, []);
+  const langs = useMemo(() => [...new Set(instructors.flatMap((i) => i.languages))].sort(), [instructors]);
 
   const list = useMemo(() => {
     const q = applied.q.trim().toLowerCase();
@@ -54,7 +59,7 @@ function View({ params }: { params: URLSearchParams }) {
       .filter((t) => applied.lang === "all" || t.languages.includes(applied.lang))
       .filter((t) => applied.spec === "all" || t.specialties.includes(applied.spec))
       .sort(sorts[applied.sort].fn);
-  }, [applied]);
+  }, [applied, instructors]);
 
   const filtered = applied.q.trim() !== "" || applied.lang !== "all" || applied.spec !== "all";
   const apply = (e?: React.FormEvent) => {
@@ -87,7 +92,7 @@ function View({ params }: { params: URLSearchParams }) {
             Learn with qualified English teachers who know how Arabic speakers learn. Our instructors plan every lesson around your goal — speaking with confidence, passing an exam, or using English at work.
           </p>
           <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
-            <span className="flex items-center gap-1.5"><Users className="h-4 w-4 text-gold-500" /> {instructors.length > 0 ? `${instructors.length} Expert Instructors` : "Qualified English Teachers"}</span>
+            <span className="flex items-center gap-1.5"><Users className="h-4 w-4 text-gold-500" /> {instructors.length > 1 ? `${instructors.length} Expert Instructors` : "Qualified English Teachers"}</span>
             <span className="flex items-center gap-1.5"><CalendarPlus className="h-4 w-4 text-gold-500" /> Private 1-on-1 Lessons</span>
             <span className="flex items-center gap-1.5"><BadgeCheck className="h-4 w-4 text-brand-700" /> Verified Profiles</span>
           </div>
