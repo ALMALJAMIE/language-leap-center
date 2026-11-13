@@ -4,6 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "./Logo";
 import { programs } from "@/data/courses";
+import { Mail, Phone } from "lucide-react";
+import { site } from "@/lib/site";
+import { InstagramIcon, SnapchatIcon, WhatsAppIcon } from "./BrandIcons";
 
 export function Footer() {
   const path = usePathname();
@@ -23,34 +26,37 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="mb-4 font-bold text-white">Programs</h3>
+          <h3 className="mb-4 font-bold text-white">Learning</h3>
           <ul className="space-y-2.5 text-sm">
+            <li><Link href="/courses/" className="hover:text-gold-300">Browse all courses</Link></li>
             {Object.entries(programs).map(([id, p]) => (
-              <li key={id}>
-                <Link href={`/courses/?program=${id}`} className="hover:text-gold-300">
-                  {p.name}
-                </Link>
-              </li>
+              <li key={id}><Link href={`/courses/?program=${id}`} className="hover:text-gold-300">{p.name}</Link></li>
             ))}
+            <li><Link href="/private-lessons/" className="hover:text-gold-300">Private lessons</Link></li>
           </ul>
         </div>
 
         <div>
-          <h3 className="mb-4 font-bold text-white">Learn</h3>
+          <h3 className="mb-4 font-bold text-white">Support</h3>
           <ul className="space-y-2.5 text-sm">
-            <li><Link href="/courses/" className="hover:text-gold-300">All courses</Link></li>
+            <li><Link href="/help/" className="hover:text-gold-300">Help Center</Link></li>
+            <li><Link href="/#faq" className="hover:text-gold-300">FAQs</Link></li>
             <li><Link href="/placement/" className="hover:text-gold-300">Placement test</Link></li>
-            <li><Link href="/review/" className="hover:text-gold-300">Spaced review</Link></li>
-            <li><Link href="/dashboard/" className="hover:text-gold-300">Learner dashboard</Link></li>
+            <li><Link href="/#method" className="hover:text-gold-300">Our method</Link></li>
+            <li><Link href="/about/" className="hover:text-gold-300">About us</Link></li>
           </ul>
         </div>
 
         <div>
-          <h3 className="mb-4 font-bold text-white">Center</h3>
-          <ul className="space-y-2.5 text-sm">
-            <li><Link href="/#method" className="hover:text-gold-300">Our method</Link></li>
-            <li><Link href="/#faq" className="hover:text-gold-300">FAQ</Link></li>
-            <li><Link href="/about/" className="hover:text-gold-300">About us</Link></li>
+          <h3 className="mb-4 font-bold text-white">Contact</h3>
+          <ul className="space-y-3 text-sm">
+            <li><a href={site.phoneHref} className="flex items-center gap-2 hover:text-gold-300"><Phone className="h-4 w-4 text-gold-300" /> {site.phone}</a></li>
+            <li><a href={`mailto:${site.email}`} className="flex items-center gap-2 hover:text-gold-300"><Mail className="h-4 w-4 text-gold-300" /> {site.email}</a></li>
+            <li><a href={site.whatsapp} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-gold-300"><WhatsAppIcon className="h-4 w-4 text-gold-300" /> WhatsApp</a></li>
+            <li className="flex gap-3 pt-1">
+              <a href={site.social.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="grid h-9 w-9 place-items-center rounded-full bg-white/10 hover:bg-white/20"><InstagramIcon /></a>
+              <a href={site.social.snapchat} target="_blank" rel="noopener noreferrer" aria-label="Snapchat" className="grid h-9 w-9 place-items-center rounded-full bg-white/10 hover:bg-white/20"><SnapchatIcon /></a>
+            </li>
           </ul>
         </div>
       </div>
