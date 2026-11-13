@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import {
-  Award, BarChart3, BookOpen, Calendar, Check, ChevronDown, ChevronRight, Clock, GraduationCap, Headphones, Heart, Link2, Lock, Mic,
+  ArrowRight, Award, BarChart3, LayoutGrid, BookOpen, Calendar, Check, ChevronDown, ChevronRight, Clock, GraduationCap, Headphones, Heart, Link2, Lock, Mic,
   PenLine, Play, PlayCircle, Sparkles, Star, Target, Users, BadgeCheck,
 } from "lucide-react";
 import mark from "@/assets/logo-mark-t.png";
@@ -55,7 +55,7 @@ export function CourseDetail({ slug }: { slug: string }) {
   const totalWords = lessons.reduce((n, l) => n + l.words.length, 0);
   const upcoming = course.modules.reduce((n, m) => n + (m.upcoming?.length ?? 0), 0);
   const wished = mounted && wishlist.includes(slug);
-  const related = courses.filter((c) => c.slug !== slug).sort((a, b) => Number(b.program === course.program) - Number(a.program === course.program) || a.order - b.order).slice(0, 3);
+  const related = courses.filter((c) => c.slug !== slug).sort((a, b) => Number(b.program === course.program) - Number(a.program === course.program) || a.order - b.order).slice(0, 6);
   const url = mounted ? siteUrl(`/courses/${slug}/`) : "";
   const shareText = `${course.title} — Language Leap Center`;
 
@@ -71,7 +71,7 @@ export function CourseDetail({ slug }: { slug: string }) {
   ];
 
   return (
-    <div className="bg-slate-50/50">
+    <div className="-mb-24 bg-slate-50/50 pb-20">
       <div className="mx-auto max-w-7xl px-6 py-8">
         {/* Breadcrumb */}
         <nav className="mb-5 flex flex-wrap items-center gap-1.5 text-sm text-slate-500">
@@ -339,6 +339,11 @@ export function CourseDetail({ slug }: { slug: string }) {
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((c) => <CourseCard key={c.slug} course={c} />)}
+          </div>
+          <div className="mt-10 text-center">
+            <Link href={`/courses/?program=${course.program}`} className="inline-flex items-center gap-2 rounded-xl border-2 border-slate-300 bg-white px-6 py-3 font-bold text-ink transition hover:border-brand-400">
+              <LayoutGrid className="h-4 w-4" /> View More {programs[course.program].name} Courses <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </section>
       </div>
