@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ArrowLeft, CalendarCheck, CalendarDays, CalendarPlus, Camera, Check, Clock, GraduationCap, Loader2, NotebookPen, Star, UserRound, X,
+  ArrowLeft, CalendarCheck, CalendarDays, CalendarPlus, Camera, Check, ChevronLeft, ChevronRight, Clock, GraduationCap, Loader2, NotebookPen, Star, UserRound, X,
 } from "lucide-react";
 import { AccountShell, SignInPrompt } from "@/components/account/AccountShell";
 import { WhatsAppIcon } from "@/components/BrandIcons";
@@ -36,7 +36,7 @@ export function PrivateLessonsView() {
     router.push(s ? `/private-lessons/?teacher=${s}` : "/private-lessons/");
     window.scrollTo({ top: 0 });
   };
-  const teacher = list.find((t) => t.slug === slug && t.id && t.hasSlots);
+  const teacher = list.find((t) => t.slug === slug && t.id);
   const scrollToTeachers = () => document.getElementById("instructors")?.scrollIntoView({ behavior: "smooth" });
 
   // learners book with their real name and photo, like a class register
@@ -121,7 +121,7 @@ function CompleteProfile() {
 }
 
 function TeacherTile({ t, onBook }: { t: BookableInstructor; onBook: () => void }) {
-  const bookable = !!t.id && !!t.hasSlots;
+  const bookable = !!t.id;
   const wa = () => window.open(`${site.whatsapp}?text=${encodeURIComponent(`Hello Language Leap Center! I'd like to book a private lesson with ${t.name}.`)}`, "_blank", "noopener");
   return (
     <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-md">
@@ -138,7 +138,7 @@ function TeacherTile({ t, onBook }: { t: BookableInstructor; onBook: () => void 
       {bookable ? (
         <button onClick={onBook} className="mt-4 rounded-xl bg-brand-950 py-2.5 text-sm font-bold text-white hover:bg-brand-800">Book</button>
       ) : (
-        <button onClick={wa} className="mt-4 flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 py-2 text-sm font-bold text-slate-600 hover:border-emerald-400"><WhatsAppIcon className="h-4 w-4 text-emerald-600" /> Ask for a time</button>
+        <button onClick={wa} className="mt-4 rounded-xl bg-brand-950 py-2.5 text-sm font-bold text-white hover:bg-brand-800">Book</button>
       )}
     </div>
   );
@@ -148,9 +148,11 @@ function TeacherTile({ t, onBook }: { t: BookableInstructor; onBook: () => void 
 
 function Booking({ teacher, onBack, onBooked }: { teacher: BookableInstructor; onBack: () => void; onBooked: () => void }) {
   const { user, ready } = useAuth();
-  const [mins, setMins] = useState(60);
+  const [step, setStep] = useState<2 | 3 | 4>(2);
+  const [mins, setMins] = useState(30);
   const [slots, setSlots] = useState<Slot[] | null>(null);
   const [busy, setBusy] = useState<{ starts_at: string; minutes: number }[]>([]);
+  const [week, setWeek] = useState(0);
   const [day, setDay] = useState<string | null>(null);
   const [start, setStart] = useState<Date | null>(null);
   const [note, setNote] = useState("");
@@ -167,18 +169,23 @@ function Booking({ teacher, onBack, onBooked }: { teacher: BookableInstructor; o
     });
   }, [teacher.id]);
 
-  const starts = useMemo(() => (slots ? freeStarts(slots, busy, mins) : []), [slots, busy, mins]);
-  const days = useMemo(() => {
+  const WEEKS = 4;
+  const starts = useMemo(() => (slots ? freeStarts(slots, busy, mins, WEEKS * 7) : []), [slots, busy, mins]);
+  const byDay = useMemo(() => {
     const m = new Map<string, Date[]>();
     for (const s of starts) {
       const k = s.toDateString();
       if (!m.has(k)) m.set(k, []);
       m.get(k)!.push(s);
     }
-    return [...m.entries()];
+    return m;
   }, [starts]);
-  const activeDay = day && days.some(([k]) => k === day) ? day : days[0]?.[0] ?? null;
-  const times = days.find(([k]) => k === activeDay)?.[1] ?? [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Array.from({ length: 7 }, (_, i) => new Date(today.getFullYear(), today.getMonth(), today.getDate() + week * 7 + i));
+  const firstFree = days.find((d) => byDay.has(d.toDateString()))?.toDateString() ?? null;
+  const activeDay = day && days.some((d) => d.toDateString() === day) ? day : firstFree;
+  const times = activeDay ? byDay.get(activeDay) ?? [] : [];
   const price = teacher.hourly ? (teacher.hourly * mins) / 60 : 0;
 
   const send = async () => {
@@ -190,82 +197,145 @@ function Booking({ teacher, onBack, onBooked }: { teacher: BookableInstructor; o
     if (error) return setErr(rpcError(error));
     onBooked();
   };
+  const askTeam = () =>
+    window.open(`${site.whatsapp}?text=${encodeURIComponent(`Hello Language Leap Center! I'd like to book a ${mins}-minute private lesson with ${teacher.name}. Which times are possible?`)}`, "_blank", "noopener");
+
+  const stepNames = ["Instructor", "Time", "Pay", "Review"];
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-      <div className="min-w-0 space-y-6">
-        <button onClick={onBack} className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-ink"><ArrowLeft className="h-4 w-4" /> Choose another teacher</button>
+    <div className="mx-auto max-w-3xl">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-ink"><ArrowLeft className="h-4 w-4" /> Private Lessons</button>
+      <h2 className="mt-4 text-2xl font-extrabold">Book a private lesson</h2>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-6">
-          <h2 className="font-bold">1. Lesson length</h2>
-          <div className="mt-3 grid grid-cols-3 gap-3">
-            {[30, 60, 90].map((m) => (
-              <button key={m} onClick={() => { setMins(m); setStart(null); }} className={`rounded-2xl border-2 p-3 text-center transition ${mins === m ? "border-brand-600 bg-brand-50" : "border-slate-200 hover:border-slate-300"}`}>
-                <div className="flex items-center justify-center gap-1.5 text-lg font-extrabold"><Clock className="h-4 w-4 text-gold-500" /> {m} min</div>
-                {teacher.hourly ? <div className="text-xs text-slate-500">{money((teacher.hourly * m) / 60)}</div> : null}
+      <ol className="mt-5 flex flex-wrap items-center gap-2 text-sm">
+        {stepNames.map((n, i) => {
+          const no = i + 1;
+          const done = no < step;
+          const on = no === step;
+          const can = no >= 2 && no < step;
+          return (
+            <li key={n} className="flex items-center gap-2">
+              <button disabled={!can && no !== 1} onClick={() => (no === 1 ? onBack() : can && setStep(no as 2 | 3 | 4))} className={`flex items-center gap-2 ${on ? "font-bold text-ink" : done ? "text-emerald-700" : "text-slate-400"}`}>
+                <span className={`grid h-6 w-6 place-items-center rounded-full border text-xs ${on ? "border-ink" : done ? "border-emerald-500 bg-emerald-500 text-white" : "border-slate-300"}`}>{done ? <Check className="h-3.5 w-3.5" /> : no}</span>
+                {n}
               </button>
-            ))}
-          </div>
-        </section>
+              {no < 4 && <ChevronRight className="h-4 w-4 text-slate-300" />}
+            </li>
+          );
+        })}
+      </ol>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-6">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h2 className="font-bold">2. Pick a time</h2>
-            <span className="text-xs text-slate-500">Times shown in {timeZone()}</span>
-          </div>
-          {slots === null ? (
-            <div className="py-8 text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin text-slate-300" /></div>
-          ) : days.length === 0 ? (
-            <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">No free times in the next 3 weeks for a {mins}-minute lesson. Try a shorter lesson or another teacher.</p>
-          ) : (
-            <>
-              <div className="no-scrollbar mt-4 flex gap-2 overflow-x-auto pb-1">
-                {days.map(([k, list]) => (
-                  <button key={k} onClick={() => { setDay(k); setStart(null); }} className={`shrink-0 rounded-xl border-2 px-3 py-2 text-center text-sm transition ${k === activeDay ? "border-brand-600 bg-brand-50 font-bold text-brand-800" : "border-slate-200 hover:border-slate-300"}`}>
-                    <div>{fmtDay(list[0])}</div>
-                    <div className="text-[11px] font-normal text-slate-500">{list.length} times</div>
-                  </button>
-                ))}
-              </div>
-              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
-                {times.map((t) => (
-                  <button key={t.toISOString()} onClick={() => setStart(t)} className={`rounded-xl border-2 py-2 text-sm font-semibold transition ${start?.getTime() === t.getTime() ? "border-gold-400 bg-gold-50 text-brand-900" : "border-slate-200 hover:border-brand-300"}`}>
-                    {fmtTime(t)}
-                  </button>
-                ))}
-              </div>
-            </>
-          )}
-        </section>
-
-        <section className="rounded-3xl border border-slate-200 bg-white p-6">
-          <h2 className="font-bold">3. What do you want to work on? <span className="font-normal text-slate-400">(optional)</span></h2>
-          <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={600} placeholder="e.g. I have a job interview next week and want to practise answering questions." className="mt-3 w-full rounded-xl border border-slate-300 p-3 text-sm outline-none focus:border-brand-500" />
-        </section>
-      </div>
-
-      <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="mt-5 rounded-3xl border border-slate-200 bg-white p-6">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="h-14 w-14 shrink-0 overflow-hidden"><div className="origin-top-left scale-50"><InstructorAvatar t={teacher} /></div></div>
-            <div className="min-w-0"><b className="block truncate">{teacher.name}</b><span className="line-clamp-1 text-xs text-slate-500">{teacher.title}</span></div>
+            <div className="h-11 w-11 shrink-0 overflow-hidden"><div className="origin-top-left scale-[0.39]"><InstructorAvatar t={teacher} /></div></div>
+            <div><b>{teacher.name}</b>{teacher.hourly ? <div className="text-xs text-slate-500">{money(teacher.hourly)} / hour</div> : null}</div>
           </div>
-          <dl className="mt-5 space-y-2 border-t border-slate-100 pt-4 text-sm">
-            <div className="flex justify-between"><dt className="text-slate-500">Length</dt><dd className="font-semibold">{mins} minutes</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">When</dt><dd className="font-semibold">{start ? fmtWhen(start.toISOString()) : "—"}</dd></div>
-            <div className="flex justify-between"><dt className="text-slate-500">Price</dt><dd className="font-extrabold text-brand-800">{price ? money(price) : "—"}</dd></div>
-          </dl>
-          {err && <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">{err}</p>}
-          {!ready ? null : !user ? (
-            <div className="mt-5"><SignInPrompt text="Sign in to send your booking request." /></div>
-          ) : (
-            <button onClick={send} disabled={!start || sending} className="btn-gold mt-5 flex w-full items-center justify-center gap-2 py-3 disabled:cursor-not-allowed disabled:opacity-50">
-              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarCheck className="h-4 w-4" />} Send booking request
-            </button>
-          )}
-          <p className="mt-3 text-xs leading-5 text-slate-500">The teacher confirms your request, then the video link appears in “My lessons”. Our team will contact you about payment.</p>
+          <button onClick={onBack} className="text-sm font-semibold text-slate-600 hover:text-ink">Change</button>
         </div>
-      </aside>
+
+        {step === 2 && (
+          <>
+            <div className="mt-6 text-sm font-semibold">Length</div>
+            <div className="mt-2 inline-flex rounded-xl border border-slate-200 p-1">
+              {[30, 60, 90].map((m) => (
+                <button key={m} onClick={() => { setMins(m); setStart(null); }} className={`rounded-lg px-4 py-2 text-sm transition ${mins === m ? "bg-brand-950 font-semibold text-white" : "text-slate-600 hover:bg-slate-50"}`}>{m} min</button>
+              ))}
+            </div>
+
+            <div className="mt-6 flex items-center justify-between gap-3">
+              <span className="text-sm text-slate-500">Times shown in {timeZone()}</span>
+              <span className="flex gap-2">
+                <button disabled={week === 0} onClick={() => { setWeek(week - 1); setDay(null); setStart(null); }} aria-label="Previous week" className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 disabled:opacity-30"><ChevronLeft className="h-5 w-5" /></button>
+                <button disabled={week >= WEEKS - 1} onClick={() => { setWeek(week + 1); setDay(null); setStart(null); }} aria-label="Next week" className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 disabled:opacity-30"><ChevronRight className="h-5 w-5" /></button>
+              </span>
+            </div>
+            {slots === null ? (
+              <div className="py-8 text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin text-slate-300" /></div>
+            ) : (
+              <>
+                <div className="mt-3 grid grid-cols-7 gap-2">
+                  {days.map((d) => {
+                    const k = d.toDateString();
+                    const n = byDay.get(k)?.length ?? 0;
+                    const on = k === activeDay;
+                    return (
+                      <button key={k} disabled={!n} onClick={() => { setDay(k); setStart(null); }} className={`rounded-xl border py-2 text-center text-xs leading-5 transition ${on ? "border-brand-700 bg-brand-50 text-brand-900 ring-1 ring-brand-700" : n ? "border-slate-200 hover:border-slate-300" : "border-slate-100 text-slate-300"}`}>
+                        <div className="font-semibold">{d.toLocaleDateString("en-GB", { weekday: "short" })}</div>
+                        <div>{d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}</div>
+                        <div className={n ? "text-emerald-600" : ""}>{n}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                {starts.length === 0 ? (
+                  <div className="mt-5 rounded-2xl bg-slate-50 p-5 text-center">
+                    <CalendarDays className="mx-auto h-8 w-8 text-slate-300" />
+                    <p className="mt-2 text-sm text-slate-600">{slots.length === 0 ? `${teacher.name} hasn't opened booking times yet.` : `No free times in the next ${WEEKS} weeks for a ${mins}-minute lesson. Try a shorter lesson.`}</p>
+                    <button onClick={askTeam} className="mx-auto mt-3 flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700"><WhatsAppIcon className="h-4 w-4" /> Ask our team for a time</button>
+                  </div>
+                ) : times.length === 0 ? (
+                  <p className="mt-5 rounded-2xl bg-slate-50 p-4 text-center text-sm text-slate-500">No free times this week — use the arrow to see the next week.</p>
+                ) : (
+                  <>
+                    <div className="mt-6 text-sm font-semibold">Start time <span className="font-normal text-slate-500">({timeZone()})</span></div>
+                    <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                      {times.map((t) => (
+                        <button key={t.toISOString()} onClick={() => setStart(t)} className={`rounded-xl border py-2.5 text-sm transition ${start?.getTime() === t.getTime() ? "border-brand-700 bg-brand-950 font-semibold text-white" : "border-slate-200 hover:border-brand-300"}`}>
+                          {fmtTime(t)}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+            <div className="mt-6 flex justify-end">
+              <button disabled={!start} onClick={() => setStep(3)} className="btn-primary px-6 py-2.5 text-sm disabled:opacity-40">Continue</button>
+            </div>
+          </>
+        )}
+
+        {step === 3 && start && (
+          <div className="mt-6">
+            <div className="rounded-2xl bg-slate-50 p-5">
+              <div className="flex justify-between text-sm"><span className="text-slate-500">{mins}-minute lesson · {fmtWhen(start.toISOString())}</span><b className="text-lg">{money(price)}</b></div>
+            </div>
+            <div className="mt-4 rounded-2xl border border-gold-200 bg-gold-50/60 p-5 text-sm leading-6 text-slate-700">
+              <b className="text-gold-800">Pay after the teacher confirms.</b> Online card payment is coming soon. For now, our team sends you the payment details (bank transfer or another method) once {teacher.name} confirms your time — nothing is charged now.
+            </div>
+            <div className="mt-6 flex justify-between">
+              <button onClick={() => setStep(2)} className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100">Back</button>
+              <button onClick={() => setStep(4)} className="btn-primary px-6 py-2.5 text-sm">Continue</button>
+            </div>
+          </div>
+        )}
+
+        {step === 4 && start && (
+          <div className="mt-6">
+            <dl className="divide-y divide-slate-100 rounded-2xl border border-slate-200 text-sm">
+              {[["Instructor", teacher.name], ["Date", fmtDay(start)], ["Time", `${fmtTime(start)} – ${fmtTime(new Date(start.getTime() + mins * 60_000))} (${timeZone()})`], ["Length", `${mins} minutes`], ["Price", money(price)], ["Payment", "After the teacher confirms"]].map(([k, v]) => (
+                <div key={k} className="flex justify-between gap-4 px-4 py-3"><dt className="text-slate-500">{k}</dt><dd className="text-right font-semibold">{v}</dd></div>
+              ))}
+            </dl>
+            <label className="mt-5 block text-sm font-semibold">What do you want to work on? <span className="font-normal text-slate-400">(optional)</span>
+              <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={600} placeholder="e.g. I have a job interview next week and want to practise answering questions." className="mt-2 w-full rounded-xl border border-slate-300 p-3 text-sm font-normal outline-none focus:border-brand-500" />
+            </label>
+            {err && <p className="mt-3 rounded-xl bg-red-50 p-3 text-sm text-red-700">{err}</p>}
+            {ready && !user ? (
+              <div className="mt-5"><SignInPrompt text="Sign in to send your booking request." /></div>
+            ) : (
+              <div className="mt-6 flex justify-between">
+                <button onClick={() => setStep(3)} className="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100">Back</button>
+                <button onClick={send} disabled={sending} className="btn-gold flex items-center gap-2 px-6 py-2.5 disabled:opacity-50">
+                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CalendarCheck className="h-4 w-4" />} Send booking request
+                </button>
+              </div>
+            )}
+            <p className="mt-4 text-xs text-slate-500">The teacher confirms your request, then the video link appears in “Your lessons”.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
