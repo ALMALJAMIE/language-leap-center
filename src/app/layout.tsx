@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Header } from "@/components/Header";
+import { TopBar } from "@/components/TopBar";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" dir="ltr">
       <body className="min-h-screen">
+        <TopBar />
         <Header />
         <main>{children}</main>
         <Footer />
