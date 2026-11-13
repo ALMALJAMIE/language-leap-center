@@ -147,7 +147,9 @@ let loading: Promise<void> | null = null;
 export function loadTeachers(force = false) {
   if (loading && !force) return loading;
   loading = (async () => {
-    const { data, error } = await supabase.rpc("list_teachers");
+    // never leave the page waiting: give up after 8 seconds and show what we have
+    const timeout = new Promise<{ data: null; error: { message: string } }>((r) => setTimeout(() => r({ data: null, error: { message: "timeout" } }), 8000));
+    const { data, error } = await Promise.race([supabase.rpc("list_teachers"), timeout]);
     const db = error ? [] : ((data as PublicRow[]) ?? []).map(fromRow);
     const slugs = new Set(db.map((t) => t.slug));
     useTeacherList.setState({ list: [...db, ...staticInstructors.filter((s) => !slugs.has(s.slug))], loaded: true });

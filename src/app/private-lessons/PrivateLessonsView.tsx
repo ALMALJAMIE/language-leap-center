@@ -3,12 +3,15 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ArrowLeft, CalendarCheck, CalendarDays, Check, Clock, GraduationCap, Loader2, NotebookPen, Users, X } from "lucide-react";
+import {
+  ArrowLeft, CalendarCheck, CalendarDays, CalendarPlus, Camera, Check, Clock, GraduationCap, Loader2, NotebookPen, Star, UserRound, X,
+} from "lucide-react";
 import { AccountShell, SignInPrompt } from "@/components/account/AccountShell";
 import { WhatsAppIcon } from "@/components/BrandIcons";
 import { InstructorAvatar } from "@/components/Instructors";
 import { Empty, JoinButton, StarInput, Stars, StatusBadge, Tabs, useNow } from "@/components/teaching/ui";
 import { displayName, supabase, useAuth } from "@/lib/auth";
+import { resizeImage, saveProfile, useProfile } from "@/lib/profile";
 import { rpcError } from "@/lib/roles";
 import { site } from "@/lib/site";
 import { useMounted } from "@/lib/store";
@@ -17,62 +20,131 @@ import {
   type BookableInstructor, type PrivateLesson, type Slot,
 } from "@/lib/teaching";
 
-type Tab = "book" | "mine";
-
 export function PrivateLessonsView() {
   const params = useSearchParams();
   const router = useRouter();
-  const tab: Tab = params.get("tab") === "mine" ? "mine" : "book";
-  const setTab = (t: Tab) => router.replace(t === "mine" ? "/private-lessons/?tab=mine" : "/private-lessons/");
+  const mounted = useMounted();
+  const { user, ready } = useAuth();
+  const profile = useProfile();
+  const { list, loaded } = useTeacherList();
+  useEffect(() => {
+    loadTeachers();
+  }, []);
+
+  const slug = params.get("teacher");
+  const open = (s: string | null) => {
+    router.push(s ? `/private-lessons/?teacher=${s}` : "/private-lessons/");
+    window.scrollTo({ top: 0 });
+  };
+  const teacher = list.find((t) => t.slug === slug && t.id && t.hasSlots);
+  const scrollToTeachers = () => document.getElementById("instructors")?.scrollIntoView({ behavior: "smooth" });
+
+  // learners book with their real name and photo, like a class register
+  const needsProfile = !!user && profile.loaded && profile.userId === user.id && (!profile.avatar || !profile.data.firstName || !profile.data.lastName);
+
+  const body = () => {
+    if (!mounted || !ready) return null;
+    if (needsProfile) return <CompleteProfile />;
+    if (teacher)
+      return <Booking teacher={teacher} onBack={() => open(null)} onBooked={() => { open(null); }} />;
+    return (
+      <div className="space-y-10">
+        {user ? <MyLessons /> : <SignInPrompt text="Sign in to book lessons and see your schedule." />}
+        <section id="instructors" className="scroll-mt-24">
+          <h2 className="mb-4 text-xl font-bold">Choose an instructor</h2>
+          {!loaded ? (
+            <div className="py-10 text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin text-slate-300" /></div>
+          ) : list.length === 0 ? (
+            <WhatsAppBooking />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              {list.map((t) => <TeacherTile key={t.slug} t={t} onBook={() => open(t.slug)} />)}
+            </div>
+          )}
+        </section>
+      </div>
+    );
+  };
 
   return (
     <AccountShell
       title="Private Lessons"
-      subtitle="Practise 1-on-1 with a teacher — no course needed"
-      actions={<Link href="/instructors/" className="flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 py-2 text-sm font-bold hover:border-brand-400"><Users className="h-4 w-4" /> Our Instructors</Link>}
+      subtitle="Book a 1-on-1 live lesson with an instructor — no course needed."
+      actions={!needsProfile && !teacher ? <button onClick={scrollToTeachers} className="flex items-center gap-2 rounded-xl bg-brand-950 px-5 py-3 text-sm font-bold text-white hover:bg-brand-800"><CalendarPlus className="h-4 w-4" /> Book a lesson</button> : undefined}
     >
-      <Tabs value={tab} onChange={setTab} items={[{ id: "book", label: "Book a lesson" }, { id: "mine", label: "My lessons" }]} />
-      {tab === "book" ? <Book key={params.get("teacher") ?? ""} initialSlug={params.get("teacher")} onBooked={() => setTab("mine")} /> : <Mine />}
+      {body()}
     </AccountShell>
   );
 }
 
 /* ---------------------------------------------------------------- */
 
-function Book({ initialSlug, onBooked }: { initialSlug: string | null; onBooked: () => void }) {
-  const { list, loaded } = useTeacherList();
-  useEffect(() => {
-    loadTeachers();
-  }, []);
-  const bookable = list.filter((t) => t.id && t.hasSlots);
-  const [slug, setSlug] = useState<string | null>(initialSlug);
-  const teacher = bookable.find((t) => t.slug === slug) ?? null;
-
-  if (!loaded) return <div className="grid min-h-[30vh] place-items-center"><Loader2 className="h-6 w-6 animate-spin text-slate-300" /></div>;
-  if (bookable.length === 0) return <WhatsAppBooking teacher={list.find((t) => t.slug === slug)} />;
-  if (!teacher)
-    return (
-      <>
-        <h2 className="mb-4 font-bold">1. Choose your teacher</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {bookable.map((t) => (
-            <button key={t.slug} onClick={() => setSlug(t.slug)} className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-brand-300 hover:shadow-md">
-              <div className="h-16 w-16 shrink-0 overflow-hidden"><div className="origin-top-left scale-[0.57]"><InstructorAvatar t={t} /></div></div>
-              <span className="min-w-0">
-                <b className="block truncate">{t.name}</b>
-                <span className="line-clamp-2 text-xs text-slate-500">{t.title}</span>
-                <span className="mt-1 flex items-center gap-2 text-xs">
-                  {t.hourly && <b className="text-brand-700">{money(t.hourly)}/h</b>}
-                  {t.rating && <span className="text-slate-500">★ {t.rating.toFixed(1)}</span>}
-                </span>
-              </span>
-            </button>
-          ))}
-        </div>
-      </>
-    );
-  return <Booking teacher={teacher} onBack={() => setSlug(null)} onBooked={onBooked} />;
+function CompleteProfile() {
+  const { data, avatar } = useProfile();
+  const [first, setFirst] = useState(data.firstName ?? "");
+  const [last, setLast] = useState(data.lastName ?? "");
+  const [photo, setPhoto] = useState<string | null>(avatar);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!photo) return setErr("Please add a photo so your teacher can recognise you.");
+    setBusy(true);
+    const r = await saveProfile({ firstName: first.trim(), lastName: last.trim() }, photo);
+    setBusy(false);
+    if (!r.ok) setErr(r.error ?? "Could not save. Please try again.");
+  };
+  return (
+    <form onSubmit={save} className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-gold-50 text-gold-600"><UserRound className="h-7 w-7" /></span>
+      <h2 className="mt-4 text-2xl font-extrabold">Complete your profile first</h2>
+      <p className="mt-2 text-slate-600">Your teacher sees your name and photo before each lesson. Only these three things are needed — you can fill in the rest later.</p>
+      <label className="mx-auto mt-6 block w-fit cursor-pointer">
+        <span className="relative grid h-28 w-28 place-items-center overflow-hidden rounded-full border-4 border-white bg-slate-100 shadow ring-2 ring-brand-100">
+          {photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photo} alt="" className="h-full w-full object-cover" />
+          ) : <Camera className="h-8 w-8 text-slate-400" />}
+        </span>
+        <span className="mt-2 block text-sm font-bold text-brand-700">{photo ? "Change photo" : "Add your photo"} <span className="text-red-500">*</span></span>
+        <input type="file" accept="image/*" className="hidden" onChange={async (e) => { const f = e.target.files?.[0]; if (f) { setPhoto(await resizeImage(f)); setErr(""); } }} />
+      </label>
+      <div className="mt-6 grid gap-3 text-left sm:grid-cols-2">
+        <label className="block text-sm font-semibold">First name <span className="text-red-500">*</span><input required value={first} onChange={(e) => setFirst(e.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal outline-none focus:border-brand-500" /></label>
+        <label className="block text-sm font-semibold">Last name <span className="text-red-500">*</span><input required value={last} onChange={(e) => setLast(e.target.value)} className="mt-1.5 w-full rounded-xl border border-slate-300 px-3 py-2.5 font-normal outline-none focus:border-brand-500" /></label>
+      </div>
+      {err && <p className="mt-3 text-sm text-red-600">{err}</p>}
+      <button disabled={busy} className="btn-primary mt-6 flex w-full items-center justify-center gap-2 py-3 disabled:opacity-60">{busy && <Loader2 className="h-4 w-4 animate-spin" />} Save and continue</button>
+      <Link href="/advanced/" className="mt-3 block text-sm font-semibold text-slate-500 hover:text-ink">Fill in my full profile instead</Link>
+    </form>
+  );
 }
+
+function TeacherTile({ t, onBook }: { t: BookableInstructor; onBook: () => void }) {
+  const bookable = !!t.id && !!t.hasSlots;
+  const wa = () => window.open(`${site.whatsapp}?text=${encodeURIComponent(`Hello Language Leap Center! I'd like to book a private lesson with ${t.name}.`)}`, "_blank", "noopener");
+  return (
+    <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 transition hover:shadow-md">
+      <Link href={`/instructors/profile/?id=${t.slug}`} className="flex items-center gap-3">
+        <div className="h-12 w-12 shrink-0 overflow-hidden"><div className="origin-top-left scale-[0.43]"><InstructorAvatar t={t} /></div></div>
+        <span className="min-w-0">
+          <b className="block truncate hover:text-brand-700">{t.name}</b>
+          {t.rating ? <span className="flex items-center gap-1 text-sm text-slate-500"><Star className="h-4 w-4 fill-gold-400 text-gold-400" />{t.rating.toFixed(1)}</span> : <span className="line-clamp-1 text-xs text-slate-500">{t.title}</span>}
+        </span>
+      </Link>
+      <div className="mt-4 flex-1">
+        {t.hourly ? <span className="text-sm"><b className="text-base">{money(t.hourly)}</b> <span className="text-xs text-slate-500">/ hour</span></span> : null}
+      </div>
+      {bookable ? (
+        <button onClick={onBook} className="mt-4 rounded-xl bg-brand-950 py-2.5 text-sm font-bold text-white hover:bg-brand-800">Book</button>
+      ) : (
+        <button onClick={wa} className="mt-4 flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 py-2 text-sm font-bold text-slate-600 hover:border-emerald-400"><WhatsAppIcon className="h-4 w-4 text-emerald-600" /> Ask for a time</button>
+      )}
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------- */
 
 function Booking({ teacher, onBack, onBooked }: { teacher: BookableInstructor; onBack: () => void; onBooked: () => void }) {
   const { user, ready } = useAuth();
@@ -240,17 +312,16 @@ function WhatsAppBooking({ teacher }: { teacher?: BookableInstructor }) {
 
 /* ---------------------------------------------------------------- */
 
-function Mine() {
-  const mounted = useMounted();
-  const { user, ready } = useAuth();
+function MyLessons() {
+  const user = useAuth((s) => s.user)!;
   const now = useNow();
   const teachers = useTeacherList((s) => s.list);
   const [rows, setRows] = useState<PrivateLesson[] | null>(null);
   const [rated, setRated] = useState<Record<string, number>>({});
   const [err, setErr] = useState("");
+  const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
 
   const load = useCallback(async () => {
-    if (!user) return;
     const [l, r] = await Promise.all([
       supabase.from("private_lessons").select("*").eq("student_id", user.id).order("starts_at", { ascending: false }),
       supabase.from("teacher_reviews").select("lesson_id,rating").eq("student_id", user.id),
@@ -258,38 +329,50 @@ function Mine() {
     setErr(rpcError(l.error));
     setRows((l.data as PrivateLesson[]) ?? []);
     setRated(Object.fromEntries(((r.data as { lesson_id: string; rating: number }[]) ?? []).map((x) => [x.lesson_id, x.rating])));
-  }, [user]);
+  }, [user.id]);
   useEffect(() => {
-    loadTeachers();
     const t = setTimeout(load, 0);
     return () => clearTimeout(t);
   }, [load]);
 
-  if (!mounted || !ready) return null;
-  if (!user) return <SignInPrompt text="Sign in to see your private lessons." />;
-  if (rows === null) return <div className="py-10 text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin text-slate-300" /></div>;
-
+  const all = rows ?? [];
   const nameOf = (id: string) => teachers.find((t) => t.id === id)?.name ?? "Your teacher";
-  const upcoming = rows.filter((l) => ["requested", "confirmed"].includes(l.status) && new Date(l.starts_at).getTime() + l.minutes * 60_000 > now - 15 * 60_000).reverse();
-  const past = rows.filter((l) => !upcoming.includes(l));
+  const upcoming = all.filter((l) => ["requested", "confirmed"].includes(l.status) && new Date(l.starts_at).getTime() + l.minutes * 60_000 > now - 15 * 60_000).reverse();
+  const past = all.filter((l) => !upcoming.includes(l));
+  const doneMin = all.filter((l) => l.status === "completed").reduce((n, l) => n + l.minutes, 0);
+  const bookedMin = upcoming.filter((l) => l.status === "confirmed").reduce((n, l) => n + l.minutes, 0);
+  const hm = (m: number) => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}` : `${m}m`);
+  const list = tab === "upcoming" ? upcoming : past;
 
   return (
     <div className="space-y-8">
       {err && <p className="rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">{err}</p>}
+      <div className="grid gap-4 sm:grid-cols-3">
+        {[
+          { l: "Hours learned", v: hm(doneMin), icon: GraduationCap },
+          { l: "Hours booked", v: hm(bookedMin), icon: CalendarCheck },
+          { l: "Lessons taken", v: all.filter((x) => x.status === "completed").length, icon: Clock },
+        ].map((c) => (
+          <div key={c.l} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-5">
+            <div><div className="text-xs font-bold uppercase tracking-wide text-slate-500">{c.l}</div><div className="mt-1 text-2xl font-extrabold">{rows ? c.v : "—"}</div></div>
+            <c.icon className="h-8 w-8 text-brand-100" />
+          </div>
+        ))}
+      </div>
+
       <section>
-        <h2 className="mb-3 font-bold">Upcoming</h2>
-        {upcoming.length === 0 ? (
-          <Empty icon={CalendarDays} title="No upcoming lessons" text="Book a lesson with one of our teachers — it only takes a minute." />
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-xl font-bold">Your lessons</h2>
+          <div className="-mb-6"><Tabs value={tab} onChange={setTab} items={[{ id: "upcoming", label: "Upcoming", count: upcoming.length }, { id: "past", label: "Past" }]} /></div>
+        </div>
+        {rows === null ? (
+          <div className="py-8 text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin text-slate-300" /></div>
+        ) : list.length === 0 ? (
+          <Empty icon={CalendarDays} title={tab === "upcoming" ? "No upcoming private lessons." : "No past lessons yet."} />
         ) : (
-          <div className="space-y-3">{upcoming.map((l) => <LessonCard key={l.id} l={l} teacher={nameOf(l.teacher_id)} now={now} onChange={load} />)}</div>
+          <div className="space-y-3">{list.map((l) => <LessonCard key={l.id} l={l} teacher={nameOf(l.teacher_id)} now={now} rated={rated[l.id]} onChange={load} />)}</div>
         )}
       </section>
-      {past.length > 0 && (
-        <section>
-          <h2 className="mb-3 font-bold">History</h2>
-          <div className="space-y-3">{past.map((l) => <LessonCard key={l.id} l={l} teacher={nameOf(l.teacher_id)} now={now} rated={rated[l.id]} onChange={load} />)}</div>
-        </section>
-      )}
     </div>
   );
 }
