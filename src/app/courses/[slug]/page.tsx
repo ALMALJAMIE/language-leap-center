@@ -11,7 +11,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const c = getCourse((await params).slug);
-  return { title: c?.title ?? "دورة", description: c?.description };
+  return { title: c?.title ?? "Course", description: c?.description };
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {

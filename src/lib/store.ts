@@ -6,10 +6,10 @@ import { persist } from "zustand/middleware";
 import { createEmptyCard, fsrs, generatorParameters, Rating, TypeConvert, type Card, type Grade } from "ts-fsrs";
 import type { Level, Word } from "./types";
 
-/** خوارزمية FSRS للمراجعة المتباعدة (المستعملة في Anki الحديث) */
+/** FSRS spaced-repetition scheduler (the algorithm used by modern Anki) */
 export const scheduler = fsrs(generatorParameters({ enable_fuzz: true, request_retention: 0.9 }));
 
-export const todayKey = (d = new Date()) => d.toLocaleDateString("en-CA"); // YYYY-MM-DD بالتوقيت المحلي
+export const todayKey = (d = new Date()) => d.toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
 
 const dayDiff = (a: string, b: string) => Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000);
 
@@ -31,6 +31,7 @@ interface Progress {
   wishlist: string[];
   placement: { level: Level; score: number; total: number; at: string } | null;
   name: string;
+  arabicHelp: boolean;
 
   addXp: (n: number) => void;
   completeLesson: (course: string, lesson: string, xp: number, accuracy: number, words: Word[]) => void;
@@ -39,6 +40,7 @@ interface Progress {
   setPlacement: (level: Level, score: number, total: number) => void;
   setGoal: (n: number) => void;
   setName: (s: string) => void;
+  toggleArabic: () => void;
   reset: () => void;
 }
 
@@ -54,6 +56,7 @@ const initial = {
   wishlist: [],
   placement: null,
   name: "",
+  arabicHelp: false,
 };
 
 export const useProgress = create<Progress>()(
@@ -111,13 +114,14 @@ export const useProgress = create<Progress>()(
       setPlacement: (level, score, total) => set({ placement: { level, score, total, at: new Date().toISOString() } }),
       setGoal: (n) => set({ dailyGoal: n }),
       setName: (s) => set({ name: s }),
+      toggleArabic: () => set({ arabicHelp: !get().arabicHelp }),
       reset: () => set({ ...initial }),
     }),
     { name: "llc-progress-v1" },
   ),
 );
 
-/** يمنع اختلاف العرض بين الخادم والمتصفح قبل قراءة التقدم من التخزين المحلي */
+/** Avoids server/client mismatch before progress is read from localStorage */
 export function useMounted() {
   return useSyncExternalStore(
     () => () => {},
@@ -132,18 +136,18 @@ export function dueCards(cards: Record<string, SavedCard>, now = new Date()) {
     .sort((a, b) => new Date(a[1].card.due).getTime() - new Date(b[1].card.due).getTime());
 }
 
-/** نص يوضح متى تعود البطاقة لو اختير كل تقييم */
+/** When the card would come back for each rating */
 export function previewIntervals(saved: SavedCard) {
   const now = new Date();
   const rec = scheduler.repeat(TypeConvert.card(saved.card), now);
   const fmt = (d: Date) => {
     const mins = Math.round((d.getTime() - now.getTime()) / 60000);
-    if (mins < 60) return `${Math.max(1, mins)} د`;
+    if (mins < 60) return `${Math.max(1, mins)}m`;
     const h = Math.round(mins / 60);
-    if (h < 24) return `${h} س`;
+    if (h < 24) return `${h}h`;
     const days = Math.round(h / 24);
-    if (days < 30) return `${days} يوم`;
-    return `${Math.round(days / 30)} شهر`;
+    if (days < 30) return `${days}d`;
+    return `${Math.round(days / 30)}mo`;
   };
   return {
     [Rating.Again]: fmt(rec[Rating.Again].card.due),

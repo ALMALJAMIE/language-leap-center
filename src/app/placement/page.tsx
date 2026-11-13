@@ -13,7 +13,7 @@ type Q = { level: Level; q: string; options: string[]; answer: number; audio?: s
 
 const questions: Q[] = [
   { level: "A1", q: "She ___ a teacher.", options: ["am", "is", "are", "be"], answer: 1 },
-  { level: "A1", q: "What is the meaning of “Thank you”?", options: ["من فضلك", "شكرًا لك", "مع السلامة", "مرحبًا"], answer: 1 },
+  { level: "A1", q: "You say “Thank you” when someone…", options: ["says goodbye", "helps you", "asks your name", "is late"], answer: 1 },
   { level: "A1", q: "Listen and choose what you hear.", options: ["Good evening", "Good morning", "Goodbye", "Good night"], answer: 1, audio: "Good morning" },
   { level: "A2", q: "Yesterday I ___ to the market.", options: ["go", "goes", "went", "going"], answer: 2 },
   { level: "A2", q: "This bag is ___ than that one.", options: ["cheap", "cheaper", "cheapest", "more cheap"], answer: 1 },
@@ -69,16 +69,16 @@ export default function Placement() {
     return (
       <div className="mx-auto max-w-2xl px-6 py-16 text-center">
         <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-brand-100 text-brand-700"><ClipboardCheck className="h-10 w-10" /></div>
-        <h1 className="mt-6 text-3xl font-extrabold">اختبار تحديد المستوى</h1>
+        <h1 className="mt-6 text-3xl font-extrabold">Placement test</h1>
         <p className="mt-4 leading-8 text-slate-600">
-          {questions.length} سؤالًا في القواعد والمفردات والاستماع، تتدرج من المبتدئ (A1) إلى المتقدم (C1). يستغرق نحو 5 دقائق. لا تخمّن: إن لم تعرف الإجابة فاختر أقرب ما تراه، فالهدف أن نضعك في الدورة المناسبة.
+          {questions.length} questions on grammar, vocabulary and listening, from Beginner (A1) to Advanced (C1). It takes about 5 minutes. If you don&apos;t know an answer, choose what seems closest — the goal is to place you in the right course.
         </p>
         <div className="mt-8 flex justify-center gap-2">
           {order.map((l) => (
-            <span key={l} className="en rounded-xl bg-mist px-3 py-2 text-sm font-bold text-brand-700">{l}</span>
+            <span key={l} className="rounded-xl bg-mist px-3 py-2 text-sm font-bold text-brand-700">{l}</span>
           ))}
         </div>
-        <button onClick={() => setStage("test")} className="btn-primary mt-10 px-10 py-4 text-lg">ابدأ الاختبار</button>
+        <button onClick={() => setStage("test")} className="btn-primary mt-10 px-10 py-4 text-lg">Start the test</button>
       </div>
     );
 
@@ -87,19 +87,19 @@ export default function Placement() {
     return (
       <div className="mx-auto max-w-2xl px-6 py-16 text-center">
         <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="mx-auto grid h-36 w-36 place-items-center rounded-full brand-gradient shadow-2xl shadow-brand-900/30">
-          <span className="en text-5xl font-extrabold text-gold-300">{result.level}</span>
+          <span className="text-5xl font-extrabold text-gold-300">{result.level}</span>
         </motion.div>
-        <h1 className="mt-6 text-3xl font-extrabold">مستواك: {levels[result.level].name}</h1>
-        <p className="en mt-1 text-slate-500">{levels[result.level].desc}</p>
-        <p className="mt-4 text-slate-600">أجبت إجابة صحيحة عن {result.score} من {questions.length} سؤالًا.</p>
-        <div className="mt-8 rounded-3xl border border-slate-200 p-6 text-right">
-          <div className="text-sm font-bold text-gold-600">الدورة المقترحة لك</div>
+        <h1 className="mt-6 text-3xl font-extrabold">Your level: {levels[result.level].name}</h1>
+        <p className="mt-1 text-slate-500">CEFR {result.level}</p>
+        <p className="mt-4 text-slate-600">You answered {result.score} of {questions.length} questions correctly.</p>
+        <div className="mt-8 rounded-3xl border border-slate-200 p-6 text-left">
+          <div className="text-sm font-bold text-gold-600">Recommended course</div>
           <div className="mt-1 text-xl font-bold">{rec.title}</div>
           <p className="mt-2 text-sm text-slate-600">{rec.description}</p>
-          <Link href={`/courses/${rec.slug}/`} className="btn-primary mt-5 inline-block px-6 py-3">اذهب إلى الدورة</Link>
+          <Link href={`/courses/${rec.slug}/`} className="btn-primary mt-5 inline-block px-6 py-3">Go to the course</Link>
         </div>
         <button onClick={() => { setStage("intro"); setI(0); setAns(Array(questions.length).fill(null)); }} className="mt-6 text-sm font-bold text-slate-500">
-          أعد الاختبار
+          Retake the test
         </button>
       </div>
     );
@@ -112,25 +112,25 @@ export default function Placement() {
         <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-100">
           <div className="h-full rounded-full bg-gold-400 transition-all" style={{ width: `${(i / questions.length) * 100}%` }} />
         </div>
-        <span className="en text-sm font-bold text-slate-500">{i + 1}/{questions.length}</span>
+        <span className="text-sm font-bold text-slate-500">{i + 1}/{questions.length}</span>
       </div>
       <AnimatePresence mode="wait">
-        <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+        <motion.div key={i} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
           {q.audio && (
             <div className="mb-6 flex items-center gap-3 rounded-2xl bg-brand-50 p-4">
               <Headphones className="h-5 w-5 text-brand-600" />
-              <span className="flex-1 text-sm text-brand-700">سؤال استماع</span>
+              <span className="flex-1 text-sm text-brand-700">Listening question</span>
               <SpeakBtn text={q.audio} autoPlay />
             </div>
           )}
-          <h2 className="en mb-8 text-left text-2xl font-bold">{q.q}</h2>
+          <h2 className="mb-8 text-2xl font-bold">{q.q}</h2>
           <div className="grid gap-3">
             {q.options.map((o, k) => (
               <button
                 key={o}
                 onClick={() => choose(k)}
                 data-state={ans[i] === k ? "selected" : ""}
-                className={`tile p-4 text-lg font-semibold ${/[؀-ۿ]/.test(o) ? "text-right" : "en text-left"}`}
+                className="tile p-4 text-left text-lg font-semibold"
               >
                 {o}
               </button>
@@ -139,7 +139,7 @@ export default function Placement() {
         </motion.div>
       </AnimatePresence>
       {i > 0 && (
-        <button onClick={() => setI(i - 1)} className="mt-6 text-sm font-bold text-slate-400">→ السؤال السابق</button>
+        <button onClick={() => setI(i - 1)} className="mt-6 text-sm font-bold text-slate-400">← Previous question</button>
       )}
     </div>
   );

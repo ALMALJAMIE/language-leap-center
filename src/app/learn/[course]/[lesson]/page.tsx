@@ -14,7 +14,7 @@ type P = { params: Promise<{ course: string; lesson: string }> };
 export async function generateMetadata({ params }: P): Promise<Metadata> {
   const { course, lesson } = await params;
   const f = findLesson(course, lesson);
-  return { title: f ? `${f.lesson.title} — ${f.course.title}` : "درس" };
+  return { title: f ? `${f.lesson.title} — ${f.course.title}` : "Lesson" };
 }
 
 export default async function Page({ params }: P) {

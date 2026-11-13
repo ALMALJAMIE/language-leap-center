@@ -12,18 +12,18 @@ export function Footer() {
   return (
     <footer className="brand-gradient mt-24 text-brand-100">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-4">
-        <div className="md:col-span-1">
+        <div>
           <div className="inline-block rounded-2xl bg-white px-3 py-2">
             <Logo />
           </div>
-          <p className="en mt-4 text-sm italic text-gold-200">Your leap to fluent English</p>
+          <p className="mt-4 text-sm italic text-gold-200">Your leap to fluent English</p>
           <p className="mt-2 text-sm leading-7 text-brand-200">
-            منصة عربية لتعلّم الإنجليزية خطوة بخطوة: دروس قصيرة، ونطق، ومراجعة ذكية تحفظ ما تعلّمته.
+            Learn English step by step: short lessons, real speaking practice, and smart review that keeps what you learn.
           </p>
         </div>
 
         <div>
-          <h3 className="mb-4 font-bold text-white">البرامج</h3>
+          <h3 className="mb-4 font-bold text-white">Programs</h3>
           <ul className="space-y-2.5 text-sm">
             {Object.entries(programs).map(([id, p]) => (
               <li key={id}>
@@ -36,28 +36,28 @@ export function Footer() {
         </div>
 
         <div>
-          <h3 className="mb-4 font-bold text-white">تعلّم</h3>
+          <h3 className="mb-4 font-bold text-white">Learn</h3>
           <ul className="space-y-2.5 text-sm">
-            <li><Link href="/courses/" className="hover:text-gold-300">كل الدورات</Link></li>
-            <li><Link href="/placement/" className="hover:text-gold-300">اختبار تحديد المستوى</Link></li>
-            <li><Link href="/review/" className="hover:text-gold-300">المراجعة المتباعدة</Link></li>
-            <li><Link href="/dashboard/" className="hover:text-gold-300">لوحة التقدم</Link></li>
+            <li><Link href="/courses/" className="hover:text-gold-300">All courses</Link></li>
+            <li><Link href="/placement/" className="hover:text-gold-300">Placement test</Link></li>
+            <li><Link href="/review/" className="hover:text-gold-300">Spaced review</Link></li>
+            <li><Link href="/dashboard/" className="hover:text-gold-300">My progress</Link></li>
           </ul>
         </div>
 
         <div>
-          <h3 className="mb-4 font-bold text-white">المنصة</h3>
+          <h3 className="mb-4 font-bold text-white">Center</h3>
           <ul className="space-y-2.5 text-sm">
-            <li><Link href="/#method" className="hover:text-gold-300">منهجنا</Link></li>
-            <li><Link href="/#faq" className="hover:text-gold-300">الأسئلة الشائعة</Link></li>
-            <li><Link href="/about/" className="hover:text-gold-300">عن المركز</Link></li>
+            <li><Link href="/#method" className="hover:text-gold-300">Our method</Link></li>
+            <li><Link href="/#faq" className="hover:text-gold-300">FAQ</Link></li>
+            <li><Link href="/about/" className="hover:text-gold-300">About us</Link></li>
           </ul>
         </div>
       </div>
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-6 py-5 text-xs text-brand-300 sm:flex-row">
-          <span>© {new Date().getFullYear()} Language Leap Center. جميع الحقوق محفوظة.</span>
-          <span className="en">LLC · Learn · Leap · Lead</span>
+          <span>© {new Date().getFullYear()} Language Leap Center. All rights reserved.</span>
+          <span>LLC · Learn · Leap · Lead</span>
         </div>
       </div>
     </footer>

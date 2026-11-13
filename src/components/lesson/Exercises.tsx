@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { BookOpenText, Languages, Mic, MicOff, Play, Snail, Volume2 } from "lucide-react";
+import { BookOpenText, Ear, Mic, MicOff, Play, Snail, Volume2 } from "lucide-react";
 import type { Exercise, Word } from "@/lib/types";
 import { normalize, similarity, tokenize } from "@/lib/generate";
 import { speak, useSpeechRecognition } from "@/lib/speech";
+import { ArHint } from "@/components/ArabicToggle";
 
 export type Verdict = { correct: boolean; solution?: string; note?: string };
 export type Status = "answering" | "correct" | "wrong";
@@ -13,13 +14,13 @@ export type Status = "answering" | "correct" | "wrong";
 export interface ExProps<K extends Exercise["kind"]> {
   ex: Extract<Exercise, { kind: K }>;
   status: Status;
-  /** يسجّل دالة التصحيح ويحدد هل زر «تحقق» مفعّل */
+  /** Registers the checking function; enables the Check button */
   setChecker: (fn: (() => Verdict) | null) => void;
-  /** لتمارين تكتمل ذاتيًا مثل التوصيل */
+  /** For exercises that complete themselves (e.g. matching) */
   complete: (v: Verdict) => void;
 }
 
-/* ---------- أدوات مشتركة ---------- */
+/* ---------- Shared pieces ---------- */
 
 export function SpeakBtn({ text, size = "md", autoPlay = false }: { text: string; size?: "sm" | "md" | "lg"; autoPlay?: boolean }) {
   const [playing, setPlaying] = useState(false);
@@ -42,7 +43,7 @@ export function SpeakBtn({ text, size = "md", autoPlay = false }: { text: string
       <button
         type="button"
         onClick={() => play()}
-        aria-label="استمع"
+        aria-label="Listen"
         className={`${dim} grid shrink-0 place-items-center rounded-2xl bg-brand-500 text-white shadow-[0_4px_0_#0b326d] transition active:translate-y-[3px] active:shadow-none ${playing ? "animate-pulse" : ""}`}
       >
         <Volume2 className={icon} />
@@ -51,8 +52,8 @@ export function SpeakBtn({ text, size = "md", autoPlay = false }: { text: string
         <button
           type="button"
           onClick={() => play(true)}
-          aria-label="استمع ببطء"
-          title="ببطء"
+          aria-label="Listen slowly"
+          title="Slow"
           className={`${size === "lg" ? "h-14 w-14" : "h-10 w-10"} grid shrink-0 place-items-center rounded-2xl bg-brand-100 text-brand-700 transition hover:bg-brand-200`}
         >
           <Snail className={size === "lg" ? "h-7 w-7" : "h-5 w-5"} />
@@ -89,18 +90,22 @@ function Options({
   answer,
   status,
   setChecker,
-  english,
+  speakOnClick = true,
+  render,
+  solution,
 }: {
   options: string[];
   answer: string;
   status: Status;
   setChecker: ExProps<"listen">["setChecker"];
-  english: boolean;
+  speakOnClick?: boolean;
+  render?: (o: string) => React.ReactNode;
+  solution?: string;
 }) {
   const [sel, setSel] = useState<number | null>(null);
   useEffect(() => {
-    setChecker(sel === null ? null : () => ({ correct: options[sel] === answer, solution: answer }));
-  }, [sel, options, answer, setChecker]);
+    setChecker(sel === null ? null : () => ({ correct: options[sel] === answer, solution: solution ?? answer }));
+  }, [sel, options, answer, solution, setChecker]);
   useKeyOptions(options.length, (i) => status === "answering" && setSel(i), status === "answering");
 
   return (
@@ -118,14 +123,12 @@ function Options({
             disabled={status !== "answering"}
             onClick={() => {
               setSel(i);
-              if (english) speak(o);
+              if (speakOnClick) speak(o);
             }}
-            className="tile flex items-center gap-3 p-4 text-right text-lg font-semibold disabled:opacity-100"
+            className="tile flex items-center gap-3 p-4 text-left text-lg font-semibold disabled:opacity-100"
           >
-            <span className="en grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-current/20 text-sm text-slate-400">
-              {i + 1}
-            </span>
-            <span className={english ? "en flex-1 text-left" : "flex-1"}>{o}</span>
+            <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-current/20 text-sm text-slate-400">{i + 1}</span>
+            <span className="flex-1">{render ? render(o) : o}</span>
           </button>
         );
       })}
@@ -133,23 +136,23 @@ function Options({
   );
 }
 
-/* ---------- التمارين ---------- */
+/* ---------- Exercises ---------- */
 
 export function GrammarEx({ ex }: ExProps<"grammar">) {
   return (
     <div>
       <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-gold-100 px-3 py-1 text-sm font-bold text-gold-700">
-        <BookOpenText className="h-4 w-4" /> قاعدة الدرس
+        <BookOpenText className="h-4 w-4" /> Grammar tip
       </div>
       <Title>{ex.tip.title}</Title>
-      <p className="text-lg leading-9 text-slate-700">{ex.tip.body}</p>
+      <p className="text-lg leading-8 text-slate-700">{ex.tip.body}</p>
       <div className="mt-7 space-y-3">
         {ex.tip.examples.map((e) => (
           <div key={e.en} className="flex items-center gap-4 rounded-2xl border border-slate-200 bg-mist p-4">
             <SpeakBtn text={e.en} size="sm" />
             <div className="flex-1">
-              <div className="en text-left text-lg font-semibold text-brand-800">{e.en}</div>
-              <div className="text-sm text-slate-500">{e.ar}</div>
+              <div className="text-lg font-semibold text-brand-800">{e.en}</div>
+              <ArHint className="block text-left text-sm text-slate-500">{e.ar}</ArHint>
             </div>
           </div>
         ))}
@@ -162,25 +165,24 @@ export function NewWordEx({ ex }: ExProps<"newWord">) {
   const w: Word = ex.word;
   return (
     <div>
-      <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-100 px-3 py-1 text-sm font-bold text-brand-700">
-        ✨ كلمة جديدة
-      </div>
+      <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-brand-100 px-3 py-1 text-sm font-bold text-brand-700">✨ New word</div>
       <motion.div
-        initial={{ rotateY: -15, opacity: 0, y: 10 }}
+        initial={{ rotateY: 15, opacity: 0, y: 10 }}
         animate={{ rotateY: 0, opacity: 1, y: 0 }}
         className="relative overflow-hidden rounded-3xl border-2 border-brand-100 bg-gradient-to-br from-white to-brand-50 p-8 text-center"
       >
-        <div className="absolute -left-10 -top-10 h-32 w-32 rounded-full border-[14px] border-gold-200/50" />
+        <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full border-[14px] border-gold-200/50" />
         {w.emoji && <div className="mb-3 text-6xl">{w.emoji}</div>}
-        <div className="en text-4xl font-extrabold text-brand-800 sm:text-5xl">{w.en}</div>
-        <div className="mt-3 text-2xl font-semibold text-gold-600">{w.ar}</div>
+        <div className="text-4xl font-extrabold text-brand-800 sm:text-5xl">{w.en}</div>
+        <div className="mt-3 text-xl font-medium text-slate-600">{w.def}</div>
+        <ArHint className="mt-1 block text-xl font-semibold text-gold-600">{w.ar}</ArHint>
         <div className="mt-6 flex justify-center">
           <SpeakBtn text={w.en} autoPlay />
         </div>
         {w.ex && (
           <div className="mt-7 flex items-center justify-center gap-3 rounded-2xl bg-white/80 p-4">
             <SpeakBtn text={w.ex} size="sm" />
-            <span className="en text-lg text-slate-700">{w.ex}</span>
+            <span className="text-lg italic text-slate-700">“{w.ex}”</span>
           </div>
         )}
       </motion.div>
@@ -189,14 +191,28 @@ export function NewWordEx({ ex }: ExProps<"newWord">) {
 }
 
 export function ChoiceMeaningEx(p: ExProps<"choiceMeaning">) {
+  const byEn = useMemo(() => Object.fromEntries(p.ex.options.map((w) => [w.en, w])), [p.ex]);
   return (
     <div>
-      <Title>ما معنى هذه الكلمة؟</Title>
+      <Title>What does this mean?</Title>
       <div className="mb-8 flex items-center gap-4">
-        <SpeakBtn text={p.ex.prompt} size="sm" autoPlay />
-        <span className="en text-3xl font-extrabold text-brand-800">{p.ex.prompt}</span>
+        <SpeakBtn text={p.ex.word.en} size="sm" autoPlay />
+        <span className="text-3xl font-extrabold text-brand-800">{p.ex.word.en}</span>
       </div>
-      <Options options={p.ex.options} answer={p.ex.answer} status={p.status} setChecker={p.setChecker} english={false} />
+      <Options
+        options={p.ex.options.map((w) => w.en)}
+        answer={p.ex.answer}
+        status={p.status}
+        setChecker={p.setChecker}
+        speakOnClick={false}
+        solution={p.ex.word.def}
+        render={(en) => (
+          <span className="flex flex-col">
+            <span className="text-base font-semibold">{byEn[en].def}</span>
+            <ArHint className="text-left text-sm font-normal text-slate-500">{byEn[en].ar}</ArHint>
+          </span>
+        )}
+      />
     </div>
   );
 }
@@ -204,9 +220,15 @@ export function ChoiceMeaningEx(p: ExProps<"choiceMeaning">) {
 export function ChoiceWordEx(p: ExProps<"choiceWord">) {
   return (
     <div>
-      <Title>اختر الترجمة الإنجليزية الصحيحة</Title>
-      <div className="mb-8 rounded-2xl bg-gold-50 px-5 py-4 text-2xl font-bold text-gold-700">«{p.ex.prompt}»</div>
-      <Options options={p.ex.options} answer={p.ex.answer} status={p.status} setChecker={p.setChecker} english />
+      <Title>Choose the right word</Title>
+      <div className="mb-8 flex items-center gap-4 rounded-2xl bg-gold-50 px-5 py-4">
+        {p.ex.word.emoji && <span className="text-4xl">{p.ex.word.emoji}</span>}
+        <div>
+          <div className="text-xl font-bold text-gold-700">{p.ex.word.def}</div>
+          <ArHint className="block text-left text-sm text-gold-600">{p.ex.word.ar}</ArHint>
+        </div>
+      </div>
+      <Options options={p.ex.options} answer={p.ex.answer} status={p.status} setChecker={p.setChecker} />
     </div>
   );
 }
@@ -214,18 +236,18 @@ export function ChoiceWordEx(p: ExProps<"choiceWord">) {
 export function ListenEx(p: ExProps<"listen">) {
   return (
     <div>
-      <Title sub="اضغط على السلحفاة للاستماع ببطء">ماذا تسمع؟</Title>
+      <Title sub="Tap the snail to hear it slowly">What do you hear?</Title>
       <div className="mb-8 flex justify-center">
         <SpeakBtn text={p.ex.audio} size="lg" autoPlay />
       </div>
-      <Options options={p.ex.options} answer={p.ex.answer} status={p.status} setChecker={p.setChecker} english={false} />
+      <Options options={p.ex.options} answer={p.ex.answer} status={p.status} setChecker={p.setChecker} speakOnClick={false} />
     </div>
   );
 }
 
 export function MatchEx({ ex, complete, status }: ExProps<"match">) {
   const left = useMemo(() => ex.pairs.map((p) => p.en), [ex]);
-  const right = useMemo(() => [...ex.pairs].sort((a, b) => a.ar.localeCompare(b.ar, "ar")).map((p) => p.ar), [ex]);
+  const right = useMemo(() => [...ex.pairs].sort((a, b) => a.def.localeCompare(b.def)), [ex]);
   const [selL, setSelL] = useState<string | null>(null);
   const [selR, setSelR] = useState<string | null>(null);
   const [done, setDone] = useState<string[]>([]);
@@ -238,27 +260,24 @@ export function MatchEx({ ex, complete, status }: ExProps<"match">) {
       setSelR(r);
       return;
     }
-    const ok = ex.pairs.some((p) => p.en === l && p.ar === r);
-    if (ok) {
+    if (l === r) {
       const nd = [...done, l];
       setDone(nd);
       if (nd.length === ex.pairs.length)
-        complete({ correct: true, note: misses.current > 1 ? `أكملت التوصيل بعد ${misses.current} محاولات خاطئة` : undefined });
+        complete({ correct: true, note: misses.current > 1 ? `Completed with ${misses.current} wrong tries.` : undefined });
     } else {
       misses.current++;
-      setWrong(l + r);
+      setWrong(l + "|" + r);
       setTimeout(() => setWrong(null), 400);
     }
     setSelL(null);
     setSelR(null);
   };
 
-  const matchedAr = (ar: string) => ex.pairs.some((p) => p.ar === ar && done.includes(p.en));
-
   return (
     <div>
-      <Title>صِل كل كلمة بمعناها</Title>
-      <div className="grid grid-cols-2 gap-3" dir="ltr">
+      <Title>Match each word with its meaning</Title>
+      <div className="grid grid-cols-[2fr_3fr] gap-3">
         <div className="space-y-3">
           {left.map((en) => (
             <button
@@ -269,22 +288,23 @@ export function MatchEx({ ex, complete, status }: ExProps<"match">) {
                 tryPair(en, selR);
                 speak(en);
               }}
-              className={`tile en block w-full p-4 text-lg font-semibold ${wrong?.startsWith(en) ? "shake" : ""} ${done.includes(en) ? "opacity-40" : ""}`}
+              className={`tile block h-16 w-full p-3 text-lg font-semibold ${wrong?.startsWith(en + "|") ? "shake" : ""} ${done.includes(en) ? "opacity-40" : ""}`}
             >
               {en}
             </button>
           ))}
         </div>
-        <div className="space-y-3" dir="rtl">
-          {right.map((ar) => (
+        <div className="space-y-3">
+          {right.map((w) => (
             <button
-              key={ar}
-              disabled={matchedAr(ar) || status !== "answering"}
-              data-state={matchedAr(ar) ? "correct" : selR === ar ? "selected" : ""}
-              onClick={() => tryPair(selL, ar)}
-              className={`tile block w-full p-4 text-lg font-semibold ${wrong?.endsWith(ar) ? "shake" : ""} ${matchedAr(ar) ? "opacity-40" : ""}`}
+              key={w.en}
+              disabled={done.includes(w.en) || status !== "answering"}
+              data-state={done.includes(w.en) ? "correct" : selR === w.en ? "selected" : ""}
+              onClick={() => tryPair(selL, w.en)}
+              className={`tile flex h-16 w-full flex-col justify-center px-3 text-left text-sm font-semibold leading-tight ${wrong?.endsWith("|" + w.en) ? "shake" : ""} ${done.includes(w.en) ? "opacity-40" : ""}`}
             >
-              {ar}
+              {w.def}
+              <ArHint className="text-left text-xs font-normal text-slate-500">{w.ar}</ArHint>
             </button>
           ))}
         </div>
@@ -309,9 +329,15 @@ export function BuildEx({ ex, status, setChecker }: ExProps<"build">) {
 
   return (
     <div>
-      <Title>رتّب الكلمات لتكوين الجملة</Title>
-      <div className="mb-6 rounded-2xl bg-gold-50 px-5 py-4 text-xl font-bold text-gold-700">«{ex.ar}»</div>
-      <div dir="ltr" className="mb-6 flex min-h-[124px] flex-wrap content-start gap-2 border-y-2 border-slate-200 py-4" style={{ backgroundImage: "linear-gradient(transparent 58px, #e3e8f1 58px, #e3e8f1 60px, transparent 60px)", backgroundSize: "100% 62px" }}>
+      <Title sub="Listen, then tap the words in the right order">Build the sentence you hear</Title>
+      <div className="mb-6 flex items-center gap-4">
+        <SpeakBtn text={ex.sentence.en} autoPlay />
+        <ArHint className="text-lg font-bold text-gold-700">«{ex.sentence.ar}»</ArHint>
+      </div>
+      <div
+        className="mb-6 flex min-h-[124px] flex-wrap content-start gap-2 border-y-2 border-slate-200 py-4"
+        style={{ backgroundImage: "linear-gradient(transparent 58px, #e3e8f1 58px, #e3e8f1 60px, transparent 60px)", backgroundSize: "100% 62px" }}
+      >
         <AnimatePresence>
           {picked.map((i) => (
             <motion.button
@@ -320,19 +346,17 @@ export function BuildEx({ ex, status, setChecker }: ExProps<"build">) {
               key={i}
               disabled={status !== "answering"}
               onClick={() => setPicked(picked.filter((x) => x !== i))}
-              className="tile en px-4 py-2.5 text-lg font-semibold"
+              className="tile px-4 py-2.5 text-lg font-semibold"
             >
               {tokens[i].t}
             </motion.button>
           ))}
         </AnimatePresence>
       </div>
-      <div dir="ltr" className="flex flex-wrap justify-center gap-2">
+      <div className="flex flex-wrap justify-center gap-2">
         {tokens.map(({ id, t }) =>
           picked.includes(id) ? (
-            <span key={id} className="en rounded-2xl bg-slate-100 px-4 py-2.5 text-lg text-transparent">
-              {t}
-            </span>
+            <span key={id} className="rounded-2xl bg-slate-100 px-4 py-2.5 text-lg text-transparent">{t}</span>
           ) : (
             <motion.button
               layout
@@ -343,7 +367,7 @@ export function BuildEx({ ex, status, setChecker }: ExProps<"build">) {
                 setPicked([...picked, id]);
                 speak(t);
               }}
-              className="tile en px-4 py-2.5 text-lg font-semibold"
+              className="tile px-4 py-2.5 text-lg font-semibold"
             >
               {t}
             </motion.button>
@@ -361,30 +385,36 @@ export function FillEx({ ex, status, setChecker }: ExProps<"fill">) {
   }, [sel, ex, setChecker]);
   useKeyOptions(ex.options.length, (i) => status === "answering" && setSel(ex.options[i]), status === "answering");
 
-  const blankState = status === "answering" ? "border-brand-400 text-brand-700" : status === "correct" ? "border-emerald-500 text-emerald-700" : "border-red-500 text-red-600";
+  const blankState =
+    status === "answering" ? "border-brand-400 text-brand-700" : status === "correct" ? "border-emerald-500 text-emerald-700" : "border-red-500 text-red-600";
   return (
     <div>
-      <Title>أكمل الجملة</Title>
-      <p className="mb-2 text-slate-500">{ex.ar}</p>
-      <div className="en mb-10 rounded-2xl border-2 border-slate-200 p-6 text-center text-2xl font-semibold leading-relaxed text-ink sm:text-3xl">
+      <Title>Complete the sentence</Title>
+      <ArHint className="mb-2 block text-left text-slate-500">{ex.sentence.ar}</ArHint>
+      <div className="mb-10 rounded-2xl border-2 border-slate-200 p-6 text-center text-2xl font-semibold leading-relaxed text-ink sm:text-3xl">
         {ex.before}
         <span className={`mx-1 inline-block min-w-[110px] border-b-4 px-2 ${blankState}`}>{sel ?? " "}</span>
         {ex.after}
       </div>
-      <div dir="ltr" className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
         {ex.options.map((o, i) => (
           <button
             key={o}
             disabled={status !== "answering"}
             data-state={sel === o ? (status === "answering" ? "selected" : status === "correct" ? "correct" : "wrong") : ""}
             onClick={() => setSel(o)}
-            className="tile en px-6 py-3 text-xl font-semibold disabled:opacity-100"
+            className="tile px-6 py-3 text-xl font-semibold disabled:opacity-100"
           >
             <span className="mr-2 text-sm text-slate-400">{i + 1}</span>
             {o}
           </button>
         ))}
       </div>
+      {status !== "answering" && (
+        <div className="mt-6 flex justify-center">
+          <SpeakBtn text={ex.sentence.en} size="sm" autoPlay />
+        </div>
+      )}
     </div>
   );
 }
@@ -398,7 +428,7 @@ function charDistance(a: string, b: string) {
   return dp[a.length][b.length];
 }
 
-export function TypeEx({ ex, status, setChecker }: ExProps<"type">) {
+export function DictationEx({ ex, status, setChecker }: ExProps<"dictation">) {
   const [val, setVal] = useState("");
   useEffect(() => {
     setChecker(
@@ -408,7 +438,7 @@ export function TypeEx({ ex, status, setChecker }: ExProps<"type">) {
             const a = normalize(val);
             const b = normalize(ex.answer);
             if (a === b) return { correct: true };
-            if (b.length > 4 && charDistance(a, b) === 1) return { correct: true, solution: ex.answer, note: "انتبه للإملاء الصحيح:" };
+            if (b.length > 4 && charDistance(a, b) === 1) return { correct: true, solution: ex.answer, note: "Watch the spelling:" };
             return { correct: false, solution: ex.answer };
           },
     );
@@ -416,11 +446,15 @@ export function TypeEx({ ex, status, setChecker }: ExProps<"type">) {
 
   return (
     <div>
-      <Title>اكتب بالإنجليزية</Title>
-      <div className="mb-8 rounded-2xl bg-gold-50 px-5 py-4 text-2xl font-bold text-gold-700">«{ex.ar}»</div>
+      <Title sub="Listen and write the word">Type what you hear</Title>
+      <div className="mb-8 flex items-center gap-5">
+        <SpeakBtn text={ex.word.en} autoPlay />
+        <div className="flex items-center gap-2 text-slate-500">
+          <Ear className="h-5 w-5" /> <span>Hint: {ex.word.def}</span>
+        </div>
+      </div>
       <input
         autoFocus
-        dir="ltr"
         value={val}
         disabled={status !== "answering"}
         onChange={(e) => setVal(e.target.value)}
@@ -428,7 +462,7 @@ export function TypeEx({ ex, status, setChecker }: ExProps<"type">) {
         autoCapitalize="off"
         spellCheck={false}
         placeholder="Type in English…"
-        className="en w-full rounded-2xl border-2 border-slate-200 bg-mist px-5 py-4 text-2xl font-semibold outline-none focus:border-brand-400 focus:bg-white"
+        className="w-full rounded-2xl border-2 border-slate-200 bg-mist px-5 py-4 text-2xl font-semibold outline-none focus:border-brand-400 focus:bg-white"
       />
     </div>
   );
@@ -436,30 +470,26 @@ export function TypeEx({ ex, status, setChecker }: ExProps<"type">) {
 
 export function SpeakEx({ ex, status, setChecker, complete }: ExProps<"speak">) {
   const { supported, listening, transcript, error, start, stop } = useSpeechRecognition();
-  const score = transcript ? similarity(transcript, ex.en) : 0;
+  const score = transcript ? similarity(transcript, ex.sentence.en) : 0;
 
   useEffect(() => {
     setChecker(
       !transcript || listening
         ? null
-        : () => ({
-            correct: score >= 0.7,
-            solution: ex.en,
-            note: `نسبة التطابق ${Math.round(score * 100)}%`,
-          }),
+        : () => ({ correct: score >= 0.7, solution: ex.sentence.en, note: `Match: ${Math.round(score * 100)}%` }),
     );
   }, [transcript, listening, score, ex, setChecker]);
 
-  const words = ex.en.split(" ");
+  const words = ex.sentence.en.split(" ");
   const heard = new Set(transcript ? transcript.toLowerCase().replace(/[.,!?]/g, "").split(/\s+/) : []);
 
   return (
     <div>
-      <Title sub="استمع أولًا، ثم اضغط على الميكروفون وانطق الجملة">انطق هذه الجملة</Title>
+      <Title sub="Listen first, then tap the microphone and say the sentence">Say this sentence</Title>
       <div className="mb-8 flex items-center gap-4 rounded-2xl border-2 border-slate-200 p-5">
-        <SpeakBtn text={ex.en} autoPlay />
+        <SpeakBtn text={ex.sentence.en} autoPlay />
         <div className="flex-1">
-          <div className="en text-left text-2xl font-semibold">
+          <div className="text-2xl font-semibold">
             {words.map((w, i) => {
               const clean = w.toLowerCase().replace(/[.,!?]/g, "");
               return (
@@ -469,7 +499,7 @@ export function SpeakEx({ ex, status, setChecker, complete }: ExProps<"speak">) 
               );
             })}
           </div>
-          <div className="mt-1 text-sm text-slate-500">{ex.ar}</div>
+          <ArHint className="mt-1 block text-left text-sm text-slate-500">{ex.sentence.ar}</ArHint>
         </div>
       </div>
 
@@ -485,23 +515,26 @@ export function SpeakEx({ ex, status, setChecker, complete }: ExProps<"speak">) 
             {listening && <span className="absolute inset-0 animate-ping rounded-full bg-red-400/40" />}
             {listening ? <MicOff className="h-10 w-10" /> : <Mic className="h-10 w-10" />}
           </button>
-          <p className="text-sm text-slate-500">{listening ? "أستمع إليك… اضغط للإيقاف" : transcript ? "يمكنك المحاولة مرة أخرى" : "اضغط للتحدث"}</p>
+          <p className="text-sm text-slate-500">{listening ? "Listening… tap to stop" : transcript ? "You can try again" : "Tap to speak"}</p>
           {transcript && (
             <div className="w-full rounded-2xl bg-mist p-4 text-center">
-              <div className="text-xs text-slate-500">سمعتُ:</div>
-              <div className="en text-lg font-semibold">{transcript}</div>
+              <div className="text-xs text-slate-500">We heard:</div>
+              <div className="text-lg font-semibold">{transcript}</div>
             </div>
           )}
           {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
       ) : (
         <div className="rounded-2xl bg-gold-50 p-5 text-center text-gold-700">
-          متصفحك لا يدعم التعرف على الصوت. يعمل هذا التمرين في Chrome و Edge و Safari.
+          Your browser doesn&apos;t support speech recognition. This exercise works in Chrome, Edge and Safari.
         </div>
       )}
       {status === "answering" && (
-        <button onClick={() => complete({ correct: true, note: "تخطيت تمرين النطق" })} className="mx-auto mt-6 block text-sm font-bold text-slate-400 hover:text-slate-600">
-          لا أستطيع التحدث الآن
+        <button
+          onClick={() => complete({ correct: true, note: "Speaking skipped." })}
+          className="mx-auto mt-6 block text-sm font-bold text-slate-400 hover:text-slate-600"
+        >
+          Can&apos;t speak now
         </button>
       )}
     </div>
@@ -510,7 +543,6 @@ export function SpeakEx({ ex, status, setChecker, complete }: ExProps<"speak">) 
 
 export function DialogueEx({ ex }: ExProps<"dialogue">) {
   const [shown, setShown] = useState(1);
-  const [showAr, setShowAr] = useState(true);
   const [playingAll, setPlayingAll] = useState(false);
   const speakers = useMemo(() => Array.from(new Set(ex.lines.map((l) => l.who))), [ex]);
 
@@ -525,8 +557,8 @@ export function DialogueEx({ ex }: ExProps<"dialogue">) {
 
   return (
     <div>
-      <Title sub="استمع إلى الحوار كاملًا ولاحظ كيف تُستعمل الكلمات">حوار الدرس</Title>
-      <div className="mb-5 flex flex-wrap gap-2">
+      <Title sub="Listen to the whole conversation and notice how the words are used">Lesson dialogue</Title>
+      <div className="mb-5">
         <button
           onClick={() => {
             setPlayingAll(true);
@@ -535,23 +567,15 @@ export function DialogueEx({ ex }: ExProps<"dialogue">) {
           disabled={playingAll}
           className="flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2 font-bold text-white disabled:opacity-60"
         >
-          <Play className="h-4 w-4 fill-white" /> استمع للحوار كاملًا
-        </button>
-        <button onClick={() => setShowAr(!showAr)} className="flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 font-bold text-slate-600">
-          <Languages className="h-4 w-4" /> {showAr ? "إخفاء الترجمة" : "إظهار الترجمة"}
+          <Play className="h-4 w-4 fill-white" /> Play the dialogue
         </button>
       </div>
-      <div className="space-y-3" dir="ltr">
+      <div className="space-y-3">
         <AnimatePresence>
           {ex.lines.slice(0, shown).map((l, i) => {
             const right = speakers.indexOf(l.who) % 2 === 1;
             return (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`flex items-end gap-2 ${right ? "flex-row-reverse" : ""}`}
-              >
+              <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className={`flex items-end gap-2 ${right ? "flex-row-reverse" : ""}`}>
                 <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold ${right ? "bg-gold-400 text-brand-900" : "bg-brand-600 text-white"}`}>
                   {l.who[0]}
                 </div>
@@ -559,13 +583,9 @@ export function DialogueEx({ ex }: ExProps<"dialogue">) {
                   onClick={() => speak(l.en)}
                   className={`max-w-[80%] rounded-2xl px-4 py-3 text-left ${right ? "rounded-br-sm bg-gold-50" : "rounded-bl-sm bg-brand-50"}`}
                 >
-                  <div className="en text-xs font-bold text-slate-400">{l.who}</div>
-                  <div className="en text-lg font-medium text-ink">{l.en}</div>
-                  {showAr && (
-                    <div className="mt-0.5 text-right text-sm text-slate-500" dir="rtl">
-                      {l.ar}
-                    </div>
-                  )}
+                  <div className="text-xs font-bold text-slate-400">{l.who}</div>
+                  <div className="text-lg font-medium text-ink">{l.en}</div>
+                  <ArHint className="mt-0.5 block text-sm text-slate-500">{l.ar}</ArHint>
                 </button>
               </motion.div>
             );
@@ -580,7 +600,7 @@ export function DialogueEx({ ex }: ExProps<"dialogue">) {
           }}
           className="mx-auto mt-5 block rounded-xl border-2 border-dashed border-brand-200 px-5 py-2 font-bold text-brand-600"
         >
-          السطر التالي ↓
+          Next line ↓
         </button>
       )}
     </div>

@@ -5,14 +5,15 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Flame, Menu, X, Zap, Layers } from "lucide-react";
 import { Logo } from "./Logo";
+import { ArabicToggle } from "./ArabicToggle";
 import { dueCards, useMounted, useProgress } from "@/lib/store";
 
 const nav = [
-  { href: "/", label: "الرئيسية" },
-  { href: "/courses/", label: "الدورات" },
-  { href: "/placement/", label: "اختبار تحديد المستوى" },
-  { href: "/review/", label: "المراجعة" },
-  { href: "/dashboard/", label: "لوحتي" },
+  { href: "/", label: "Home" },
+  { href: "/courses/", label: "Courses" },
+  { href: "/placement/", label: "Placement Test" },
+  { href: "/review/", label: "Review" },
+  { href: "/dashboard/", label: "My Progress" },
 ];
 
 export function Header() {
@@ -22,14 +23,14 @@ export function Header() {
   const { xp, streak, cards } = useProgress();
   const due = mounted ? dueCards(cards).length : 0;
 
-  if (path?.startsWith("/learn/")) return null; // مشغّل الدرس بملء الشاشة
+  if (path?.startsWith("/learn/")) return null; // the lesson player is full screen
 
   const active = (href: string) => (href === "/" ? path === "/" : path?.startsWith(href.replace(/\/$/, "")));
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
-        <Link href="/" aria-label="الصفحة الرئيسية">
+        <Link href="/" aria-label="Home">
           <Logo />
         </Link>
 
@@ -44,7 +45,7 @@ export function Header() {
             >
               {n.label}
               {n.href === "/review/" && due > 0 && (
-                <span className="absolute -top-0.5 left-0 grid h-5 min-w-5 place-items-center rounded-full bg-gold-400 px-1 text-[11px] font-bold text-brand-900">
+                <span className="absolute -top-0.5 right-0 grid h-5 min-w-5 place-items-center rounded-full bg-gold-400 px-1 text-[11px] font-bold text-brand-900">
                   {due}
                 </span>
               )}
@@ -56,26 +57,27 @@ export function Header() {
         <div className="flex items-center gap-2">
           {mounted && (
             <Link href="/dashboard/" className="hidden items-center gap-3 rounded-xl bg-mist px-3 py-1.5 text-sm font-bold sm:flex">
-              <span className="flex items-center gap-1 text-orange-500" title="أيام متتالية">
+              <span className="flex items-center gap-1 text-orange-500" title="Day streak">
                 <Flame className="h-4 w-4" />
                 {streak}
               </span>
-              <span className="flex items-center gap-1 text-gold-500" title="نقاط الخبرة">
+              <span className="flex items-center gap-1 text-gold-500" title="XP">
                 <Zap className="h-4 w-4" />
                 {xp}
               </span>
               {due > 0 && (
-                <span className="flex items-center gap-1 text-brand-600 lg:hidden" title="بطاقات للمراجعة">
+                <span className="flex items-center gap-1 text-brand-600 lg:hidden" title="Cards to review">
                   <Layers className="h-4 w-4" />
                   {due}
                 </span>
               )}
             </Link>
           )}
+          <ArabicToggle className="hidden md:flex" />
           <Link href="/courses/general-english-1/" className="btn-primary hidden px-4 py-2 text-sm sm:inline-block">
-            ابدأ مجانًا
+            Start free
           </Link>
-          <button className="rounded-lg p-2 lg:hidden" onClick={() => setOpen(!open)} aria-label="القائمة">
+          <button className="rounded-lg p-2 lg:hidden" onClick={() => setOpen(!open)} aria-label="Menu">
             {open ? <X /> : <Menu />}
           </button>
         </div>
@@ -93,6 +95,7 @@ export function Header() {
               {n.label}
             </Link>
           ))}
+          <ArabicToggle className="mt-2 md:hidden" />
         </nav>
       )}
     </header>

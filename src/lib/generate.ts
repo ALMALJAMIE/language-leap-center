@@ -1,6 +1,6 @@
 import type { Exercise, LessonSpec, Word } from "./types";
 
-/** مولّد أرقام عشوائية ثابت البذرة حتى يبقى ترتيب الدرس نفسه بين الزيارات */
+/** Seeded RNG so a lesson keeps the same order between visits */
 function rng(seedStr: string) {
   let h = 1779033703 ^ seedStr.length;
   for (let i = 0; i < seedStr.length; i++) {
@@ -30,14 +30,14 @@ function pickOthers<T>(pool: T[], exclude: T, n: number, r: () => number): T[] {
   ).slice(0, n);
 }
 
-/** تقطيع الجملة إلى كلمات لبنك الكلمات */
+/** Split a sentence into word-bank tokens */
 export const tokenize = (s: string) =>
   s
     .replace(/[.,!?]/g, "")
     .split(/\s+/)
     .filter(Boolean);
 
-/** توحيد النص للمقارنة: حروف صغيرة وحذف الترقيم والمسافات الزائدة */
+/** Normalize for comparison: lowercase, no punctuation, single spaces */
 export const normalize = (s: string) =>
   s
     .toLowerCase()
@@ -46,7 +46,7 @@ export const normalize = (s: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-/** نسبة التشابه بين جملتين على مستوى الكلمات (لتقييم النطق) */
+/** Word-level similarity between two sentences (for pronunciation scoring) */
 export function similarity(a: string, b: string): number {
   const x = normalize(a).split(" ");
   const y = normalize(b).split(" ");
@@ -60,8 +60,8 @@ export function similarity(a: string, b: string): number {
 }
 
 /**
- * يحوّل مواصفات الدرس إلى سلسلة تمارين متدرجة:
- * قاعدة ← كلمة جديدة ← اختبار فوري ← استماع ← توصيل ← بناء جملة ← فراغ ← كتابة ← نطق ← حوار
+ * Turns a lesson spec into a graded sequence:
+ * grammar → new words → quick checks → listening → matching → sentence building → gap fill → dictation → speaking → dialogue
  */
 export function generateExercises(lesson: LessonSpec, distractorPool: Word[] = []): Exercise[] {
   const r = rng(lesson.id);
@@ -71,84 +71,55 @@ export function generateExercises(lesson: LessonSpec, distractorPool: Word[] = [
 
   if (lesson.grammar) out.push({ kind: "grammar", tip: lesson.grammar });
 
-  // تقديم الكلمات على دفعات من اثنتين، يتبع كل دفعة تمرين تثبيت
+  // Introduce words two at a time, each followed by a quick check
   for (let i = 0; i < words.length; i += 2) {
     const batch = words.slice(i, i + 2);
     batch.forEach((w) => out.push({ kind: "newWord", word: w }));
     batch.forEach((w, k) => {
       const others = pickOthers(pool, w, 3, r);
       if ((i / 2 + k) % 2 === 0) {
-        out.push({
-          kind: "choiceMeaning",
-          prompt: w.en,
-          answer: w.ar,
-          options: shuffle([w.ar, ...others.map((o) => o.ar)], r),
-        });
+        out.push({ kind: "choiceMeaning", word: w, answer: w.en, options: shuffle([w, ...others], r) });
       } else {
-        out.push({
-          kind: "listen",
-          audio: w.en,
-          answer: w.en,
-          options: shuffle([w.en, ...others.map((o) => o.en)], r),
-        });
+        out.push({ kind: "listen", audio: w.en, answer: w.en, options: shuffle([w.en, ...others.map((o) => o.en)], r) });
       }
     });
   }
 
-  // توصيل الأزواج
-  out.push({ kind: "match", pairs: shuffle(words, r).slice(0, 5).map((w) => ({ en: w.en, ar: w.ar })) });
+  out.push({ kind: "match", pairs: shuffle(words, r).slice(0, 5) });
 
-  // اختيار الكلمة الإنجليزية لمعنى عربي
   const w2 = shuffle(words, r)[0];
-  out.push({
-    kind: "choiceWord",
-    prompt: w2.ar,
-    answer: w2.en,
-    options: shuffle([w2.en, ...pickOthers(pool, w2, 3, r).map((o) => o.en)], r),
-  });
+  out.push({ kind: "choiceWord", word: w2, answer: w2.en, options: shuffle([w2.en, ...pickOthers(pool, w2, 3, r).map((o) => o.en)], r) });
 
-  // بناء الجمل وملء الفراغ
-  const extraTokens = shuffle(
-    pool.flatMap((w) => tokenize(w.en)),
-    r,
-  );
+  const extraTokens = shuffle(pool.flatMap((w) => tokenize(w.en)), r);
   lesson.sentences.forEach((s, idx) => {
-    if (idx % 2 === 0) {
-      const toks = tokenize(s.en);
+    const toks = tokenize(s.en);
+    const build = () => {
       const distract = extraTokens.filter((t) => !toks.map((x) => x.toLowerCase()).includes(t.toLowerCase())).slice(0, 3);
-      out.push({ kind: "build", ar: s.ar, answer: s.en, bank: shuffle([...toks, ...distract], r) });
-    } else {
-      const target = words.find((w) => new RegExp(`\\b${w.en}\\b`, "i").test(s.en));
-      if (target) {
-        const m = s.en.match(new RegExp(`\\b${target.en}\\b`, "i"))!;
-        const pos = m.index!;
-        out.push({
-          kind: "fill",
-          before: s.en.slice(0, pos),
-          after: s.en.slice(pos + m[0].length),
-          ar: s.ar,
-          answer: m[0],
-          options: shuffle([m[0], ...pickOthers(pool, target, 2, r).map((o) => o.en)], r),
-        });
-      } else {
-        const toks = tokenize(s.en);
-        out.push({ kind: "build", ar: s.ar, answer: s.en, bank: shuffle([...toks, ...extraTokens.slice(0, 2)], r) });
-      }
-    }
+      out.push({ kind: "build", sentence: s, answer: s.en, bank: shuffle([...toks, ...distract], r) });
+    };
+    if (idx % 2 === 0) return build();
+    const target = words.find((w) => new RegExp(`\\b${w.en}\\b`, "i").test(s.en));
+    if (!target) return build();
+    const m = s.en.match(new RegExp(`\\b${target.en}\\b`, "i"))!;
+    out.push({
+      kind: "fill",
+      before: s.en.slice(0, m.index!),
+      after: s.en.slice(m.index! + m[0].length),
+      sentence: s,
+      answer: m[0],
+      options: shuffle([m[0], ...pickOthers(pool, target, 2, r).map((o) => o.en)], r),
+    });
   });
 
-  // كتابة كلمة من الذاكرة
   const w3 = shuffle(words, r).find((w) => w.en.length <= 12) ?? words[0];
-  out.push({ kind: "type", ar: w3.ar, answer: w3.en });
+  out.push({ kind: "dictation", word: w3, answer: w3.en });
 
-  // النطق
-  const speakS = lesson.sentences[0];
-  out.push({ kind: "speak", en: speakS.en, ar: speakS.ar });
+  out.push({ kind: "speak", sentence: lesson.sentences[0] });
 
   if (lesson.dialogue?.length) out.push({ kind: "dialogue", lines: lesson.dialogue });
 
   return out;
 }
 
-/** هل يحتاج التمرين إلى إجابة تُصحَّح؟ */
+/** Does this exercise need an answer to be checked? */
 export const isGraded = (e: Exercise) => !["grammar", "newWord", "dialogue"].includes(e.kind);

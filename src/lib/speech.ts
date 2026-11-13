@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-/* ---------- تحويل النص إلى كلام (Web Speech API) ---------- */
+/* ---------- Text to speech (Web Speech API) ---------- */
 
 let cachedVoice: SpeechSynthesisVoice | null = null;
 
@@ -56,7 +56,7 @@ export function useVoicesReady() {
   return ready;
 }
 
-/* ---------- التعرف على الكلام لتمارين النطق ---------- */
+/* ---------- Speech recognition for speaking exercises ---------- */
 
 type Recognition = {
   lang: string;
@@ -107,7 +107,7 @@ export function useSpeechRecognition() {
       setTranscript(text);
     };
     rec.onerror = (e) => {
-      setError(e.error === "not-allowed" ? "يرجى السماح باستخدام الميكروفون" : "لم نتمكن من سماعك، حاول مرة أخرى");
+      setError(e.error === "not-allowed" ? "Please allow microphone access." : "We couldn't hear you. Please try again.");
       setListening(false);
     };
     rec.onend = () => setListening(false);

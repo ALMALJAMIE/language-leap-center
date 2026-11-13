@@ -6,7 +6,7 @@ export function Logo({ compact = false, light = false }: { compact?: boolean; li
     <span className="flex items-center gap-2.5">
       <Image src={mark} alt="Language Leap Center" className="h-10 w-auto" priority />
       {!compact && (
-        <span className="en flex flex-col leading-none" dir="ltr">
+        <span className="flex flex-col leading-none">
           <span className={`text-[13px] font-extrabold tracking-[0.18em] ${light ? "text-white" : "text-brand-700"}`}>
             LANGUAGE LEAP
           </span>

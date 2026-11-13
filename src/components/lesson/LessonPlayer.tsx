@@ -11,11 +11,11 @@ import { generateExercises, isGraded } from "@/lib/generate";
 import { useProgress } from "@/lib/store";
 import { useVoicesReady } from "@/lib/speech";
 import {
-  BuildEx, ChoiceMeaningEx, ChoiceWordEx, DialogueEx, FillEx, GrammarEx, ListenEx, MatchEx, NewWordEx, SpeakEx, TypeEx,
+  BuildEx, ChoiceMeaningEx, ChoiceWordEx, DialogueEx, DictationEx, FillEx, GrammarEx, ListenEx, MatchEx, NewWordEx, SpeakEx,
   type Status, type Verdict,
 } from "./Exercises";
 
-/* أصوات قصيرة للتغذية الراجعة دون ملفات صوتية */
+/* Short feedback sounds without audio files */
 function tone(ok: boolean) {
   try {
     const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
@@ -37,7 +37,7 @@ function tone(ok: boolean) {
   } catch {}
 }
 
-const praise = ["أحسنت!", "ممتاز!", "رائع!", "إجابة صحيحة!", "استمر هكذا!"];
+const praise = ["Well done!", "Excellent!", "Great job!", "Correct!", "Keep it up!"];
 
 export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesson: LessonSpec; nextId?: string }) {
   useVoicesReady();
@@ -77,7 +77,7 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
       else {
         setCombo(0);
         setMistakes((m) => m + 1);
-        setQueue((q) => [...q, q[idx]]); // يعود التمرين الخاطئ في آخر الدرس
+        setQueue((q) => [...q, q[idx]]); // a missed exercise comes back at the end
       }
     },
     [idx],
@@ -128,42 +128,42 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
         <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-7xl">
           🏆
         </motion.div>
-        <h1 className="mt-6 text-3xl font-extrabold text-brand-800">أتممت الدرس!</h1>
+        <h1 className="mt-6 text-3xl font-extrabold text-brand-800">Lesson complete!</h1>
         <p className="mt-2 text-slate-600">
-          {lesson.title} · <span className="en">{lesson.titleEn}</span>
+          {course.title} · {lesson.title}
         </p>
         <div className="mt-8 grid w-full max-w-md grid-cols-3 gap-3">
           <div className="overflow-hidden rounded-2xl border-2 border-gold-400">
-            <div className="bg-gold-400 py-1 text-xs font-bold text-brand-900">نقاط الخبرة</div>
+            <div className="bg-gold-400 py-1 text-xs font-bold text-brand-900">XP earned</div>
             <div className="flex items-center justify-center gap-1 py-3 text-2xl font-extrabold text-gold-600"><Zap className="h-5 w-5" />{finished.xp}</div>
           </div>
           <div className="overflow-hidden rounded-2xl border-2 border-emerald-500">
-            <div className="bg-emerald-500 py-1 text-xs font-bold text-white">الدقة</div>
+            <div className="bg-emerald-500 py-1 text-xs font-bold text-white">Accuracy</div>
             <div className="flex items-center justify-center gap-1 py-3 text-2xl font-extrabold text-emerald-600"><Target className="h-5 w-5" />{Math.round(finished.accuracy * 100)}%</div>
           </div>
           <div className="overflow-hidden rounded-2xl border-2 border-brand-500">
-            <div className="bg-brand-500 py-1 text-xs font-bold text-white">الوقت</div>
+            <div className="bg-brand-500 py-1 text-xs font-bold text-white">Time</div>
             <div className="flex items-center justify-center gap-1 py-3 text-2xl font-extrabold text-brand-600"><Timer className="h-5 w-5" />{Math.floor(finished.secs / 60)}:{String(finished.secs % 60).padStart(2, "0")}</div>
           </div>
         </div>
         <p className="mt-6 max-w-md text-sm text-slate-500">
-          أُضيفت {lesson.words.length} كلمات إلى بطاقات المراجعة. ستظهر لك في الوقت المناسب قبل أن تنساها.
+          {lesson.words.length} words were added to your review deck. They will come back just before you forget them.
         </p>
         <div className="mt-8 flex w-full max-w-md flex-col gap-3">
           {nextId ? (
-            <Link href={`/learn/${course.slug}/${nextId}/`} className="btn-primary py-3.5 text-lg">الدرس التالي</Link>
+            <Link href={`/learn/${course.slug}/${nextId}/`} className="btn-primary py-3.5 text-lg">Next lesson</Link>
           ) : (
-            <Link href={`/courses/${course.slug}/`} className="btn-primary py-3.5 text-lg">العودة إلى الدورة</Link>
+            <Link href={`/courses/${course.slug}/`} className="btn-primary py-3.5 text-lg">Back to course</Link>
           )}
-          <Link href="/review/" className="btn-gold py-3">راجع الكلمات الآن</Link>
-          <Link href={`/courses/${course.slug}/`} className="py-2 font-bold text-slate-500">محتوى الدورة</Link>
+          <Link href="/review/" className="btn-gold py-3">Review words now</Link>
+          <Link href={`/courses/${course.slug}/`} className="py-2 font-bold text-slate-500">Course content</Link>
         </div>
       </div>
     );
   }
 
   const graded_ = ex && isGraded(ex);
-  const btnLabel = status !== "answering" ? "متابعة" : graded_ ? "تحقق" : ex?.kind === "dialogue" ? "إنهاء الدرس" : "متابعة";
+  const btnLabel = status !== "answering" ? "Continue" : graded_ ? "Check" : ex?.kind === "dialogue" ? "Finish lesson" : "Continue";
 
   const renderEx = () => {
     const common = { status, setChecker, complete: judge };
@@ -176,7 +176,7 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
       case "match": return <MatchEx ex={ex} {...common} />;
       case "build": return <BuildEx ex={ex} {...common} />;
       case "fill": return <FillEx ex={ex} {...common} />;
-      case "type": return <TypeEx ex={ex} {...common} />;
+      case "dictation": return <DictationEx ex={ex} {...common} />;
       case "speak": return <SpeakEx ex={ex} {...common} />;
       case "dialogue": return <DialogueEx ex={ex} {...common} />;
     }
@@ -184,14 +184,14 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      {/* الشريط العلوي */}
+      {/* Top bar */}
       <div className="mx-auto flex w-full max-w-3xl items-center gap-4 px-5 pt-6">
-        <button onClick={() => setConfirmExit(true)} aria-label="خروج" className="text-slate-400 hover:text-slate-600">
+        <button onClick={() => setConfirmExit(true)} aria-label="Exit" className="text-slate-400 hover:text-slate-600">
           <X className="h-7 w-7" />
         </button>
         <div className="h-4 flex-1 overflow-hidden rounded-full bg-slate-100">
           <motion.div
-            className="h-full rounded-full bg-gradient-to-l from-gold-300 to-gold-500"
+            className="h-full rounded-full bg-gradient-to-r from-gold-300 to-gold-500"
             animate={{ width: `${progress * 100}%` }}
             transition={{ type: "spring", stiffness: 120, damping: 20 }}
           />
@@ -205,16 +205,16 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
         </AnimatePresence>
       </div>
 
-      {/* التمرين */}
+      {/* Exercise */}
       <div className="mx-auto w-full max-w-2xl flex-1 px-5 pb-48 pt-10">
         <AnimatePresence mode="wait">
-          <motion.div key={idx} initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.2 }}>
+          <motion.div key={idx} initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.2 }}>
             {renderEx()}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* شريط التحقق السفلي */}
+      {/* Bottom check bar */}
       <div
         className={`fixed inset-x-0 bottom-0 border-t-2 transition-colors ${
           status === "correct" ? "border-emerald-200 bg-emerald-50" : status === "wrong" ? "border-red-200 bg-red-50" : "border-slate-100 bg-white"
@@ -227,7 +227,7 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
                 <CheckCircle2 className="h-10 w-10 shrink-0" />
                 <div>
                   <div className="text-xl font-extrabold">{praise[idx % praise.length]}</div>
-                  {verdict?.note && <div className="text-sm">{verdict.note} {verdict.solution && <b className="en">{verdict.solution}</b>}</div>}
+                  {verdict?.note && <div className="text-sm">{verdict.note} {verdict.solution && <b>{verdict.solution}</b>}</div>}
                 </div>
               </motion.div>
             )}
@@ -235,8 +235,8 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
               <motion.div initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-start gap-3 text-red-600">
                 <XCircle className="h-10 w-10 shrink-0" />
                 <div>
-                  <div className="text-xl font-extrabold">الإجابة الصحيحة:</div>
-                  <div className="en text-lg">{verdict?.solution}</div>
+                  <div className="text-xl font-extrabold">Correct answer:</div>
+                  <div className="text-lg">{verdict?.solution}</div>
                   {verdict?.note && <div className="text-sm opacity-80">{verdict.note}</div>}
                 </div>
               </motion.div>
@@ -258,10 +258,10 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 px-6" onClick={() => setConfirmExit(false)}>
           <div className="w-full max-w-sm rounded-3xl bg-white p-7 text-center" onClick={(e) => e.stopPropagation()}>
             <div className="text-5xl">🥺</div>
-            <h3 className="mt-3 text-xl font-bold">هل تريد الخروج؟</h3>
-            <p className="mt-2 text-slate-500">لن يُحفظ تقدمك في هذا الدرس.</p>
-            <button onClick={() => setConfirmExit(false)} className="btn-primary mt-6 w-full py-3">أكمل التعلّم</button>
-            <Link href={`/courses/${course.slug}/`} className="mt-3 block py-2 font-bold text-red-500">خروج</Link>
+            <h3 className="mt-3 text-xl font-bold">Leave the lesson?</h3>
+            <p className="mt-2 text-slate-500">Your progress in this lesson will not be saved.</p>
+            <button onClick={() => setConfirmExit(false)} className="btn-primary mt-6 w-full py-3">Keep learning</button>
+            <Link href={`/courses/${course.slug}/`} className="mt-3 block py-2 font-bold text-red-500">Leave</Link>
           </div>
         </div>
       )}

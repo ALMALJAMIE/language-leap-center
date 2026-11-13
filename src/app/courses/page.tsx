@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Catalog } from "./Catalog";
 
-export const metadata: Metadata = { title: "الدورات" };
+export const metadata: Metadata = { title: "Courses" };
 
 export default function CoursesPage() {
   return (

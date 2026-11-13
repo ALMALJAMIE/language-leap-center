@@ -6,10 +6,11 @@ export type CourseType = "self" | "live" | "mixed";
 
 export interface Word {
   en: string;
+  /** Short, simple English definition */
+  def: string;
+  /** Optional Arabic translation (shown only when "Arabic help" is on) */
   ar: string;
-  /** مثال قصير يوضح الاستعمال */
   ex?: string;
-  /** رمز تعبيري يساعد على التذكر، مفيد للأطفال */
   emoji?: string;
 }
 
@@ -30,11 +31,10 @@ export interface DialogueLine {
   ar: string;
 }
 
-/** مواصفات الدرس: يكتبها المعلم، وتولّد المنصة منها التمارين تلقائيًا */
+/** A lesson is written as a spec; the platform generates the exercises from it */
 export interface LessonSpec {
   id: string;
   title: string;
-  titleEn: string;
   minutes: number;
   words: Word[];
   sentences: Sentence[];
@@ -44,9 +44,8 @@ export interface LessonSpec {
 
 export interface Module {
   title: string;
-  titleEn: string;
   lessons: LessonSpec[];
-  /** دروس معلنة في الخطة ولم يُكتب محتواها بعد */
+  /** Lessons announced in the syllabus but not written yet */
   upcoming?: string[];
 }
 
@@ -56,13 +55,12 @@ export interface Course {
   program: ProgramId;
   level: Level;
   title: string;
-  titleEn: string;
   description: string;
   outcomes: string[];
   skills: string[];
   hours: number;
   type: CourseType;
-  /** بالدولار، 0 = مجاني */
+  /** USD, 0 = free */
   price: number;
   certificate: boolean;
   ageGroup?: string;
@@ -72,17 +70,17 @@ export interface Course {
   order: number;
 }
 
-/* ---------- التمارين المولّدة ---------- */
+/* ---------- Generated exercises ---------- */
 
 export type Exercise =
   | { kind: "grammar"; tip: GrammarTip }
   | { kind: "newWord"; word: Word }
-  | { kind: "choiceMeaning"; prompt: string; answer: string; options: string[] }
-  | { kind: "choiceWord"; prompt: string; answer: string; options: string[] }
+  | { kind: "choiceMeaning"; word: Word; answer: string; options: Word[] }
+  | { kind: "choiceWord"; word: Word; answer: string; options: string[] }
   | { kind: "listen"; audio: string; answer: string; options: string[] }
-  | { kind: "match"; pairs: { en: string; ar: string }[] }
-  | { kind: "build"; ar: string; answer: string; bank: string[] }
-  | { kind: "fill"; before: string; after: string; ar: string; answer: string; options: string[] }
-  | { kind: "type"; ar: string; answer: string }
-  | { kind: "speak"; en: string; ar: string }
+  | { kind: "match"; pairs: Word[] }
+  | { kind: "build"; sentence: Sentence; answer: string; bank: string[] }
+  | { kind: "fill"; before: string; after: string; sentence: Sentence; answer: string; options: string[] }
+  | { kind: "dictation"; word: Word; answer: string }
+  | { kind: "speak"; sentence: Sentence }
   | { kind: "dialogue"; lines: DialogueLine[] };
