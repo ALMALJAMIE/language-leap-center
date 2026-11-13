@@ -1,0 +1,65 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Logo } from "./Logo";
+import { programs } from "@/data/courses";
+
+export function Footer() {
+  const path = usePathname();
+  if (path?.startsWith("/learn/")) return null;
+
+  return (
+    <footer className="brand-gradient mt-24 text-brand-100">
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-4">
+        <div className="md:col-span-1">
+          <div className="inline-block rounded-2xl bg-white px-3 py-2">
+            <Logo />
+          </div>
+          <p className="en mt-4 text-sm italic text-gold-200">Your leap to fluent English</p>
+          <p className="mt-2 text-sm leading-7 text-brand-200">
+            منصة عربية لتعلّم الإنجليزية خطوة بخطوة: دروس قصيرة، ونطق، ومراجعة ذكية تحفظ ما تعلّمته.
+          </p>
+        </div>
+
+        <div>
+          <h3 className="mb-4 font-bold text-white">البرامج</h3>
+          <ul className="space-y-2.5 text-sm">
+            {Object.entries(programs).map(([id, p]) => (
+              <li key={id}>
+                <Link href={`/courses/?program=${id}`} className="hover:text-gold-300">
+                  {p.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="mb-4 font-bold text-white">تعلّم</h3>
+          <ul className="space-y-2.5 text-sm">
+            <li><Link href="/courses/" className="hover:text-gold-300">كل الدورات</Link></li>
+            <li><Link href="/placement/" className="hover:text-gold-300">اختبار تحديد المستوى</Link></li>
+            <li><Link href="/review/" className="hover:text-gold-300">المراجعة المتباعدة</Link></li>
+            <li><Link href="/dashboard/" className="hover:text-gold-300">لوحة التقدم</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 className="mb-4 font-bold text-white">المنصة</h3>
+          <ul className="space-y-2.5 text-sm">
+            <li><Link href="/#method" className="hover:text-gold-300">منهجنا</Link></li>
+            <li><Link href="/#faq" className="hover:text-gold-300">الأسئلة الشائعة</Link></li>
+            <li><Link href="/about/" className="hover:text-gold-300">عن المركز</Link></li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-6 py-5 text-xs text-brand-300 sm:flex-row">
+          <span>© {new Date().getFullYear()} Language Leap Center. جميع الحقوق محفوظة.</span>
+          <span className="en">LLC · Learn · Leap · Lead</span>
+        </div>
+      </div>
+    </footer>
+  );
+}

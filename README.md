@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Language Leap Center — منصة تعلّم اللغة الإنجليزية
 
-## Getting Started
+> Your leap to fluent English
 
-First, run the development server:
+منصة عربية لتعلّم الإنجليزية: دورات متدرجة من A1 إلى C1، ودروس تفاعلية بالصوت والنطق، ومراجعة متباعدة للمفردات.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## التقنيات
+
+| المكتبة | دورها |
+|---|---|
+| Next.js 16 + React 19 | إطار الموقع، ويُصدَّر موقعًا ثابتًا يعمل على أي استضافة |
+| Tailwind CSS 4 | التصميم وهوية LLC (الأزرق والذهبي) |
+| ts-fsrs | خوارزمية FSRS للمراجعة المتباعدة (نفس خوارزمية Anki الحديثة) |
+| Web Speech API | نطق الكلمات والجمل، والتعرف على صوت المتعلم في تمارين النطق |
+| Zustand | حفظ التقدم والنقاط والسلسلة اليومية في المتصفح |
+| Motion | الحركات والانتقالات |
+| canvas-confetti | الاحتفال عند إتمام الدرس |
+
+## الصفحات
+
+- `/` الرئيسية
+- `/courses/` كتالوج الدورات مع التصفية (البرنامج، المستوى، النوع، السعر) والبحث والترتيب
+- `/courses/[slug]/` صفحة الدورة: الوحدات والدروس ونتائج التعلم
+- `/learn/[course]/[lesson]/` مشغّل الدرس
+- `/placement/` اختبار تحديد المستوى (15 سؤالًا)
+- `/review/` المراجعة المتباعدة
+- `/dashboard/` لوحة التقدم: النقاط، السلسلة، الهدف اليومي، الأوسمة
+- `/about/` عن المركز
+
+## أنواع التمارين
+
+قاعدة مختصرة، كلمة جديدة بالصوت والمثال، اختيار المعنى، اختيار الكلمة، استماع، توصيل أزواج، ترتيب جملة، ملء فراغ، كتابة من الذاكرة، نطق بالتعرف على الصوت، حوار.
+
+## كيف أضيف درسًا؟
+
+لا تكتب التمارين يدويًا. اكتب مواصفات الدرس فقط في `src/data/lessons/`، والمنصة تولّد التمارين منها:
+
+```ts
+{
+  id: "weather",
+  title: "الطقس",
+  titleEn: "The weather",
+  minutes: 9,
+  words: [{ en: "sunny", ar: "مشمس", ex: "It is sunny today.", emoji: "☀️" }, ...],
+  sentences: [{ en: "It is hot today.", ar: "الجو حار اليوم." }, ...],
+  grammar: { title: "...", body: "...", examples: [...] },   // اختياري
+  dialogue: [{ who: "Ali", en: "...", ar: "..." }, ...],      // اختياري
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ثم أضفه إلى `lessons` في الوحدة المناسبة. بيانات الدورات (الأسعار، الوصف، الساعات) في `src/data/courses.ts`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## التشغيل محليًا
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # يُخرج الموقع الثابت في مجلد out/
+```
 
-## Learn More
+## النشر
 
-To learn more about Next.js, take a look at the following resources:
+يُنشر تلقائيًا على GitHub Pages عند كل دفع إلى `main` (انظر `.github/workflows/deploy.yml`).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**عند شراء الدومين:** احذف سطر `NEXT_PUBLIC_BASE_PATH` من ملف النشر، ثم أضف الدومين من إعدادات المستودع ← Pages ← Custom domain. أو ارفع محتوى مجلد `out/` إلى أي استضافة.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## المرحلة القادمة
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- حسابات المستخدمين ومزامنة التقدم بين الأجهزة (مثل Supabase)
+- الدفع الإلكتروني للدورات المدفوعة
+- الشهادات
+- تسجيلات صوتية بشرية بدل الصوت الآلي

@@ -1,26 +1,148 @@
 @import "tailwindcss";
+@import "@fontsource/ibm-plex-sans-arabic/400.css";
+@import "@fontsource/ibm-plex-sans-arabic/500.css";
+@import "@fontsource/ibm-plex-sans-arabic/600.css";
+@import "@fontsource/ibm-plex-sans-arabic/700.css";
+@import "@fontsource-variable/inter";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* هوية Language Leap Center: أزرق ملكي + ذهبي */
+@theme {
+  --color-brand-50: #eef4fc;
+  --color-brand-100: #d9e6f8;
+  --color-brand-200: #b3cdf0;
+  --color-brand-300: #7eaae4;
+  --color-brand-400: #4a86d6;
+  --color-brand-500: #1f66c8;
+  --color-brand-600: #0f4ca7;
+  --color-brand-700: #0c3d88;
+  --color-brand-800: #0b326d;
+  --color-brand-900: #0a2852;
+  --color-brand-950: #061a37;
+
+  --color-gold-50: #fdf8e9;
+  --color-gold-100: #fbeec6;
+  --color-gold-200: #f7dc8a;
+  --color-gold-300: #f3c74d;
+  --color-gold-400: #efb52a;
+  --color-gold-500: #ce961d;
+  --color-gold-600: #a97716;
+  --color-gold-700: #845b13;
+
+  --color-ink: #0d1b33;
+  --color-mist: #f5f7fb;
+
+  --font-sans: "IBM Plex Sans Arabic", "Inter Variable", system-ui, sans-serif;
+  --font-en: "Inter Variable", "IBM Plex Sans Arabic", system-ui, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #ffffff;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* النص الإنجليزي داخل الواجهة العربية */
+.en {
+  font-family: var(--font-en);
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.brand-gradient {
+  background-image: linear-gradient(135deg, #1f66c8 0%, #0c3d88 100%);
+}
+.gold-gradient {
+  background-image: linear-gradient(135deg, #f3c74d 0%, #ce961d 100%);
+}
+.text-gold-gradient {
+  background-image: linear-gradient(135deg, #f3c74d 0%, #ce961d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* زر الإجابة بأسلوب منصات التعلّم: له ظل سفلي يعطي إحساس الضغط */
+.tile {
+  border: 2px solid #e3e8f1;
+  border-bottom-width: 4px;
+  border-radius: 1rem;
+  background: #fff;
+  transition: transform 0.08s, background 0.15s, border-color 0.15s;
+}
+.tile:hover {
+  background: #f5f8fd;
+}
+.tile:active {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+.tile[data-state="selected"] {
+  border-color: #4a86d6;
+  background: #eef4fc;
+  color: #0c3d88;
+}
+.tile[data-state="correct"] {
+  border-color: #2fb36b;
+  background: #eafaf1;
+  color: #157a43;
+}
+.tile[data-state="wrong"] {
+  border-color: #e5484d;
+  background: #fdeced;
+  color: #b4232a;
+}
+.tile:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  border-radius: 1rem;
+  background: #0f4ca7;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 4px 0 #0a2852;
+  transition: transform 0.08s, box-shadow 0.08s, background 0.15s;
+}
+.btn-primary:hover {
+  background: #1f66c8;
+}
+.btn-primary:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #0a2852;
+}
+.btn-primary:disabled {
+  background: #c8d2e3;
+  box-shadow: 0 4px 0 #a9b5ca;
+  cursor: not-allowed;
+}
+.btn-gold {
+  border-radius: 1rem;
+  background: #efb52a;
+  color: #0a2852;
+  font-weight: 700;
+  box-shadow: 0 4px 0 #a97716;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.btn-gold:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #a97716;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+.shake {
+  animation: shake 0.3s ease-in-out;
 }
