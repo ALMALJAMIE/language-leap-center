@@ -7,8 +7,10 @@ import { rpcError, useRole } from "@/lib/roles";
 import { fmtScore, type Exam } from "@/lib/exams";
 import { ErrorNote, StaffShell, fmtDate } from "@/components/staff/StaffShell";
 import { Empty, Tabs } from "@/components/teaching/ui";
+import { openReceipt } from "@/components/ReceiptUpload";
+import { AttemptReport } from "@/components/exam/AttemptReport";
 
-interface Ticket { id: number; learner: string; email: string; amount: number; status: "pending" | "paid" | "used"; created_at: string; paid_at: string | null }
+interface Ticket { id: number; learner: string; email: string; amount: number; status: "pending" | "paid" | "used"; created_at: string; paid_at: string | null; receipt_path?: string | null }
 interface Result { attempt_id: number; exam_kind: string; learner: string; email: string; submitted_at: string | null; status: string; score: number | null; total: number | null; result_level: string | null }
 type Tab = "fees" | "results";
 
@@ -31,6 +33,7 @@ function Placement() {
   const [fee, setFee] = useState("");
   const [err, setErr] = useState("");
   const [saved, setSaved] = useState(false);
+  const [report, setReport] = useState<Result | null>(null);
 
   const load = useCallback(async () => {
     const e = await supabase.from("exams").select("*").eq("kind", "placement").order("id").limit(1);
@@ -67,6 +70,8 @@ function Placement() {
     load();
   };
 
+  if (report) return <AttemptReport attemptId={report.attempt_id} learner={report.learner} email={report.email} onClose={() => setReport(null)} />;
+
   const items = [
     ...(fin ? [{ id: "fees" as Tab, label: "Fees", count: tickets?.filter((t) => t.status === "pending").length }] : []),
     ...(aca ? [{ id: "results" as Tab, label: "Results" }] : []),
@@ -94,7 +99,7 @@ function Placement() {
             <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
               <table className="w-full min-w-[640px] text-sm">
                 <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-                  <tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Booked</th><th className="px-4 py-3">Fee</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Paid</th></tr>
+                  <tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Booked</th><th className="px-4 py-3">Fee</th><th className="px-4 py-3">Receipt</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Paid</th></tr>
                 </thead>
                 <tbody>
                   {tickets.map((t) => (
@@ -102,6 +107,7 @@ function Placement() {
                       <td className="px-4 py-3"><b>{t.learner}</b><div className="text-xs text-slate-500">{t.email}</div></td>
                       <td className="px-4 py-3 text-slate-600">{fmtDate(t.created_at, true)}</td>
                       <td className="px-4 py-3 font-semibold">${Number(t.amount)}</td>
+                      <td className="px-4 py-3">{t.receipt_path ? <button onClick={() => openReceipt(t.receipt_path!)} className="text-xs font-bold text-brand-700 underline">View</button> : <span className="text-xs text-slate-400">Not yet</span>}</td>
                       <td className="px-4 py-3">{t.status === "used" ? <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">Test taken</span> : t.status === "paid" ? <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Paid · ready</span> : <span className="rounded-full bg-gold-50 px-2.5 py-1 text-xs font-bold text-gold-700">Waiting for payment</span>}</td>
                       <td className="px-4 py-3">
                         {t.status === "used" ? <span className="text-xs text-slate-400">{fmtDate(t.paid_at)}</span> : (
@@ -126,20 +132,21 @@ function Placement() {
           <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
             <table className="w-full min-w-[640px] text-sm">
               <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
-                <tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Finished</th><th className="px-4 py-3">Score</th><th className="px-4 py-3">Level</th></tr>
+                <tr><th className="px-4 py-3">Learner</th><th className="px-4 py-3">Finished</th><th className="px-4 py-3">Score</th><th className="px-4 py-3">Level</th><th className="px-4 py-3" /></tr>
               </thead>
               <tbody>
                 {results.map((r) => (
-                  <tr key={r.attempt_id} className="border-t border-slate-100">
+                  <tr key={r.attempt_id} onClick={() => r.status !== "in_progress" && setReport(r)} className="cursor-pointer border-t border-slate-100 hover:bg-brand-50/40">
                     <td className="px-4 py-3"><b>{r.learner}</b><div className="text-xs text-slate-500">{r.email}</div></td>
                     <td className="px-4 py-3 text-slate-600">{r.status === "in_progress" ? "Taking the test now" : fmtDate(r.submitted_at, true)}</td>
                     <td className="px-4 py-3">{fmtScore(r.score)} / {fmtScore(r.total)}</td>
                     <td className="px-4 py-3">{r.result_level && <span className={`rounded-lg px-2.5 py-1 text-sm font-extrabold ${levelCls[r.result_level] ?? ""}`}>{r.result_level}</span>}</td>
+                    <td className="px-4 py-3 text-right">{r.status !== "in_progress" && <span className="rounded-xl bg-brand-50 px-3 py-1.5 text-xs font-bold text-brand-700">View report</span>}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <p className="border-t border-slate-100 px-4 py-3 text-xs text-slate-500">Next: give each learner the short speaking test and place them in a class.</p>
+            <p className="border-t border-slate-100 px-4 py-3 text-xs text-slate-500">Open a row for the full test: every answer, the right answers, and charts by level and skill. Next: give the learner the short speaking test and place them in a class.</p>
           </div>
         )
       )}

@@ -6,6 +6,7 @@ import { supabase } from "@/lib/auth";
 import { courses, formatPrice, getCourse } from "@/data/courses";
 import { rpcError } from "@/lib/roles";
 import { ErrorNote, StaffShell, fmtDate } from "@/components/staff/StaffShell";
+import { Requests } from "./Requests";
 
 interface Row { email: string; full_name: string; course_slug: string; created_at: string; note: string | null; granted_by: string | null }
 
@@ -13,7 +14,7 @@ const paid = courses.filter((c) => c.price > 0);
 
 export default function EnrollmentsPage() {
   return (
-    <StaffShell page="/staff/enrollments/" title="Course Access" subtitle="Paid courses stay locked until access is opened here (until the payment gateway is connected).">
+    <StaffShell page="/staff/enrollments/" title="Course Access" subtitle="Learners ask for a course and upload the receipt; check it and press “Add to course”.">
       <Enrollments />
     </StaffShell>
   );
@@ -69,9 +70,11 @@ function Enrollments() {
       <ErrorNote text={err} />
       {msg && <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{msg}</div>}
 
+      <Requests onChange={load} />
+
       <form onSubmit={grant} className="mb-8 rounded-3xl border border-slate-200 bg-white p-6">
-        <h2 className="flex items-center gap-2 font-bold"><Ticket className="h-5 w-5 text-emerald-600" /> Open a paid course</h2>
-        <p className="mt-1 text-sm text-slate-500">Use this after you receive the payment. The learner sees the course unlocked the next time they open it.</p>
+        <h2 className="flex items-center gap-2 font-bold"><Ticket className="h-5 w-5 text-emerald-600" /> Open a course by email</h2>
+        <p className="mt-1 text-sm text-slate-500">Only for payments that came without a request above (e.g. cash at the center).</p>
         <div className="mt-4 grid gap-3 md:grid-cols-[1fr_1fr]">
           <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Learner's email" className="rounded-xl border border-slate-300 px-3 py-2.5 text-sm outline-none focus:border-brand-500" />
           <select value={slug} onChange={(e) => setSlug(e.target.value)} className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-brand-500">

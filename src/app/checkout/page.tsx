@@ -1,20 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Check, Clock, Gem, Lock, PlayCircle, Puzzle, ShieldCheck, Ticket, X, Zap } from "lucide-react";
 import { courseTypes, getCourse, lessonCount, levels, programs } from "@/data/courses";
 import { CourseCover } from "@/components/CourseCard";
 import { SignInPrompt } from "@/components/account/AccountShell";
 import { WhatsAppIcon } from "@/components/BrandIcons";
-import { displayName, useAuth } from "@/lib/auth";
+import { displayName, supabase, useAuth } from "@/lib/auth";
+import { rpcError } from "@/lib/roles";
+import { ReceiptUpload } from "@/components/ReceiptUpload";
 import { payments, site } from "@/lib/site";
 import { useMounted } from "@/lib/store";
 import { useEnrollments } from "@/lib/enrollments";
 import { courseHref } from "@/data/courses";
 
 const money = (n: number) => `$${n.toFixed(2)}`;
+interface ReqRow { id: number; status: string; receipt_path: string | null; amount: number; decision_note: string | null }
 
 function Checkout() {
   const slug = useSearchParams().get("course") ?? "";
@@ -27,6 +30,18 @@ function Checkout() {
   const [couponMsg, setCouponMsg] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const enrolled = useEnrollments((s) => s.slugs);
+  const [req, setReq] = useState<ReqRow | null>(null);
+  const [reqErr, setReqErr] = useState("");
+  const [tick, setTick] = useState(0);
+  const loadReq = () => setTick((n) => n + 1);
+  const uid = user?.id;
+  useEffect(() => {
+    if (!uid || !slug) return;
+    let live = true;
+    supabase.from("enrollment_requests").select("id,status,receipt_path,amount,decision_note").eq("user_id", uid).eq("course_slug", slug).order("id", { ascending: false }).limit(1)
+      .then(({ data }) => { if (live) setReq((data?.[0] as ReqRow) ?? null); });
+    return () => { live = false; };
+  }, [uid, slug, tick]);
 
   if (!mounted || !ready) return <div className="min-h-[60vh]" />;
   if (!course || course.price === 0)
@@ -70,7 +85,12 @@ function Checkout() {
     setCouponMsg(null);
   };
 
-  const complete = () => {
+  const complete = async () => {
+    // the request is what finance sees in Course Access
+    const { error } = await supabase.rpc("request_enrollment", { p_slug: course.slug, p_amount: total, p_details: { addOns: chosen.map((a) => a.title), coupon: coupon?.code ?? null } });
+    if (error) return setReqErr(rpcError(error));
+    setReqErr("");
+    loadReq();
     const order = {
       course: course.title,
       plan: `Premium — ${courseTypes[course.type]}`,
@@ -190,11 +210,12 @@ function Checkout() {
           </div>
           <p className="text-xs text-slate-500">One-time payment for {payments.accessMonths} months access</p>
 
-          {sent ? (
-            <div className="rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">
-              <div className="flex items-center gap-2 font-bold"><Check className="h-4 w-4" /> Order sent</div>
-              <p className="mt-1">Our team will reply on WhatsApp with the payment details. The course opens in your account as soon as payment is confirmed.</p>
-              <button onClick={complete} className="mt-3 text-xs font-bold underline">Send again</button>
+          {req?.status === "pending" || sent ? (
+            <div className="space-y-3 rounded-2xl bg-emerald-50 p-4 text-sm text-emerald-800">
+              <div className="flex items-center gap-2 font-bold"><Check className="h-4 w-4" /> Request sent</div>
+              <p>Pay {money(Number(req?.amount ?? total))} (our team sends the payment details on WhatsApp), then upload the receipt here. The course opens as soon as finance confirms it.</p>
+              {req && <ReceiptUpload kind="course" id={req.id} path={req.receipt_path} onDone={loadReq} />}
+              <button onClick={complete} className="text-xs font-bold underline">Send on WhatsApp again</button>
             </div>
           ) : (
             <button onClick={complete} className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-950 py-3.5 font-bold text-white transition hover:bg-brand-800">
@@ -202,6 +223,8 @@ function Checkout() {
             </button>
           )}
 
+          {req?.status === "rejected" && <p className="rounded-xl bg-red-50 p-3 text-sm text-red-700">Your last request was not accepted{req.decision_note ? `: ${req.decision_note}` : "."} You can send a new one.</p>}
+          {reqErr && <p className="text-sm text-red-600">{reqErr}</p>}
           <ul className="space-y-2.5 text-sm text-slate-500">
             <li className="flex gap-2"><ShieldCheck className="h-4 w-4 shrink-0 text-emerald-600" /> {link ? "Secure payment processing" : "Payment is arranged directly with our team"}</li>
             <li className="flex gap-2"><Lock className="h-4 w-4 shrink-0 text-emerald-600" /> Your details are only used for this order</li>

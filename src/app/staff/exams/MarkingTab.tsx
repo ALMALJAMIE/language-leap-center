@@ -8,6 +8,7 @@ import { attemptStatus, fmtScore, kindInfo, type Attempt, type ExamKind } from "
 import { ErrorNote, fmtDate } from "@/components/staff/StaffShell";
 import { Empty } from "@/components/teaching/ui";
 import { courseTitle, inp, usePerms } from "./shared";
+import { ExamAnalysis, type ReviewQuestion } from "@/components/exam/AttemptReport";
 
 interface Row { attempt_id: number; exam_id: number; exam_title: string; exam_kind: ExamKind; course_slug: string | null; learner: string; email: string; submitted_at: string | null; status: Attempt["status"]; auto_score: number | null; score: number | null; total: number | null; result_level: string | null }
 
@@ -146,6 +147,7 @@ function Review({ row, onClose }: { row: Row; onClose: () => void }) {
           );
         })}
       </ol>
+      <ExamAnalysis questions={data.questions as unknown as ReviewQuestion[]} attempt={{ ...a, marks: Object.fromEntries(Object.entries(marks).filter(([, v]) => v !== "").map(([k, v]) => [k, Number(v)])) }} placement={row.exam_kind === "placement"} />
       {p.canMark && (
         <div className="rounded-3xl border border-slate-200 bg-white p-5">
           <textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={2} placeholder="Feedback for the learner (optional)" className={inp} />

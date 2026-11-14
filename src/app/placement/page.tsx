@@ -13,10 +13,11 @@ import { useMounted, useProgress } from "@/lib/store";
 import { SignInPrompt } from "@/components/account/AccountShell";
 import { WhatsAppIcon } from "@/components/BrandIcons";
 import { ExamRunner, type ExamResult } from "@/components/exam/ExamRunner";
+import { ReceiptUpload } from "@/components/ReceiptUpload";
 import type { Attempt, Exam } from "@/lib/exams";
 
 const order: Level[] = ["A1", "A2", "B1", "B2", "C1"];
-interface Ticket { id: number; status: "pending" | "paid" | "used"; amount: number; created_at: string }
+interface Ticket { id: number; status: "pending" | "paid" | "used"; amount: number; created_at: string; receipt_path?: string | null }
 
 export default function Placement() {
   const mounted = useMounted();
@@ -36,7 +37,7 @@ export default function Placement() {
     setExam(e);
     if (!e || !user) return;
     const [t, a] = await Promise.all([
-      supabase.from("placement_tickets").select("id,status,amount,created_at").eq("exam_id", e.id).eq("user_id", user.id).order("id", { ascending: false }),
+      supabase.from("placement_tickets").select("*").eq("exam_id", e.id).eq("user_id", user.id).order("id", { ascending: false }),
       supabase.from("exam_attempts").select("*").eq("exam_id", e.id).eq("user_id", user.id).order("id", { ascending: false }),
     ]);
     setTickets((t.data as Ticket[]) ?? []);
@@ -112,8 +113,9 @@ export default function Placement() {
             <div className="rounded-3xl border border-gold-200 bg-gold-50/60 p-6">
               <Hourglass className="mx-auto h-8 w-8 text-gold-600" />
               <h2 className="mt-2 font-extrabold">Waiting for your payment</h2>
-              <p className="mt-1 text-sm text-slate-600">Pay the fee (${fee}) and send the receipt on WhatsApp. When our finance team confirms it, the “Start the test” button appears here.</p>
-              <a href={`${site.whatsapp}?text=${waText}`} target="_blank" rel="noopener" className="btn-primary mt-4 inline-flex items-center gap-2 px-6 py-3"><WhatsAppIcon className="h-5 w-5" /> Send the receipt</a>
+              <p className="mt-1 text-sm text-slate-600">Pay the fee (${fee}) and upload the receipt. When our finance team confirms it, the “Start the test” button appears here.</p>
+              <div className="mx-auto mt-4 max-w-sm"><ReceiptUpload kind="placement" id={pending.id} path={pending.receipt_path ?? null} onDone={load} /></div>
+              <a href={`${site.whatsapp}?text=${waText}`} target="_blank" rel="noopener" className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-emerald-700"><WhatsAppIcon className="h-4 w-4" /> Ask for payment details on WhatsApp</a>
             </div>
           ) : (
             <button onClick={book} disabled={busy} className="btn-primary inline-flex items-center gap-2 px-10 py-4 text-lg disabled:opacity-50">
