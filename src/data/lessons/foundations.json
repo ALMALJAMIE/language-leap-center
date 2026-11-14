@@ -1,0 +1,1839 @@
+[
+ {
+  "title": "Unit 1 · Letters, numbers & time",
+  "lessons": [
+   {
+    "id": "f-spelling",
+    "title": "Spell it, please",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "letter",
+      "def": "one sign of the alphabet, like A or B",
+      "ar": "حرف",
+      "ex": "A is the first letter.",
+      "emoji": "🔤"
+     },
+     {
+      "en": "alphabet",
+      "def": "all the letters from A to Z",
+      "ar": "الأبجدية",
+      "ex": "The English alphabet has 26 letters.",
+      "emoji": "🅰️"
+     },
+     {
+      "en": "spell",
+      "def": "to say the letters of a word in order",
+      "ar": "يتهجّى",
+      "ex": "How do you spell your name?",
+      "emoji": "🗣️"
+     },
+     {
+      "en": "capital letter",
+      "def": "a big letter, like A, not a",
+      "ar": "حرف كبير",
+      "ex": "Names start with a capital letter.",
+      "emoji": "🔠"
+     },
+     {
+      "en": "email address",
+      "def": "where people send you emails",
+      "ar": "عنوان البريد الإلكتروني",
+      "ex": "What's your email address?",
+      "emoji": "📧"
+     },
+     {
+      "en": "repeat",
+      "def": "to say something again",
+      "ar": "يكرّر",
+      "ex": "Can you repeat that, please?",
+      "emoji": "🔁"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "How do you spell your name?",
+      "ar": "كيف تتهجّى اسمك؟"
+     },
+     {
+      "en": "It's O-M-A-R.",
+      "ar": "إنه O-M-A-R."
+     },
+     {
+      "en": "Can you repeat that, please?",
+      "ar": "هل يمكنك أن تكرّر ذلك من فضلك؟"
+     }
+    ],
+    "grammar": {
+     "title": "Spelling and capital letters",
+     "body": "We spell words letter by letter. For two letters that are the same, we often say “double”: Hanna = H-A-double N-A. Use a capital letter for names, cities, countries, days and the word I.",
+     "examples": [
+      {
+       "en": "My name is Hanna: H-A-double N-A.",
+       "ar": "اسمي هانا: H-A-double N-A."
+      },
+      {
+       "en": "I live in Cairo.",
+       "ar": "أعيش في القاهرة."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Ms Hana",
+      "en": "Hello! What's your name?",
+      "ar": "مرحبًا! ما اسمك؟"
+     },
+     {
+      "who": "Omar",
+      "en": "My name is Omar.",
+      "ar": "اسمي عمر."
+     },
+     {
+      "who": "Ms Hana",
+      "en": "How do you spell that?",
+      "ar": "كيف تتهجّى ذلك؟"
+     },
+     {
+      "who": "Omar",
+      "en": "O-M-A-R. And my email is omar at mail dot com.",
+      "ar": "O-M-A-R. وبريدي هو omar@mail.com."
+     }
+    ]
+   },
+   {
+    "id": "f-numbers",
+    "title": "Numbers and prices",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "thirteen",
+      "def": "the number 13",
+      "ar": "ثلاثة عشر",
+      "ex": "She is thirteen years old.",
+      "emoji": "1️⃣"
+     },
+     {
+      "en": "thirty",
+      "def": "the number 30",
+      "ar": "ثلاثون",
+      "ex": "There are thirty students.",
+      "emoji": "3️⃣"
+     },
+     {
+      "en": "hundred",
+      "def": "the number 100",
+      "ar": "مئة",
+      "ex": "It costs one hundred dollars.",
+      "emoji": "💯"
+     },
+     {
+      "en": "price",
+      "def": "how much money you pay for something",
+      "ar": "السعر",
+      "ex": "What's the price of this bag?",
+      "emoji": "🏷️"
+     },
+     {
+      "en": "how much",
+      "def": "a question about price or amount",
+      "ar": "بكم / كم",
+      "ex": "How much is this?",
+      "emoji": "💲"
+     },
+     {
+      "en": "expensive",
+      "def": "it costs a lot of money",
+      "ar": "غالٍ",
+      "ex": "This phone is very expensive.",
+      "emoji": "💸"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "How much is this bag?",
+      "ar": "بكم هذه الحقيبة؟"
+     },
+     {
+      "en": "It's forty-five dollars.",
+      "ar": "إنها بخمسة وأربعين دولارًا."
+     },
+     {
+      "en": "That's too expensive!",
+      "ar": "هذا غالٍ جدًا!"
+     }
+    ],
+    "grammar": {
+     "title": "How much…? and -teen / -ty",
+     "body": "Ask “How much is…?” for one thing and “How much are…?” for two or more. Listen carefully: thirTEEN (13) has the stress at the end, THIRty (30) has the stress at the start.",
+     "examples": [
+      {
+       "en": "How much is the shirt?",
+       "ar": "بكم القميص؟"
+      },
+      {
+       "en": "How much are the shoes?",
+       "ar": "بكم الحذاء؟"
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Sara",
+      "en": "Excuse me, how much is this bag?",
+      "ar": "عفوًا، بكم هذه الحقيبة؟"
+     },
+     {
+      "who": "Seller",
+      "en": "It's fifty dollars.",
+      "ar": "إنها بخمسين دولارًا."
+     },
+     {
+      "who": "Sara",
+      "en": "Fifteen or fifty?",
+      "ar": "خمسة عشر أم خمسون؟"
+     },
+     {
+      "who": "Seller",
+      "en": "Fifty. Five, zero.",
+      "ar": "خمسون. خمسة، صفر."
+     }
+    ]
+   },
+   {
+    "id": "f-time",
+    "title": "What time is it?",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "o'clock",
+      "def": "used for the exact hour",
+      "ar": "تمامًا (الساعة)",
+      "ex": "It's seven o'clock.",
+      "emoji": "🕖"
+     },
+     {
+      "en": "half past",
+      "def": "thirty minutes after the hour",
+      "ar": "والنصف",
+      "ex": "It's half past three.",
+      "emoji": "🕞"
+     },
+     {
+      "en": "quarter past",
+      "def": "fifteen minutes after the hour",
+      "ar": "والربع",
+      "ex": "It's quarter past nine.",
+      "emoji": "🕘"
+     },
+     {
+      "en": "quarter to",
+      "def": "fifteen minutes before the hour",
+      "ar": "إلا ربعًا",
+      "ex": "It's quarter to six.",
+      "emoji": "🕠"
+     },
+     {
+      "en": "early",
+      "def": "before the usual time",
+      "ar": "مبكرًا",
+      "ex": "I get up early.",
+      "emoji": "🌄"
+     },
+     {
+      "en": "late",
+      "def": "after the right time",
+      "ar": "متأخر",
+      "ex": "Sorry, I'm late!",
+      "emoji": "⏰"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "What time is it?",
+      "ar": "كم الساعة؟"
+     },
+     {
+      "en": "It's half past ten.",
+      "ar": "الساعة العاشرة والنصف."
+     },
+     {
+      "en": "The class starts at nine o'clock.",
+      "ar": "يبدأ الدرس في الساعة التاسعة تمامًا."
+     }
+    ],
+    "grammar": {
+     "title": "Telling the time",
+     "body": "Ask “What time is it?” Answer with “It's…”. Use “past” for minutes after the hour and “to” for minutes before the next hour. Use “at” with a time: at 5 o'clock.",
+     "examples": [
+      {
+       "en": "It's twenty past four.",
+       "ar": "الساعة الرابعة وعشرون دقيقة."
+      },
+      {
+       "en": "The bus comes at quarter to eight.",
+       "ar": "تأتي الحافلة في الثامنة إلا ربعًا."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Omar",
+      "en": "Excuse me, what time is it?",
+      "ar": "عفوًا، كم الساعة؟"
+     },
+     {
+      "who": "Lina",
+      "en": "It's quarter to nine.",
+      "ar": "إنها التاسعة إلا ربعًا."
+     },
+     {
+      "who": "Omar",
+      "en": "Oh no, my class is at nine!",
+      "ar": "يا إلهي، درسي في التاسعة!"
+     },
+     {
+      "who": "Lina",
+      "en": "Hurry! Don't be late.",
+      "ar": "أسرع! لا تتأخر."
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Unit 2 · People & places",
+  "lessons": [
+   {
+    "id": "f-dates",
+    "title": "Days, months and dates",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "Monday",
+      "def": "the day after Sunday",
+      "ar": "الاثنين",
+      "ex": "I have English on Monday.",
+      "emoji": "📅"
+     },
+     {
+      "en": "weekend",
+      "def": "Saturday and Sunday",
+      "ar": "عطلة نهاية الأسبوع",
+      "ex": "What do you do at the weekend?",
+      "emoji": "🛋️"
+     },
+     {
+      "en": "month",
+      "def": "January, February, March…",
+      "ar": "شهر",
+      "ex": "There are twelve months in a year.",
+      "emoji": "🗓️"
+     },
+     {
+      "en": "birthday",
+      "def": "the day you were born, every year",
+      "ar": "عيد ميلاد",
+      "ex": "My birthday is in May.",
+      "emoji": "🎂"
+     },
+     {
+      "en": "first",
+      "def": "number one in order (1st)",
+      "ar": "الأول",
+      "ex": "Today is the first of June.",
+      "emoji": "🥇"
+     },
+     {
+      "en": "date",
+      "def": "the day and month, like 5th May",
+      "ar": "التاريخ",
+      "ex": "What's the date today?",
+      "emoji": "📆"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "When is your birthday?",
+      "ar": "متى عيد ميلادك؟"
+     },
+     {
+      "en": "It's on the third of April.",
+      "ar": "إنه في الثالث من أبريل."
+     },
+     {
+      "en": "We have class on Monday and Wednesday.",
+      "ar": "لدينا درس يومي الاثنين والأربعاء."
+     }
+    ],
+    "grammar": {
+     "title": "at, on, in for time",
+     "body": "Use “at” with clock times (at 6 o'clock), “on” with days and dates (on Friday, on 3rd April) and “in” with months, years and seasons (in May, in 2026, in winter).",
+     "examples": [
+      {
+       "en": "The party is on Friday at eight.",
+       "ar": "الحفلة يوم الجمعة في الثامنة."
+      },
+      {
+       "en": "My birthday is in July.",
+       "ar": "عيد ميلادي في يوليو."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Lina",
+      "en": "When is your birthday, Yusuf?",
+      "ar": "متى عيد ميلادك يا يوسف؟"
+     },
+     {
+      "who": "Yusuf",
+      "en": "It's on the twelfth of March. And you?",
+      "ar": "إنه في الثاني عشر من مارس. وأنتِ؟"
+     },
+     {
+      "who": "Lina",
+      "en": "Mine is in October, on the first.",
+      "ar": "عيد ميلادي في أكتوبر، في اليوم الأول."
+     },
+     {
+      "who": "Yusuf",
+      "en": "Great! Let's have a party.",
+      "ar": "رائع! لنقم بحفلة."
+     }
+    ]
+   },
+   {
+    "id": "f-people",
+    "title": "What does she look like?",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "tall",
+      "def": "high from head to feet",
+      "ar": "طويل",
+      "ex": "My brother is very tall.",
+      "emoji": "🧍"
+     },
+     {
+      "en": "short",
+      "def": "not tall",
+      "ar": "قصير",
+      "ex": "My grandmother is short.",
+      "emoji": "🧒"
+     },
+     {
+      "en": "hair",
+      "def": "it grows on your head",
+      "ar": "شَعر",
+      "ex": "She has long black hair.",
+      "emoji": "💇"
+     },
+     {
+      "en": "eyes",
+      "def": "you see with them",
+      "ar": "عيون",
+      "ex": "He has brown eyes.",
+      "emoji": "👀"
+     },
+     {
+      "en": "young",
+      "def": "not old",
+      "ar": "شاب / صغير السن",
+      "ex": "My teacher is young.",
+      "emoji": "👶"
+     },
+     {
+      "en": "beard",
+      "def": "hair on a man's face",
+      "ar": "لحية",
+      "ex": "My father has a beard.",
+      "emoji": "🧔"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "What does your sister look like?",
+      "ar": "كيف تبدو أختك؟"
+     },
+     {
+      "en": "She is tall and she has short hair.",
+      "ar": "إنها طويلة ولديها شعر قصير."
+     },
+     {
+      "en": "He has green eyes and a beard.",
+      "ar": "لديه عينان خضراوان ولحية."
+     }
+    ],
+    "grammar": {
+     "title": "is / has for describing people",
+     "body": "Use “is” + adjective for size and age: He is tall. She is young. Use “has” for things on the body: She has long hair. He has a beard. Adjectives come before the noun: long hair, not hair long.",
+     "examples": [
+      {
+       "en": "My mother is short.",
+       "ar": "أمي قصيرة."
+      },
+      {
+       "en": "My friend has curly hair.",
+       "ar": "صديقي لديه شعر مجعّد."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Sara",
+      "en": "Who is your new teacher?",
+      "ar": "من معلمك الجديد؟"
+     },
+     {
+      "who": "Omar",
+      "en": "Mr Adam. He is tall and young.",
+      "ar": "الأستاذ آدم. إنه طويل وشاب."
+     },
+     {
+      "who": "Sara",
+      "en": "Does he have a beard?",
+      "ar": "هل لديه لحية؟"
+     },
+     {
+      "who": "Omar",
+      "en": "Yes, and he has blue eyes.",
+      "ar": "نعم، ولديه عينان زرقاوان."
+     }
+    ]
+   },
+   {
+    "id": "f-home",
+    "title": "My home",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "kitchen",
+      "def": "the room where you cook",
+      "ar": "مطبخ",
+      "ex": "My mother is in the kitchen.",
+      "emoji": "🍳"
+     },
+     {
+      "en": "bedroom",
+      "def": "the room where you sleep",
+      "ar": "غرفة نوم",
+      "ex": "My bedroom is small.",
+      "emoji": "🛏️"
+     },
+     {
+      "en": "bathroom",
+      "def": "the room with a shower",
+      "ar": "حمّام",
+      "ex": "The bathroom is upstairs.",
+      "emoji": "🛁"
+     },
+     {
+      "en": "living room",
+      "def": "the room where the family sits",
+      "ar": "غرفة المعيشة",
+      "ex": "We watch TV in the living room.",
+      "emoji": "🛋️"
+     },
+     {
+      "en": "window",
+      "def": "glass in the wall, for light",
+      "ar": "نافذة",
+      "ex": "Please open the window.",
+      "emoji": "🪟"
+     },
+     {
+      "en": "flat",
+      "def": "a home on one floor of a building",
+      "ar": "شقة",
+      "ex": "I live in a small flat.",
+      "emoji": "🏢"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "There is a big kitchen in my flat.",
+      "ar": "يوجد مطبخ كبير في شقتي."
+     },
+     {
+      "en": "There are two bedrooms.",
+      "ar": "توجد غرفتا نوم."
+     },
+     {
+      "en": "Is there a garden? No, there isn't.",
+      "ar": "هل توجد حديقة؟ لا، لا توجد."
+     }
+    ],
+    "grammar": {
+     "title": "There is / There are",
+     "body": "Use “There is” for one thing and “There are” for two or more. Questions: Is there…? Are there…? Short answers: Yes, there is. / No, there aren't.",
+     "examples": [
+      {
+       "en": "There is a sofa in the living room.",
+       "ar": "توجد أريكة في غرفة المعيشة."
+      },
+      {
+       "en": "Are there any windows? Yes, there are.",
+       "ar": "هل توجد نوافذ؟ نعم، توجد."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Yusuf",
+      "en": "Do you live in a house?",
+      "ar": "هل تسكن في منزل؟"
+     },
+     {
+      "who": "Lina",
+      "en": "No, I live in a flat. There are three bedrooms.",
+      "ar": "لا، أسكن في شقة. توجد ثلاث غرف نوم."
+     },
+     {
+      "who": "Yusuf",
+      "en": "Is there a balcony?",
+      "ar": "هل توجد شرفة؟"
+     },
+     {
+      "who": "Lina",
+      "en": "Yes, there is. It has a nice view.",
+      "ar": "نعم، توجد. ولها منظر جميل."
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Unit 3 · Everyday life",
+  "lessons": [
+   {
+    "id": "f-routine",
+    "title": "A day in my life",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "get up",
+      "def": "to leave your bed in the morning",
+      "ar": "يستيقظ / ينهض",
+      "ex": "I get up at six.",
+      "emoji": "⏰"
+     },
+     {
+      "en": "have breakfast",
+      "def": "to eat the first meal of the day",
+      "ar": "يتناول الفطور",
+      "ex": "We have breakfast together.",
+      "emoji": "🥐"
+     },
+     {
+      "en": "go to work",
+      "def": "to travel to your job",
+      "ar": "يذهب إلى العمل",
+      "ex": "My father goes to work by bus.",
+      "emoji": "🚌"
+     },
+     {
+      "en": "come home",
+      "def": "to return to your house",
+      "ar": "يعود إلى المنزل",
+      "ex": "She comes home at five.",
+      "emoji": "🏠"
+     },
+     {
+      "en": "go to bed",
+      "def": "to go and sleep at night",
+      "ar": "يذهب إلى النوم",
+      "ex": "I go to bed at eleven.",
+      "emoji": "🌙"
+     },
+     {
+      "en": "every day",
+      "def": "on all days",
+      "ar": "كل يوم",
+      "ex": "He studies English every day.",
+      "emoji": "🔄"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "I get up at seven every day.",
+      "ar": "أستيقظ في السابعة كل يوم."
+     },
+     {
+      "en": "My sister goes to school by car.",
+      "ar": "تذهب أختي إلى المدرسة بالسيارة."
+     },
+     {
+      "en": "What time does he come home?",
+      "ar": "متى يعود إلى المنزل؟"
+     }
+    ],
+    "grammar": {
+     "title": "Present simple: he / she / it + -s",
+     "body": "We use the present simple for routines. With he, she and it, add -s to the verb: I work → she works. Some verbs add -es: go → goes, watch → watches. have → has. Questions use does: Does she work? What time does he get up?",
+     "examples": [
+      {
+       "en": "He gets up at six.",
+       "ar": "هو يستيقظ في السادسة."
+      },
+      {
+       "en": "Does she have breakfast? Yes, she does.",
+       "ar": "هل تتناول الفطور؟ نعم."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Sara",
+      "en": "What time do you get up, Omar?",
+      "ar": "متى تستيقظ يا عمر؟"
+     },
+     {
+      "who": "Omar",
+      "en": "At half past six. Then I have breakfast.",
+      "ar": "في السادسة والنصف. ثم أتناول الفطور."
+     },
+     {
+      "who": "Sara",
+      "en": "And your brother?",
+      "ar": "وأخوك؟"
+     },
+     {
+      "who": "Omar",
+      "en": "He gets up at ten. He doesn't work on Sunday!",
+      "ar": "يستيقظ في العاشرة. هو لا يعمل يوم الأحد!"
+     }
+    ]
+   },
+   {
+    "id": "f-free-time",
+    "title": "I like reading",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "reading",
+      "def": "looking at and understanding books",
+      "ar": "القراءة",
+      "ex": "I like reading stories.",
+      "emoji": "📚"
+     },
+     {
+      "en": "swimming",
+      "def": "moving in water",
+      "ar": "السباحة",
+      "ex": "Swimming is good for you.",
+      "emoji": "🏊"
+     },
+     {
+      "en": "football",
+      "def": "a game with a ball and two teams",
+      "ar": "كرة القدم",
+      "ex": "They play football on Friday.",
+      "emoji": "⚽"
+     },
+     {
+      "en": "cooking",
+      "def": "making food",
+      "ar": "الطبخ",
+      "ex": "My father loves cooking.",
+      "emoji": "👨‍🍳"
+     },
+     {
+      "en": "watch TV",
+      "def": "to look at programmes on TV",
+      "ar": "يشاهد التلفاز",
+      "ex": "We watch TV in the evening.",
+      "emoji": "📺"
+     },
+     {
+      "en": "free time",
+      "def": "time when you are not working",
+      "ar": "وقت الفراغ",
+      "ex": "What do you do in your free time?",
+      "emoji": "🎈"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "What do you do in your free time?",
+      "ar": "ماذا تفعل في وقت فراغك؟"
+     },
+     {
+      "en": "I like swimming and reading.",
+      "ar": "أحب السباحة والقراءة."
+     },
+     {
+      "en": "She doesn't like football.",
+      "ar": "هي لا تحب كرة القدم."
+     }
+    ],
+    "grammar": {
+     "title": "like / love / don't like + -ing",
+     "body": "After like, love and hate we often use a verb + -ing: I like reading. She loves cooking. Negative: I don't like… / He doesn't like… Spelling: swim → swimming, ride → riding.",
+     "examples": [
+      {
+       "en": "I love playing football.",
+       "ar": "أحب لعب كرة القدم."
+      },
+      {
+       "en": "He doesn't like cooking.",
+       "ar": "هو لا يحب الطبخ."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Lina",
+      "en": "What do you do in your free time?",
+      "ar": "ماذا تفعل في وقت فراغك؟"
+     },
+     {
+      "who": "Yusuf",
+      "en": "I love playing football. And you?",
+      "ar": "أحب لعب كرة القدم. وأنتِ؟"
+     },
+     {
+      "who": "Lina",
+      "en": "I don't like football. I like reading.",
+      "ar": "لا أحب كرة القدم. أحب القراءة."
+     },
+     {
+      "who": "Yusuf",
+      "en": "Me too! I read in bed every night.",
+      "ar": "وأنا أيضًا! أقرأ في السرير كل ليلة."
+     }
+    ]
+   },
+   {
+    "id": "f-weather",
+    "title": "What's the weather like?",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "sunny",
+      "def": "with a lot of sun",
+      "ar": "مشمس",
+      "ex": "It's sunny today.",
+      "emoji": "☀️"
+     },
+     {
+      "en": "rainy",
+      "def": "with a lot of rain",
+      "ar": "ممطر",
+      "ex": "It's rainy in winter.",
+      "emoji": "🌧️"
+     },
+     {
+      "en": "windy",
+      "def": "with a lot of wind",
+      "ar": "عاصف",
+      "ex": "It's very windy by the sea.",
+      "emoji": "💨"
+     },
+     {
+      "en": "hot",
+      "def": "very warm",
+      "ar": "حار",
+      "ex": "Summer is very hot here.",
+      "emoji": "🥵"
+     },
+     {
+      "en": "cold",
+      "def": "not warm",
+      "ar": "بارد",
+      "ex": "It's cold at night.",
+      "emoji": "🥶"
+     },
+     {
+      "en": "usually",
+      "def": "most of the time",
+      "ar": "عادةً",
+      "ex": "I usually walk to work.",
+      "emoji": "📈"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "What's the weather like today?",
+      "ar": "كيف هو الطقس اليوم؟"
+     },
+     {
+      "en": "It's hot and sunny.",
+      "ar": "إنه حار ومشمس."
+     },
+     {
+      "en": "It never snows in my city.",
+      "ar": "لا تثلج أبدًا في مدينتي."
+     }
+    ],
+    "grammar": {
+     "title": "How often? always, usually, sometimes, never",
+     "body": "Frequency words show how often: always (100%), usually, often, sometimes, never (0%). They go before the main verb but after “be”: I usually walk. It is always hot.",
+     "examples": [
+      {
+       "en": "It sometimes rains in spring.",
+       "ar": "تمطر أحيانًا في الربيع."
+      },
+      {
+       "en": "It is always cold in January.",
+       "ar": "الجو دائمًا بارد في يناير."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Omar",
+      "en": "What's the weather like in your city?",
+      "ar": "كيف الطقس في مدينتك؟"
+     },
+     {
+      "who": "Sara",
+      "en": "It's usually hot and sunny.",
+      "ar": "عادةً حار ومشمس."
+     },
+     {
+      "who": "Omar",
+      "en": "Does it rain?",
+      "ar": "هل تمطر؟"
+     },
+     {
+      "who": "Sara",
+      "en": "Sometimes, in winter. It never snows.",
+      "ar": "أحيانًا، في الشتاء. ولا تثلج أبدًا."
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Unit 4 · Out and about",
+  "lessons": [
+   {
+    "id": "f-clothes",
+    "title": "At the clothes shop",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "shirt",
+      "def": "clothes for the top of your body, with buttons",
+      "ar": "قميص",
+      "ex": "This shirt is too big.",
+      "emoji": "👔"
+     },
+     {
+      "en": "dress",
+      "def": "one piece of clothing for women",
+      "ar": "فستان",
+      "ex": "I like your red dress.",
+      "emoji": "👗"
+     },
+     {
+      "en": "shoes",
+      "def": "you wear them on your feet",
+      "ar": "حذاء",
+      "ex": "These shoes are new.",
+      "emoji": "👟"
+     },
+     {
+      "en": "jacket",
+      "def": "a short coat",
+      "ar": "سترة / جاكيت",
+      "ex": "Take your jacket. It's cold.",
+      "emoji": "🧥"
+     },
+     {
+      "en": "size",
+      "def": "how big or small clothes are",
+      "ar": "مقاس",
+      "ex": "What size are you?",
+      "emoji": "📏"
+     },
+     {
+      "en": "try on",
+      "def": "to put clothes on in a shop to check them",
+      "ar": "يجرّب (ملابس)",
+      "ex": "Can I try on this jacket?",
+      "emoji": "🪞"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "Can I try on these shoes?",
+      "ar": "هل يمكنني تجربة هذا الحذاء؟"
+     },
+     {
+      "en": "This jacket is too small.",
+      "ar": "هذه السترة صغيرة جدًا."
+     },
+     {
+      "en": "Do you have it in a bigger size?",
+      "ar": "هل لديكم مقاس أكبر؟"
+     }
+    ],
+    "grammar": {
+     "title": "this / that / these / those",
+     "body": "Use “this” (one) and “these” (two or more) for things near you. Use “that” (one) and “those” (two or more) for things far from you.",
+     "examples": [
+      {
+       "en": "This shirt is nice.",
+       "ar": "هذا القميص جميل."
+      },
+      {
+       "en": "Those shoes are expensive.",
+       "ar": "تلك الأحذية غالية."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Lina",
+      "en": "Excuse me, can I try on that dress?",
+      "ar": "عفوًا، هل يمكنني تجربة ذلك الفستان؟"
+     },
+     {
+      "who": "Assistant",
+      "en": "Of course. What size are you?",
+      "ar": "بالتأكيد. ما مقاسك؟"
+     },
+     {
+      "who": "Lina",
+      "en": "Medium, please. And these shoes in 38?",
+      "ar": "متوسط من فضلك. وهذا الحذاء مقاس 38؟"
+     },
+     {
+      "who": "Assistant",
+      "en": "Here you are. The changing room is there.",
+      "ar": "تفضلي. غرفة القياس هناك."
+     }
+    ]
+   },
+   {
+    "id": "f-directions",
+    "title": "How do I get to…?",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "turn left",
+      "def": "go to the left side",
+      "ar": "انعطف يسارًا",
+      "ex": "Turn left at the bank.",
+      "emoji": "⬅️"
+     },
+     {
+      "en": "turn right",
+      "def": "go to the right side",
+      "ar": "انعطف يمينًا",
+      "ex": "Turn right at the corner.",
+      "emoji": "➡️"
+     },
+     {
+      "en": "go straight on",
+      "def": "do not turn",
+      "ar": "امشِ مباشرة إلى الأمام",
+      "ex": "Go straight on for two minutes.",
+      "emoji": "⬆️"
+     },
+     {
+      "en": "next to",
+      "def": "very near, at the side of",
+      "ar": "بجانب",
+      "ex": "The café is next to the bank.",
+      "emoji": "↔️"
+     },
+     {
+      "en": "opposite",
+      "def": "on the other side of the street",
+      "ar": "مقابل",
+      "ex": "The park is opposite the school.",
+      "emoji": "🔁"
+     },
+     {
+      "en": "bus stop",
+      "def": "where you wait for the bus",
+      "ar": "موقف الحافلة",
+      "ex": "The bus stop is near my house.",
+      "emoji": "🚏"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "Excuse me, how do I get to the station?",
+      "ar": "عفوًا، كيف أصل إلى المحطة؟"
+     },
+     {
+      "en": "Go straight on and turn left.",
+      "ar": "امشِ مباشرة ثم انعطف يسارًا."
+     },
+     {
+      "en": "It's opposite the hospital.",
+      "ar": "إنها مقابل المستشفى."
+     }
+    ],
+    "grammar": {
+     "title": "Giving directions",
+     "body": "We give directions with the base verb (no “you”): Go, Turn, Take. To make it negative, use Don't: Don't turn right. Places: next to, opposite, between, near, on the corner.",
+     "examples": [
+      {
+       "en": "Take the second street on the right.",
+       "ar": "خذ الشارع الثاني على اليمين."
+      },
+      {
+       "en": "The bank is between the café and the shop.",
+       "ar": "البنك بين المقهى والمتجر."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Yusuf",
+      "en": "Excuse me, is there a pharmacy near here?",
+      "ar": "عفوًا، هل توجد صيدلية قريبة من هنا؟"
+     },
+     {
+      "who": "Woman",
+      "en": "Yes. Go straight on and turn right.",
+      "ar": "نعم. امشِ مباشرة ثم انعطف يمينًا."
+     },
+     {
+      "who": "Yusuf",
+      "en": "Is it far?",
+      "ar": "هل هي بعيدة؟"
+     },
+     {
+      "who": "Woman",
+      "en": "No, it's next to the bus stop.",
+      "ar": "لا، إنها بجانب موقف الحافلة."
+     }
+    ]
+   },
+   {
+    "id": "f-restaurant",
+    "title": "At the restaurant",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "menu",
+      "def": "the list of food in a restaurant",
+      "ar": "قائمة الطعام",
+      "ex": "Can I see the menu, please?",
+      "emoji": "📋"
+     },
+     {
+      "en": "waiter",
+      "def": "a person who brings food to tables",
+      "ar": "نادل",
+      "ex": "The waiter is very kind.",
+      "emoji": "🧑‍🍳"
+     },
+     {
+      "en": "order",
+      "def": "to ask for food in a restaurant",
+      "ar": "يطلب",
+      "ex": "Are you ready to order?",
+      "emoji": "📝"
+     },
+     {
+      "en": "dessert",
+      "def": "sweet food after the meal",
+      "ar": "حلوى",
+      "ex": "I'd like ice cream for dessert.",
+      "emoji": "🍨"
+     },
+     {
+      "en": "bill",
+      "def": "the paper that shows how much to pay",
+      "ar": "الفاتورة",
+      "ex": "Can we have the bill, please?",
+      "emoji": "🧾"
+     },
+     {
+      "en": "delicious",
+      "def": "it tastes very good",
+      "ar": "لذيذ",
+      "ex": "This soup is delicious.",
+      "emoji": "😋"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "I'd like the chicken, please.",
+      "ar": "أريد الدجاج من فضلك."
+     },
+     {
+      "en": "Would you like something to drink?",
+      "ar": "هل تريد شيئًا لتشربه؟"
+     },
+     {
+      "en": "Can we have the bill, please?",
+      "ar": "هل يمكننا الحصول على الفاتورة من فضلك؟"
+     }
+    ],
+    "grammar": {
+     "title": "I'd like… / Would you like…?",
+     "body": "“I'd like” (= I would like) is a polite way to say “I want”. Use “Would you like…?” to offer something. Answers: Yes, please. / No, thank you.",
+     "examples": [
+      {
+       "en": "I'd like a glass of water.",
+       "ar": "أريد كوبًا من الماء."
+      },
+      {
+       "en": "Would you like some tea? Yes, please.",
+       "ar": "هل تريد بعض الشاي؟ نعم من فضلك."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Waiter",
+      "en": "Good evening. Are you ready to order?",
+      "ar": "مساء الخير. هل أنتم مستعدون للطلب؟"
+     },
+     {
+      "who": "Sara",
+      "en": "Yes. I'd like the fish and a salad, please.",
+      "ar": "نعم. أريد السمك وسلطة من فضلك."
+     },
+     {
+      "who": "Waiter",
+      "en": "Would you like something to drink?",
+      "ar": "هل تريدين شيئًا لتشربيه؟"
+     },
+     {
+      "who": "Sara",
+      "en": "Orange juice, please.",
+      "ar": "عصير برتقال من فضلك."
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Unit 5 · Abilities, health & plans",
+  "lessons": [
+   {
+    "id": "f-can",
+    "title": "What can you do?",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "swim",
+      "def": "to move in water using your arms and legs",
+      "ar": "يسبح",
+      "ex": "Can you swim?",
+      "emoji": "🏊"
+     },
+     {
+      "en": "drive",
+      "def": "to control a car",
+      "ar": "يقود (سيارة)",
+      "ex": "My mother can drive.",
+      "emoji": "🚗"
+     },
+     {
+      "en": "ride a bike",
+      "def": "to sit on a bicycle and move",
+      "ar": "يركب دراجة",
+      "ex": "I can ride a bike.",
+      "emoji": "🚲"
+     },
+     {
+      "en": "play the guitar",
+      "def": "to make music with a guitar",
+      "ar": "يعزف على الغيتار",
+      "ex": "He can play the guitar.",
+      "emoji": "🎸"
+     },
+     {
+      "en": "speak",
+      "def": "to say words in a language",
+      "ar": "يتحدث",
+      "ex": "She can speak three languages.",
+      "emoji": "🗣️"
+     },
+     {
+      "en": "well",
+      "def": "in a good way",
+      "ar": "جيدًا",
+      "ex": "He swims very well.",
+      "emoji": "👍"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "Can you drive? Yes, I can.",
+      "ar": "هل تستطيع القيادة؟ نعم، أستطيع."
+     },
+     {
+      "en": "I can't play the guitar.",
+      "ar": "لا أستطيع العزف على الغيتار."
+     },
+     {
+      "en": "She can speak English very well.",
+      "ar": "تستطيع التحدث بالإنجليزية جيدًا جدًا."
+     }
+    ],
+    "grammar": {
+     "title": "can / can't",
+     "body": "Use can + base verb for ability. It is the same for all people: I can, he can, they can (never “he cans”). Negative: can't. Question: Can you…? Short answers: Yes, I can. / No, I can't.",
+     "examples": [
+      {
+       "en": "My brother can cook.",
+       "ar": "أخي يستطيع الطبخ."
+      },
+      {
+       "en": "Can they swim? No, they can't.",
+       "ar": "هل يستطيعون السباحة؟ لا، لا يستطيعون."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Omar",
+      "en": "Can you ride a bike, Lina?",
+      "ar": "هل تستطيعين ركوب الدراجة يا لينا؟"
+     },
+     {
+      "who": "Lina",
+      "en": "Yes, I can. Can you?",
+      "ar": "نعم، أستطيع. وأنت؟"
+     },
+     {
+      "who": "Omar",
+      "en": "No, I can't. But I can swim very well.",
+      "ar": "لا، لا أستطيع. لكني أسبح جيدًا جدًا."
+     },
+     {
+      "who": "Lina",
+      "en": "Great! Let's go swimming on Saturday.",
+      "ar": "رائع! لنذهب للسباحة يوم السبت."
+     }
+    ]
+   },
+   {
+    "id": "f-health",
+    "title": "At the doctor's",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "headache",
+      "def": "a pain in your head",
+      "ar": "صداع",
+      "ex": "I have a headache.",
+      "emoji": "🤕"
+     },
+     {
+      "en": "fever",
+      "def": "when your body is very hot because you are ill",
+      "ar": "حمّى",
+      "ex": "The child has a fever.",
+      "emoji": "🌡️"
+     },
+     {
+      "en": "cough",
+      "def": "a noise from your throat when you are ill",
+      "ar": "سعال / كحّة",
+      "ex": "He has a bad cough.",
+      "emoji": "😷"
+     },
+     {
+      "en": "sore throat",
+      "def": "a pain in your throat",
+      "ar": "التهاب الحلق",
+      "ex": "I have a sore throat.",
+      "emoji": "🗣️"
+     },
+     {
+      "en": "medicine",
+      "def": "something you take to get better",
+      "ar": "دواء",
+      "ex": "Take this medicine twice a day.",
+      "emoji": "💊"
+     },
+     {
+      "en": "rest",
+      "def": "to stop and relax",
+      "ar": "يرتاح",
+      "ex": "You should rest at home.",
+      "emoji": "🛌"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "What's the matter?",
+      "ar": "ما المشكلة؟ / ما بك؟"
+     },
+     {
+      "en": "I have a headache and a fever.",
+      "ar": "عندي صداع وحمّى."
+     },
+     {
+      "en": "You should drink a lot of water.",
+      "ar": "يجب أن تشرب الكثير من الماء."
+     }
+    ],
+    "grammar": {
+     "title": "should / shouldn't for advice",
+     "body": "Use should + base verb to give advice, and shouldn't for things that are a bad idea. It is the same for all people: you should, he should.",
+     "examples": [
+      {
+       "en": "You should see a doctor.",
+       "ar": "يجب أن تزور الطبيب."
+      },
+      {
+       "en": "You shouldn't go to work today.",
+       "ar": "لا ينبغي أن تذهب إلى العمل اليوم."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Doctor",
+      "en": "Hello, Yusuf. What's the matter?",
+      "ar": "مرحبًا يا يوسف. ما بك؟"
+     },
+     {
+      "who": "Yusuf",
+      "en": "I have a sore throat and a cough.",
+      "ar": "عندي التهاب في الحلق وسعال."
+     },
+     {
+      "who": "Doctor",
+      "en": "Take this medicine and drink warm water.",
+      "ar": "خذ هذا الدواء واشرب ماءً دافئًا."
+     },
+     {
+      "who": "Yusuf",
+      "en": "Should I stay at home?",
+      "ar": "هل يجب أن أبقى في المنزل؟"
+     },
+     {
+      "who": "Doctor",
+      "en": "Yes, you should rest for two days.",
+      "ar": "نعم، يجب أن ترتاح يومين."
+     }
+    ]
+   },
+   {
+    "id": "f-plans",
+    "title": "Plans for the weekend",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "tomorrow",
+      "def": "the day after today",
+      "ar": "غدًا",
+      "ex": "I'm going to call you tomorrow.",
+      "emoji": "➡️"
+     },
+     {
+      "en": "next week",
+      "def": "the week after this week",
+      "ar": "الأسبوع القادم",
+      "ex": "We're going to travel next week.",
+      "emoji": "🗓️"
+     },
+     {
+      "en": "visit",
+      "def": "to go and see a person or a place",
+      "ar": "يزور",
+      "ex": "I'm going to visit my aunt.",
+      "emoji": "👵"
+     },
+     {
+      "en": "holiday",
+      "def": "days when you don't work or study",
+      "ar": "عطلة / إجازة",
+      "ex": "Where are you going on holiday?",
+      "emoji": "🏖️"
+     },
+     {
+      "en": "ticket",
+      "def": "a paper you buy to travel or see a show",
+      "ar": "تذكرة",
+      "ex": "I have two tickets for the film.",
+      "emoji": "🎫"
+     },
+     {
+      "en": "plan",
+      "def": "something you decide to do later",
+      "ar": "خطة",
+      "ex": "What are your plans for the weekend?",
+      "emoji": "📌"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "What are you going to do this weekend?",
+      "ar": "ماذا ستفعل في عطلة نهاية الأسبوع؟"
+     },
+     {
+      "en": "I'm going to visit my grandparents.",
+      "ar": "سأزور جدي وجدتي."
+     },
+     {
+      "en": "We aren't going to stay at home.",
+      "ar": "لن نبقى في المنزل."
+     }
+    ],
+    "grammar": {
+     "title": "going to for plans",
+     "body": "Use am / is / are + going to + base verb for plans you have already decided. Negative: I'm not going to… Questions: Are you going to…? What are you going to do?",
+     "examples": [
+      {
+       "en": "She is going to buy a new phone.",
+       "ar": "ستشتري هاتفًا جديدًا."
+      },
+      {
+       "en": "Are they going to come? Yes, they are.",
+       "ar": "هل سيأتون؟ نعم."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Sara",
+      "en": "What are you going to do this weekend?",
+      "ar": "ماذا ستفعل في عطلة نهاية الأسبوع؟"
+     },
+     {
+      "who": "Omar",
+      "en": "I'm going to visit the museum. And you?",
+      "ar": "سأزور المتحف. وأنتِ؟"
+     },
+     {
+      "who": "Sara",
+      "en": "I'm going to cook for my family.",
+      "ar": "سأطبخ لعائلتي."
+     },
+     {
+      "who": "Omar",
+      "en": "Nice! Are you going to make a cake?",
+      "ar": "جميل! هل ستصنعين كعكة؟"
+     },
+     {
+      "who": "Sara",
+      "en": "Yes, a chocolate cake!",
+      "ar": "نعم، كعكة شوكولاتة!"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Unit 6 · Yesterday & stories",
+  "lessons": [
+   {
+    "id": "f-was-were",
+    "title": "Where were you yesterday?",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "yesterday",
+      "def": "the day before today",
+      "ar": "أمس",
+      "ex": "I was at home yesterday.",
+      "emoji": "⬅️"
+     },
+     {
+      "en": "last night",
+      "def": "the evening or night before today",
+      "ar": "الليلة الماضية",
+      "ex": "Where were you last night?",
+      "emoji": "🌃"
+     },
+     {
+      "en": "ago",
+      "def": "before now: two days ago",
+      "ar": "منذ / قبل",
+      "ex": "I was in Dubai two years ago.",
+      "emoji": "⏳"
+     },
+     {
+      "en": "busy",
+      "def": "with a lot of things to do",
+      "ar": "مشغول",
+      "ex": "I was very busy at work.",
+      "emoji": "📂"
+     },
+     {
+      "en": "tired",
+      "def": "you need to rest or sleep",
+      "ar": "متعب",
+      "ex": "We were tired after the trip.",
+      "emoji": "🥱"
+     },
+     {
+      "en": "at home",
+      "def": "in your house",
+      "ar": "في المنزل",
+      "ex": "The children were at home.",
+      "emoji": "🏡"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "Where were you yesterday?",
+      "ar": "أين كنت أمس؟"
+     },
+     {
+      "en": "I was at work. I was very busy.",
+      "ar": "كنت في العمل. كنت مشغولًا جدًا."
+     },
+     {
+      "en": "Were you tired? Yes, I was.",
+      "ar": "هل كنت متعبًا؟ نعم، كنت."
+     }
+    ],
+    "grammar": {
+     "title": "was / were",
+     "body": "“was” and “were” are the past of am / is / are. I / he / she / it → was. you / we / they → were. Negative: wasn't, weren't. Questions: Was he…? Were you…?",
+     "examples": [
+      {
+       "en": "She was at school.",
+       "ar": "كانت في المدرسة."
+      },
+      {
+       "en": "They weren't at the party.",
+       "ar": "لم يكونوا في الحفلة."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Lina",
+      "en": "Where were you last night? You weren't at the party.",
+      "ar": "أين كنت الليلة الماضية؟ لم تكن في الحفلة."
+     },
+     {
+      "who": "Yusuf",
+      "en": "I was at home. I was very tired.",
+      "ar": "كنت في المنزل. كنت متعبًا جدًا."
+     },
+     {
+      "who": "Lina",
+      "en": "Oh! Was it a busy day?",
+      "ar": "أوه! هل كان يومًا مزدحمًا؟"
+     },
+     {
+      "who": "Yusuf",
+      "en": "Yes, it was. Was the party good?",
+      "ar": "نعم. هل كانت الحفلة جيدة؟"
+     },
+     {
+      "who": "Lina",
+      "en": "It was great!",
+      "ar": "كانت رائعة!"
+     }
+    ]
+   },
+   {
+    "id": "f-past-regular",
+    "title": "What did you do?",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "watched",
+      "def": "past of watch",
+      "ar": "شاهد",
+      "ex": "I watched a film last night.",
+      "emoji": "🎬"
+     },
+     {
+      "en": "played",
+      "def": "past of play",
+      "ar": "لعب",
+      "ex": "We played football on Friday.",
+      "emoji": "⚽"
+     },
+     {
+      "en": "cleaned",
+      "def": "past of clean",
+      "ar": "نظّف",
+      "ex": "She cleaned her room.",
+      "emoji": "🧹"
+     },
+     {
+      "en": "visited",
+      "def": "past of visit",
+      "ar": "زار",
+      "ex": "They visited their uncle.",
+      "emoji": "🚪"
+     },
+     {
+      "en": "studied",
+      "def": "past of study",
+      "ar": "درس",
+      "ex": "He studied for the test.",
+      "emoji": "📖"
+     },
+     {
+      "en": "stayed",
+      "def": "past of stay",
+      "ar": "بقي / مكث",
+      "ex": "I stayed at home on Sunday.",
+      "emoji": "🏠"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "What did you do last weekend?",
+      "ar": "ماذا فعلت في عطلة نهاية الأسبوع الماضية؟"
+     },
+     {
+      "en": "I cleaned the house and watched TV.",
+      "ar": "نظّفت المنزل وشاهدت التلفاز."
+     },
+     {
+      "en": "Did you study? No, I didn't.",
+      "ar": "هل درست؟ لا، لم أدرس."
+     }
+    ],
+    "grammar": {
+     "title": "Past simple: regular verbs",
+     "body": "For finished actions in the past, add -ed: play → played, watch → watched. Spelling: study → studied, stop → stopped. Negative and questions use did + base verb: I didn't play. Did you play?",
+     "examples": [
+      {
+       "en": "We visited the museum yesterday.",
+       "ar": "زرنا المتحف أمس."
+      },
+      {
+       "en": "She didn't watch the match.",
+       "ar": "لم تشاهد المباراة."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Omar",
+      "en": "Did you have a nice weekend, Sara?",
+      "ar": "هل قضيتِ عطلة جميلة يا سارة؟"
+     },
+     {
+      "who": "Sara",
+      "en": "Yes! I visited my cousins. We played games.",
+      "ar": "نعم! زرت أبناء عمي. لعبنا ألعابًا."
+     },
+     {
+      "who": "Omar",
+      "en": "Did you watch the match on Saturday?",
+      "ar": "هل شاهدتِ المباراة يوم السبت؟"
+     },
+     {
+      "who": "Sara",
+      "en": "No, I didn't. I studied for the test!",
+      "ar": "لا، لم أشاهدها. درست للاختبار!"
+     }
+    ]
+   },
+   {
+    "id": "f-past-irregular",
+    "title": "My weekend story",
+    "minutes": 240,
+    "words": [
+     {
+      "en": "went",
+      "def": "past of go",
+      "ar": "ذهب",
+      "ex": "We went to the beach.",
+      "emoji": "🏖️"
+     },
+     {
+      "en": "ate",
+      "def": "past of eat",
+      "ar": "أكل",
+      "ex": "I ate fish for lunch.",
+      "emoji": "🐟"
+     },
+     {
+      "en": "saw",
+      "def": "past of see",
+      "ar": "رأى",
+      "ex": "She saw a beautiful bird.",
+      "emoji": "🐦"
+     },
+     {
+      "en": "bought",
+      "def": "past of buy",
+      "ar": "اشترى",
+      "ex": "He bought a new bag.",
+      "emoji": "🛍️"
+     },
+     {
+      "en": "had",
+      "def": "past of have",
+      "ar": "كان لديه / تناول",
+      "ex": "We had a great time.",
+      "emoji": "🎉"
+     },
+     {
+      "en": "came",
+      "def": "past of come",
+      "ar": "جاء",
+      "ex": "My friends came to my house.",
+      "emoji": "🚶"
+     }
+    ],
+    "sentences": [
+     {
+      "en": "Last Friday we went to the sea.",
+      "ar": "يوم الجمعة الماضي ذهبنا إلى البحر."
+     },
+     {
+      "en": "We ate lunch and saw the sunset.",
+      "ar": "تناولنا الغداء ورأينا غروب الشمس."
+     },
+     {
+      "en": "Did you buy anything? Yes, I bought a hat.",
+      "ar": "هل اشتريت شيئًا؟ نعم، اشتريت قبعة."
+     }
+    ],
+    "grammar": {
+     "title": "Past simple: irregular verbs",
+     "body": "Many common verbs do not add -ed. Learn them: go → went, eat → ate, see → saw, buy → bought, have → had, come → came. In questions and negatives use did + the base verb: Did you go? I didn't go (not “didn't went”).",
+     "examples": [
+      {
+       "en": "I went to the market and bought some fruit.",
+       "ar": "ذهبت إلى السوق واشتريت بعض الفاكهة."
+      },
+      {
+       "en": "We didn't see the film.",
+       "ar": "لم نشاهد الفيلم."
+      }
+     ]
+    },
+    "dialogue": [
+     {
+      "who": "Yusuf",
+      "en": "How was your weekend?",
+      "ar": "كيف كانت عطلتك؟"
+     },
+     {
+      "who": "Lina",
+      "en": "Great! I went to the old city with my family.",
+      "ar": "رائعة! ذهبت إلى المدينة القديمة مع عائلتي."
+     },
+     {
+      "who": "Yusuf",
+      "en": "What did you do there?",
+      "ar": "ماذا فعلتم هناك؟"
+     },
+     {
+      "who": "Lina",
+      "en": "We saw the old market and I bought a scarf.",
+      "ar": "رأينا السوق القديم واشتريت وشاحًا."
+     },
+     {
+      "who": "Yusuf",
+      "en": "Did you eat there?",
+      "ar": "هل أكلتم هناك؟"
+     },
+     {
+      "who": "Lina",
+      "en": "Yes, we had lunch in a small restaurant.",
+      "ar": "نعم، تناولنا الغداء في مطعم صغير."
+     }
+    ]
+   }
+  ]
+ }
+]

@@ -5,7 +5,7 @@ import { FileText, Link2, Lock, Music, Video } from "lucide-react";
 import { supabase, useAuth } from "@/lib/auth";
 import type { Course } from "@/lib/types";
 
-interface Material { id: number; unit_index: number | null; lesson_id: string | null; title: string; kind: string; url: string | null; path: string | null }
+interface Material { id: number; unit_index: number | null; lesson_id: string | null; title: string; kind: string; url: string | null; path: string | null; team_only?: boolean }
 const icons: Record<string, typeof FileText> = { pdf: FileText, audio: Music, video: Video, link: Link2, file: FileText };
 
 /** Curriculum files and links the academic team added to a course */
@@ -14,7 +14,7 @@ export function CourseMaterials({ course, locked }: { course: Course; locked: bo
   const [rows, setRows] = useState<Material[]>([]);
   useEffect(() => {
     if (!user) return;
-    supabase.from("course_materials").select("id,unit_index,lesson_id,title,kind,url,path").eq("course_slug", course.slug).order("sort").order("id")
+    supabase.from("course_materials").select("*").eq("course_slug", course.slug).order("sort").order("id")
       .then(({ data }) => setRows((data as Material[]) ?? []));
   }, [user, course.slug]);
   if (!rows.length) return null;
@@ -41,7 +41,7 @@ export function CourseMaterials({ course, locked }: { course: Course; locked: bo
             <li key={m.id}>
               <button onClick={() => open(m)} disabled={locked} className="flex w-full items-center gap-4 px-6 py-3.5 text-left transition hover:bg-brand-50/50 disabled:cursor-not-allowed">
                 <Icon className="h-5 w-5 shrink-0 text-brand-600" />
-                <span className="flex-1 font-semibold">{m.title}</span>
+                <span className="flex-1 font-semibold">{m.title}{m.team_only && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-700">Team only</span>}</span>
                 <span className="text-xs text-slate-500">{where(m)}</span>
                 {locked && <Lock className="h-4 w-4 text-slate-400" />}
               </button>

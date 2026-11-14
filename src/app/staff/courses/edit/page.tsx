@@ -345,12 +345,12 @@ function LessonEditor({ l, onChange, disabled }: { l: LessonSpec; onChange: (l: 
 
 /* ---------------------------------------------------------------- */
 
-interface Material { id: number; course_slug: string; unit_index: number | null; lesson_id: string | null; title: string; kind: string; url: string | null; path: string | null }
+interface Material { id: number; course_slug: string; unit_index: number | null; lesson_id: string | null; title: string; kind: string; url: string | null; path: string | null; team_only?: boolean }
 const kindIcon: Record<string, typeof FileText> = { pdf: FileText, audio: Music, video: Video, link: Link2, file: FileText };
 
 function Materials({ c, canEdit }: { c: Course; canEdit: boolean }) {
   const [rows, setRows] = useState<Material[] | null>(null);
-  const [f, setF] = useState({ title: "", kind: "pdf", scope: "course", url: "" });
+  const [f, setF] = useState({ title: "", kind: "pdf", scope: "course", url: "", team: false });
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -371,7 +371,7 @@ function Materials({ c, canEdit }: { c: Course; canEdit: boolean }) {
     setErr("");
     let path: string | null = null;
     if (file) {
-      path = `${c.slug}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
+      path = `${f.team ? "team/" : ""}${c.slug}/${Date.now()}-${file.name.replace(/[^\w.-]+/g, "_")}`;
       const up = await supabase.storage.from("materials").upload(path, file, { contentType: file.type || undefined });
       if (up.error) {
         setBusy(false);
@@ -382,11 +382,11 @@ function Materials({ c, canEdit }: { c: Course; canEdit: boolean }) {
     const { error } = await supabase.from("course_materials").insert({
       course_slug: c.slug, title: f.title.trim() || file?.name || "Material", kind: f.kind,
       unit_index: scope === "unit" ? Number(idx) : null, lesson_id: scope === "lesson" ? idx : null,
-      url: path ? null : f.url.trim(), path, sort: rows?.length ?? 0,
+      url: path ? null : f.url.trim(), path, sort: rows?.length ?? 0, ...(f.team ? { team_only: true } : {}),
     });
     setBusy(false);
     if (error) return setErr(rpcError(error));
-    setF({ title: "", kind: "pdf", scope: "course", url: "" });
+    setF({ title: "", kind: "pdf", scope: "course", url: "", team: false });
     setFile(null);
     load();
   };
@@ -406,7 +406,7 @@ function Materials({ c, canEdit }: { c: Course; canEdit: boolean }) {
   return (
     <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
       <section className="rounded-3xl border border-slate-200 bg-white">
-        <h3 className="border-b border-slate-100 px-5 py-4 font-bold">Materials learners can open</h3>
+        <h3 className="border-b border-slate-100 px-5 py-4 font-bold">Course materials</h3>
         {err && <div className="px-5 pt-4"><ErrorNote text={err} /></div>}
         {rows === null ? <Loader2 className="mx-auto my-8 h-6 w-6 animate-spin text-slate-300" /> : rows.length === 0 ? (
           <p className="p-5 text-sm text-slate-500">No materials yet. Add the course book (PDF), audio files or useful links.</p>
@@ -417,7 +417,7 @@ function Materials({ c, canEdit }: { c: Course; canEdit: boolean }) {
               return (
                 <li key={m.id} className="flex items-center gap-3 px-5 py-3">
                   <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-50"><Icon className="h-5 w-5 text-brand-600" /></span>
-                  <button onClick={() => open(m)} className="min-w-0 flex-1 text-left"><b className="block truncate hover:text-brand-700">{m.title}</b><span className="text-xs text-slate-500">{scopeLabel(m)}</span></button>
+                  <button onClick={() => open(m)} className="min-w-0 flex-1 text-left"><b className="block truncate hover:text-brand-700">{m.title}</b><span className="text-xs text-slate-500">{scopeLabel(m)}{m.team_only && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 font-bold text-amber-700">Team only</span>}</span></button>
                   {canEdit && <button onClick={() => remove(m)} className="rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="Delete"><Trash2 className="h-4 w-4" /></button>}
                 </li>
               );
@@ -443,6 +443,7 @@ function Materials({ c, canEdit }: { c: Course; canEdit: boolean }) {
           </label>
           <div className="text-center text-xs text-slate-400">or</div>
           <input value={f.url} onChange={(e) => setF({ ...f, url: e.target.value })} placeholder="https://… (YouTube, Google Drive, website)" className={inp} />
+          <label className="flex items-start gap-2 text-sm text-slate-600"><input type="checkbox" checked={f.team} onChange={(e) => setF({ ...f, team: e.target.checked })} className="mt-1" /> <span><b>Team only</b> — teachers and the academic team see it, learners don&apos;t (teacher guide, answer keys, printed exams)</span></label>
           <button disabled={busy} className="btn-primary flex w-full items-center justify-center gap-2 py-2.5 text-sm disabled:opacity-50">{busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <BookOpen className="h-4 w-4" />} Add</button>
         </form>
       )}

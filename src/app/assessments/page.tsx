@@ -6,6 +6,7 @@ import { courseLessons, courses, levels } from "@/data/courses";
 import { AccountShell } from "@/components/account/AccountShell";
 import { useMounted, useProgress } from "@/lib/store";
 import { lessonHref } from "@/data/courses";
+import { MyExams } from "./MyExams";
 
 export default function Assessments() {
   const mounted = useMounted();
@@ -21,14 +22,14 @@ export default function Assessments() {
   const grade = (a: number) => (a >= 0.9 ? ["Excellent", "bg-emerald-50 text-emerald-700"] : a >= 0.75 ? ["Good", "bg-brand-50 text-brand-700"] : ["Keep practising", "bg-gold-50 text-gold-700"]);
 
   return (
-    <AccountShell title="Assessments & Quizzes" subtitle="Your placement test and the score of every lesson quiz">
+    <AccountShell title="Assessments & Quizzes" subtitle="Your placement test, course exams and lesson quiz scores">
       <div className="mb-8 grid gap-5 md:grid-cols-2">
         <div className="rounded-3xl border border-slate-200 bg-white p-6">
           <div className="flex items-center gap-3">
             <span className="grid h-11 w-11 place-items-center rounded-xl bg-violet-50 text-violet-600"><ClipboardCheck className="h-5 w-5" /></span>
             <div>
               <div className="font-bold">Placement test</div>
-              <div className="text-sm text-slate-500">15 questions · about 5 minutes</div>
+              <div className="text-sm text-slate-500">30 questions · A1 to C1 · plus a short speaking test</div>
             </div>
           </div>
           {placement ? (
@@ -37,10 +38,10 @@ export default function Assessments() {
                 <div className="text-3xl font-extrabold text-brand-700">{placement.level}</div>
                 <div className="text-sm text-slate-500">{levels[placement.level].name} · {placement.score}/{placement.total} correct</div>
               </div>
-              <Link href="/placement/" className="flex items-center gap-1.5 text-sm font-bold text-brand-600"><RotateCcw className="h-4 w-4" /> Retake</Link>
+              <Link href="/placement/" className="flex items-center gap-1.5 text-sm font-bold text-brand-600"><RotateCcw className="h-4 w-4" /> Details</Link>
             </div>
           ) : (
-            <Link href="/placement/" className="btn-primary mt-5 inline-flex items-center gap-2 px-5 py-2.5 text-sm"><Play className="h-4 w-4" /> Start the test</Link>
+            <Link href="/placement/" className="btn-primary mt-5 inline-flex items-center gap-2 px-5 py-2.5 text-sm"><Play className="h-4 w-4" /> Book the test</Link>
           )}
         </div>
         <div className="rounded-3xl border border-slate-200 bg-white p-6">
@@ -59,6 +60,9 @@ export default function Assessments() {
         </div>
       </div>
 
+      <MyExams />
+
+      <h2 className="mb-3 font-bold">Lesson quizzes</h2>
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white">
         <div className="grid grid-cols-[1fr_auto_auto] gap-4 border-b border-slate-100 px-6 py-3 text-xs font-bold uppercase tracking-wide text-slate-400">
           <span>Lesson</span>

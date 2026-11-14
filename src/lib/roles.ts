@@ -55,6 +55,8 @@ export const pageAccess: Record<string, Role[]> = {
   "/staff/availability/": ["teacher"],
   "/staff/earnings/": ["teacher"],
   "/staff/my-profile/": ["teacher"],
+  "/staff/exams/": ["academic", "teacher", "supervisor"],
+  "/staff/placement/": ["finance", "academic", "supervisor"],
   "/staff/soon/": roles,
 };
 

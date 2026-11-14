@@ -84,7 +84,8 @@ const it = {
   refunds: { label: "Refunds", href: s("st-refunds"), icon: Undo2, color: "text-rose-500", soon: true },
   payouts: { label: "Teacher Payouts", href: s("st-payouts"), icon: Wallet, color: "text-teal-600", soon: true },
   reports: { label: "Reports", href: s("st-reports"), icon: FileBarChart, color: "text-blue-600", soon: true },
-  placement: { label: "Placement Results", href: s("st-placement"), icon: ListChecks, color: "text-rose-600", soon: true },
+  placement: { label: "Placement Tests", href: "/staff/placement/", icon: ListChecks, color: "text-rose-600" },
+  exams: { label: "Exams & Question Bank", href: "/staff/exams/", icon: FileCheck2, color: "text-violet-600" },
   certificates: { label: "Certificates", href: s("st-certificates"), icon: FileCheck2, color: "text-gold-500", soon: true },
   quality: { label: "Teaching Quality", href: s("st-quality"), icon: Star, color: "text-amber-500", soon: true },
   tickets: { label: "Tickets", href: s("st-tickets"), icon: LifeBuoy, color: "text-emerald-600", soon: true },
@@ -112,20 +113,20 @@ export function staffNav(role: StaffRole | null): NavItem[][] {
     case "admin":
       return [
         [it.overview, it.users, it.team, it.teachers, it.enrollments, it.teacherPay],
-        [it.courses, it.questions, it.inbox],
+        [it.courses, it.exams, it.placement, it.questions, it.inbox],
         [it.payments, it.reports, it.settings],
         common,
       ];
     case "teacher":
-      return [[it.overview, it.lessons, it.students, it.homework, it.questions], [it.availability, it.earnings, it.publicProfile], common];
+      return [[it.overview, it.lessons, it.students, it.homework, it.exams, it.questions], [it.availability, it.earnings, it.publicProfile], common];
     case "finance":
-      return [[it.overview, it.enrollments, it.teacherPay, it.teachers, it.users], [it.payments, it.coupons, it.refunds, it.reports], common];
+      return [[it.overview, it.enrollments, it.placement, it.teacherPay, it.teachers, it.users], [it.payments, it.coupons, it.refunds, it.reports], common];
     case "academic":
-      return [[it.overview, it.courses, it.questions, it.teachers, it.users], [it.placement, it.certificates, it.quality], common];
+      return [[it.overview, it.courses, it.exams, it.placement, it.questions, it.teachers, it.users], [it.certificates, it.quality], common];
     case "support":
       return [[it.overview, it.inbox, it.users], [it.tickets, it.system], common];
     case "supervisor":
-      return [[it.overview], [it.supClasses, it.supAttendance, it.supGrades, it.quality], common];
+      return [[it.overview, it.exams, it.placement], [it.supClasses, it.supAttendance, it.supGrades, it.quality], common];
     default:
       return [[it.overview], common];
   }

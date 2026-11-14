@@ -1,5 +1,6 @@
-import type { Course, CourseType, Level, ProgramId } from "@/lib/types";
+import type { Course, CourseType, Level, Module, ProgramId } from "@/lib/types";
 import { ge1Modules } from "./lessons/ge1";
+import foundationsModules from "./lessons/foundations.json";
 import { biz1Modules, conv1Modules, ge2Modules, ielts1Modules, kids1Modules } from "./lessons/others";
 
 export const programs: Record<ProgramId, { name: string; desc: string; icon: string }> = {
@@ -49,6 +50,32 @@ export const courses: Course[] = [
     cover: { from: "#1f66c8", to: "#0b326d", icon: "🚀" },
     modules: ge1Modules,
     order: 1,
+  },
+  {
+    slug: "english-foundations-live",
+    code: "GE-A1-LIVE",
+    program: "GE",
+    level: "A1",
+    title: "English Foundations — Live Beginner (A1)",
+    description:
+      "An 80-hour live beginner course with a teacher: 20 class days of 4 hours (weekends and holidays excluded). Six units take you from spelling, numbers and time to describing people and places, daily routines, shopping, directions, health, plans and your first stories in the past. Mapped to the CEFR A1 level and the Cambridge A1 grammar and topic areas. Graded out of 100: final exam 40, unit tests 20, presentation 10, homework 10, attendance 10, participation 10. Pass mark 60 — the certificate is issued automatically.",
+    outcomes: [
+      "Spell names, say prices, dates and the time",
+      "Describe people, your home and your daily routine",
+      "Shop, order food, ask for and give directions",
+      "Say what you can do, give simple advice and talk about plans",
+      "Tell a short story about last weekend in the past simple",
+      "Use about 110 new words in correct sentences",
+    ],
+    skills: ["Listening", "Speaking", "Reading", "Writing", "Grammar", "Vocabulary"],
+    hours: 80,
+    type: "live",
+    price: 150,
+    certificate: true,
+    cover: { from: "#0f4ca7", to: "#efb52a", icon: "🎓" },
+    isNew: true,
+    modules: foundationsModules as Module[],
+    order: 1.5,
   },
   {
     slug: "general-english-2",

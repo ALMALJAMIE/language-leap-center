@@ -1,146 +1,149 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { ClipboardCheck, Headphones } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { motion } from "motion/react";
+import { ClipboardCheck, Clock, Hourglass, Loader2, Mic, Play, Wallet } from "lucide-react";
 import type { Level } from "@/lib/types";
-import { courses, levels } from "@/data/courses";
-import { useProgress } from "@/lib/store";
-import { SpeakBtn } from "@/components/lesson/Exercises";
-import { courseHref } from "@/data/courses";
-
-type Q = { level: Level; q: string; options: string[]; answer: number; audio?: string; hint?: string };
-
-const questions: Q[] = [
-  { level: "A1", q: "She ___ a teacher.", options: ["am", "is", "are", "be"], answer: 1 },
-  { level: "A1", q: "You say “Thank you” when someone…", options: ["says goodbye", "helps you", "asks your name", "is late"], answer: 1 },
-  { level: "A1", q: "Listen and choose what you hear.", options: ["Good evening", "Good morning", "Goodbye", "Good night"], answer: 1, audio: "Good morning" },
-  { level: "A2", q: "Yesterday I ___ to the market.", options: ["go", "goes", "went", "going"], answer: 2 },
-  { level: "A2", q: "This bag is ___ than that one.", options: ["cheap", "cheaper", "cheapest", "more cheap"], answer: 1 },
-  { level: "A2", q: "Listen: what time is the flight?", options: ["At seven", "At eleven", "At nine", "At five"], answer: 2, audio: "Excuse me, the flight to Kuala Lumpur leaves at nine o'clock." },
-  { level: "B1", q: "I have lived here ___ 2019.", options: ["for", "since", "from", "at"], answer: 1 },
-  { level: "B1", q: "If it rains tomorrow, we ___ at home.", options: ["stay", "stayed", "will stay", "would stay"], answer: 2 },
-  { level: "B1", q: "“I can't make it to the meeting.” This means the speaker…", options: ["will build something", "cannot attend", "is late", "forgot the meeting"], answer: 1 },
-  { level: "B2", q: "By the time we arrived, the film ___.", options: ["already started", "has already started", "had already started", "was starting already"], answer: 2 },
-  { level: "B2", q: "Choose the closest meaning to “reluctant”.", options: ["eager", "unwilling", "confident", "careless"], answer: 1 },
-  { level: "B2", q: "Listen and choose the speaker's opinion.", options: ["Remote work should end", "Remote work has clear benefits but needs limits", "Offices are always better", "Nobody likes remote work"], answer: 1, audio: "While working from home certainly saves time and money, I think companies need clear boundaries, otherwise people never really switch off." },
-  { level: "C1", q: "Had I known about the delay, I ___ a later train.", options: ["would take", "will have taken", "would have taken", "had taken"], answer: 2 },
-  { level: "C1", q: "The proposal was met with ___ criticism from all sides.", options: ["widespread", "wide-spreading", "spread-wide", "widely"], answer: 0 },
-  { level: "C1", q: "Which sentence is the most formal?", options: ["We need to sort this out ASAP.", "Let's fix this quickly.", "We would appreciate your prompt attention to this matter.", "Can you deal with this soon?"], answer: 2 },
-];
+import { courseHref, courses, levels } from "@/data/courses";
+import { supabase, useAuth, displayName } from "@/lib/auth";
+import { rpcError } from "@/lib/roles";
+import { site } from "@/lib/site";
+import { useMounted, useProgress } from "@/lib/store";
+import { SignInPrompt } from "@/components/account/AccountShell";
+import { WhatsAppIcon } from "@/components/BrandIcons";
+import { ExamRunner, type ExamResult } from "@/components/exam/ExamRunner";
+import type { Attempt, Exam } from "@/lib/exams";
 
 const order: Level[] = ["A1", "A2", "B1", "B2", "C1"];
-
-function computeLevel(ans: (number | null)[]): Level {
-  let lvl: Level = "A1";
-  for (const l of order) {
-    const qs = questions.map((q, i) => ({ q, i })).filter((x) => x.q.level === l);
-    const ok = qs.filter((x) => ans[x.i] === x.q.answer).length;
-    if (ok >= 2) lvl = l;
-    else break;
-  }
-  return lvl;
-}
+interface Ticket { id: number; status: "pending" | "paid" | "used"; amount: number; created_at: string }
 
 export default function Placement() {
+  const mounted = useMounted();
+  const { user, ready } = useAuth();
   const setPlacement = useProgress((s) => s.setPlacement);
-  const [stage, setStage] = useState<"intro" | "test" | "result">("intro");
-  const [i, setI] = useState(0);
-  const [ans, setAns] = useState<(number | null)[]>(Array(questions.length).fill(null));
-  const [result, setResult] = useState<{ level: Level; score: number } | null>(null);
+  const [exam, setExam] = useState<Exam | null | undefined>(undefined);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [attempts, setAttempts] = useState<Attempt[]>([]);
+  const [taking, setTaking] = useState(false);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  const choose = (k: number) => {
-    const a = [...ans];
-    a[i] = k;
-    setAns(a);
-    setTimeout(() => {
-      if (i + 1 < questions.length) setI(i + 1);
-      else {
-        const score = a.filter((x, j) => x === questions[j].answer).length;
-        const level = computeLevel(a);
-        setPlacement(level, score, questions.length);
-        setResult({ level, score });
-        setStage("result");
-      }
-    }, 220);
+  const load = useCallback(async () => {
+    const { data, error } = await supabase.from("exams").select("*").eq("kind", "placement").eq("published", true).order("id").limit(1);
+    if (error) setErr(rpcError(error));
+    const e = (data?.[0] as Exam) ?? null;
+    setExam(e);
+    if (!e || !user) return;
+    const [t, a] = await Promise.all([
+      supabase.from("placement_tickets").select("id,status,amount,created_at").eq("exam_id", e.id).eq("user_id", user.id).order("id", { ascending: false }),
+      supabase.from("exam_attempts").select("*").eq("exam_id", e.id).eq("user_id", user.id).order("id", { ascending: false }),
+    ]);
+    setTickets((t.data as Ticket[]) ?? []);
+    const at = (a.data as Attempt[]) ?? [];
+    setAttempts(at);
+    const g = at.find((x) => x.status === "graded" && x.result_level);
+    if (g) setPlacement(g.result_level!, Number(g.score ?? 0), Number(g.total ?? 0));
+  }, [user, setPlacement]);
+  useEffect(() => {
+    if (!ready) return;
+    const t = setTimeout(load, 0);
+    return () => clearTimeout(t);
+  }, [ready, load]);
+
+  if (!mounted || !ready || exam === undefined) return <div className="grid min-h-[60vh] place-items-center"><Loader2 className="h-7 w-7 animate-spin text-slate-300" /></div>;
+
+  if (taking && exam)
+    return <ExamRunner examId={exam.id} onDone={(r: ExamResult) => { setTaking(false); if (r.level) setPlacement(r.level, Number(r.score ?? 0), Number(r.total ?? 0)); load(); }} />;
+
+  const running = attempts.find((a) => a.status === "in_progress");
+  const last = attempts.find((a) => a.status === "graded" && a.result_level);
+  const paid = tickets.find((t) => t.status === "paid");
+  const pending = tickets.find((t) => t.status === "pending");
+  const fee = Number(exam?.fee ?? 0);
+
+  const book = async () => {
+    if (!exam) return;
+    setBusy(true);
+    const { error } = await supabase.rpc("request_placement", { p_exam: exam.id });
+    setBusy(false);
+    if (error) return setErr(rpcError(error));
+    load();
   };
+  const waText = encodeURIComponent(`Hello, I want to pay the placement test fee ($${fee}). Name: ${user ? displayName(user) : ""} · Email: ${user?.email ?? ""}`);
 
-  if (stage === "intro")
-    return (
-      <div className="mx-auto max-w-2xl px-6 py-16 text-center">
+  return (
+    <div className="mx-auto max-w-2xl px-6 py-14">
+      {last && <LevelResult a={last} />}
+
+      <div className={`text-center ${last ? "mt-12 border-t border-slate-200 pt-10" : ""}`}>
         <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-brand-100 text-brand-700"><ClipboardCheck className="h-10 w-10" /></div>
-        <h1 className="mt-6 text-3xl font-extrabold">Placement test</h1>
-        <p className="mt-4 leading-8 text-slate-600">
-          {questions.length} questions on grammar, vocabulary and listening, from Beginner (A1) to Advanced (C1). It takes about 5 minutes. If you don&apos;t know an answer, choose what seems closest — the goal is to place you in the right course.
-        </p>
-        <div className="mt-8 flex justify-center gap-2">
-          {order.map((l) => (
-            <span key={l} className="rounded-xl bg-mist px-3 py-2 text-sm font-bold text-brand-700">{l}</span>
-          ))}
-        </div>
-        <button onClick={() => setStage("test")} className="btn-primary mt-10 px-10 py-4 text-lg">Start the test</button>
-      </div>
-    );
+        <h1 className="mt-6 text-3xl font-extrabold">{last ? "Take the placement test again" : "Placement test"}</h1>
+        {!exam ? (
+          <p className="mt-4 leading-8 text-slate-600">The placement test opens soon. Message us on WhatsApp and we will help you choose your level.</p>
+        ) : (
+          <>
+            <p className="mt-4 leading-8 text-slate-600">{exam.instructions}</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-2">
+              {order.map((l) => <span key={l} className="rounded-xl bg-mist px-3 py-2 text-sm font-bold text-brand-700">{l}</span>)}
+            </div>
+            <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm text-slate-600">
+              <span className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5"><Clock className="h-4 w-4" /> {exam.minutes} minutes</span>
+              <span className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5"><Wallet className="h-4 w-4" /> {fee > 0 ? `Fee $${fee}` : "Free"}</span>
+              <span className="flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1.5"><Mic className="h-4 w-4" /> + short speaking test</span>
+            </div>
+          </>
+        )}
+        {err && <p className="mt-6 rounded-2xl bg-amber-50 p-4 text-sm text-amber-800">{err}</p>}
 
-  if (stage === "result" && result) {
-    const rec = courses.find((c) => c.program === "GE" && c.level === result.level) ?? courses[0];
-    return (
-      <div className="mx-auto max-w-2xl px-6 py-16 text-center">
-        <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="mx-auto grid h-36 w-36 place-items-center rounded-full brand-gradient shadow-2xl shadow-brand-900/30">
-          <span className="text-5xl font-extrabold text-gold-300">{result.level}</span>
-        </motion.div>
-        <h1 className="mt-6 text-3xl font-extrabold">Your level: {levels[result.level].name}</h1>
-        <p className="mt-1 text-slate-500">CEFR {result.level}</p>
-        <p className="mt-4 text-slate-600">You answered {result.score} of {questions.length} questions correctly.</p>
-        <div className="mt-8 rounded-3xl border border-slate-200 p-6 text-left">
+        <div className="mt-8">
+          {!exam ? (
+            <a href={site.whatsapp} target="_blank" rel="noopener" className="btn-primary inline-flex items-center gap-2 px-8 py-3.5"><WhatsAppIcon className="h-5 w-5" /> Message us</a>
+          ) : !user ? (
+            <SignInPrompt text="Create a free account or sign in to book your placement test." />
+          ) : running ? (
+            <button onClick={() => setTaking(true)} className="btn-primary inline-flex items-center gap-2 px-10 py-4 text-lg"><Play className="h-5 w-5" /> Continue the test</button>
+          ) : paid ? (
+            <>
+              <p className="mb-4 text-sm font-semibold text-emerald-700">Payment confirmed — you can start whenever you are ready.</p>
+              <button onClick={() => { if (confirm(`The timer (${exam.minutes} minutes) starts now. Ready?`)) setTaking(true); }} className="btn-primary inline-flex items-center gap-2 px-10 py-4 text-lg"><Play className="h-5 w-5" /> Start the test</button>
+            </>
+          ) : pending ? (
+            <div className="rounded-3xl border border-gold-200 bg-gold-50/60 p-6">
+              <Hourglass className="mx-auto h-8 w-8 text-gold-600" />
+              <h2 className="mt-2 font-extrabold">Waiting for your payment</h2>
+              <p className="mt-1 text-sm text-slate-600">Pay the fee (${fee}) and send the receipt on WhatsApp. When our finance team confirms it, the “Start the test” button appears here.</p>
+              <a href={`${site.whatsapp}?text=${waText}`} target="_blank" rel="noopener" className="btn-primary mt-4 inline-flex items-center gap-2 px-6 py-3"><WhatsAppIcon className="h-5 w-5" /> Send the receipt</a>
+            </div>
+          ) : (
+            <button onClick={book} disabled={busy} className="btn-primary inline-flex items-center gap-2 px-10 py-4 text-lg disabled:opacity-50">
+              {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Wallet className="h-5 w-5" />} {fee > 0 ? `Book the test · $${fee}` : "Book the test"}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LevelResult({ a }: { a: Attempt }) {
+  const lv = a.result_level!;
+  const rec = courses.find((c) => c.program === "GE" && c.level === lv) ?? courses[0];
+  return (
+    <div className="text-center">
+      <motion.div initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="mx-auto grid h-36 w-36 place-items-center rounded-full brand-gradient shadow-2xl shadow-brand-900/30">
+        <span className="text-5xl font-extrabold text-gold-300">{lv}</span>
+      </motion.div>
+      <h1 className="mt-6 text-3xl font-extrabold">Your level: {levels[lv].name}</h1>
+      <p className="mt-2 text-slate-600">You answered {Number(a.score ?? 0)} of {Number(a.total ?? 0)} questions correctly.</p>
+      <p className="mx-auto mt-4 max-w-md rounded-2xl bg-mist p-4 text-sm text-slate-600">Next step: our academic team contacts you for a short speaking test, then places you in a class.</p>
+      {rec && (
+        <div className="mt-6 rounded-3xl border border-slate-200 p-6 text-left">
           <div className="text-sm font-bold text-gold-600">Recommended course</div>
           <div className="mt-1 text-xl font-bold">{rec.title}</div>
           <p className="mt-2 text-sm text-slate-600">{rec.description}</p>
           <Link href={courseHref(rec.slug)} className="btn-primary mt-5 inline-block px-6 py-3">Go to the course</Link>
         </div>
-        <button onClick={() => { setStage("intro"); setI(0); setAns(Array(questions.length).fill(null)); }} className="mt-6 text-sm font-bold text-slate-500">
-          Retake the test
-        </button>
-      </div>
-    );
-  }
-
-  const q = questions[i];
-  return (
-    <div className="mx-auto max-w-2xl px-6 py-12">
-      <div className="mb-8 flex items-center gap-4">
-        <div className="h-3 flex-1 overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full rounded-full bg-gold-400 transition-all" style={{ width: `${(i / questions.length) * 100}%` }} />
-        </div>
-        <span className="text-sm font-bold text-slate-500">{i + 1}/{questions.length}</span>
-      </div>
-      <AnimatePresence mode="wait">
-        <motion.div key={i} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-          {q.audio && (
-            <div className="mb-6 flex items-center gap-3 rounded-2xl bg-brand-50 p-4">
-              <Headphones className="h-5 w-5 text-brand-600" />
-              <span className="flex-1 text-sm text-brand-700">Listening question</span>
-              <SpeakBtn text={q.audio} autoPlay />
-            </div>
-          )}
-          <h2 className="mb-8 text-2xl font-bold">{q.q}</h2>
-          <div className="grid gap-3">
-            {q.options.map((o, k) => (
-              <button
-                key={o}
-                onClick={() => choose(k)}
-                data-state={ans[i] === k ? "selected" : ""}
-                className="tile p-4 text-left text-lg font-semibold"
-              >
-                {o}
-              </button>
-            ))}
-          </div>
-        </motion.div>
-      </AnimatePresence>
-      {i > 0 && (
-        <button onClick={() => setI(i - 1)} className="mt-6 text-sm font-bold text-slate-400">← Previous question</button>
       )}
     </div>
   );
