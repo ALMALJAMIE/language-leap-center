@@ -9,6 +9,7 @@ import { rpcError } from "@/lib/roles";
 import { type Question } from "@/lib/teaching";
 import { ErrorNote, StaffShell, fmtDate } from "@/components/staff/StaffShell";
 import { Empty, Tabs } from "@/components/teaching/ui";
+import { lessonHref } from "@/data/courses";
 
 type Tab = "open" | "answered";
 
@@ -69,7 +70,7 @@ function Item({ q, onDone }: { q: Question; onDone: () => void }) {
       <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
         <span className="rounded-full bg-brand-50 px-2.5 py-0.5 font-bold text-brand-700">{course?.code ?? q.course_slug}</span>
         <span className="font-semibold text-ink">{found?.lesson.title ?? q.lesson_id}</span>
-        <Link href={`/learn/${q.course_slug}/${q.lesson_id}/`} target="_blank" className="flex items-center gap-1 text-brand-700 hover:underline">open lesson <ExternalLink className="h-3 w-3" /></Link>
+        <Link href={lessonHref(q.course_slug, q.lesson_id)} target="_blank" className="flex items-center gap-1 text-brand-700 hover:underline">open lesson <ExternalLink className="h-3 w-3" /></Link>
         <span className="ml-auto">{q.student_name ?? "Learner"} · {fmtDate(q.created_at, true)}</span>
       </div>
       <p className="mt-3 font-semibold text-ink" dir="auto">{q.body}</p>

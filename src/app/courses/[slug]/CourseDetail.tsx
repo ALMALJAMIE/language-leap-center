@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   ArrowRight, Award, BarChart3, LayoutGrid, ShoppingCart, BookOpen, Calendar, Check, ChevronDown, ChevronRight, Clock, GraduationCap, Headphones, Heart, Link2, Lock, Mic,
-  PenLine, Play, PlayCircle, Sparkles, Star, Target, Users, BadgeCheck,
+  Loader2, PenLine, Play, PlayCircle, Sparkles, Star, Target, Users, BadgeCheck,
 } from "lucide-react";
 import mark from "@/assets/logo-mark-t.png";
 import { courseLessons, courses, courseTypes, formatPrice, getCourse, isAvailable, lessonCount, levels, programs } from "@/data/courses";
@@ -14,8 +14,11 @@ import { FacebookIcon, WhatsAppIcon } from "@/components/BrandIcons";
 import { useMounted, useProgress } from "@/lib/store";
 import { siteUrl } from "@/lib/auth";
 import { payments } from "@/lib/site";
+import { useCatalog } from "@/lib/catalog";
+import { CourseMaterials } from "@/components/CourseMaterials";
 import { useCourseAccess } from "@/lib/enrollments";
 import type { Course, Level } from "@/lib/types";
+import { courseHref, lessonHref } from "@/data/courses";
 
 const skillIcon: Record<string, React.ReactNode> = {
   Listening: <Headphones className="h-4 w-4" />,
@@ -41,7 +44,24 @@ const updated = new Date().toLocaleDateString("en-GB", { month: "short", year: "
 
 type Tab = "overview" | "curriculum" | "instructor" | "reviews";
 
+/** Finds the course in the live catalog (built-in or from the Course Builder) */
 export function CourseDetail({ slug }: { slug: string }) {
+  const loaded = useCatalog((s) => s.loaded);
+  if (!getCourse(slug)) return loaded ? <CourseMissing /> : <div className="grid min-h-[60vh] place-items-center"><Loader2 className="h-7 w-7 animate-spin text-slate-300" /></div>;
+  return <CourseDetailView slug={slug} />;
+}
+
+function CourseMissing() {
+  return (
+    <div className="mx-auto max-w-xl px-6 py-24 text-center">
+      <h1 className="text-2xl font-extrabold">Course not found</h1>
+      <p className="mt-2 text-slate-500">This course doesn&apos;t exist or isn&apos;t published yet.</p>
+      <Link href="/courses/" className="btn-primary mt-6 inline-block px-6 py-3">Browse courses</Link>
+    </div>
+  );
+}
+
+function CourseDetailView({ slug }: { slug: string }) {
   const course = getCourse(slug)!;
   const mounted = useMounted();
   const { completed, wishlist, toggleWish } = useProgress();
@@ -60,7 +80,7 @@ export function CourseDetail({ slug }: { slug: string }) {
   const upcoming = course.modules.reduce((n, m) => n + (m.upcoming?.length ?? 0), 0);
   const wished = mounted && wishlist.includes(slug);
   const related = courses.filter((c) => c.slug !== slug).sort((a, b) => Number(b.program === course.program) - Number(a.program === course.program) || a.order - b.order).slice(0, 6);
-  const url = mounted ? siteUrl(`/courses/${slug}/`) : "";
+  const url = mounted ? siteUrl(courseHref(slug)) : "";
   const shareText = `${course.title} — Language Leap Center`;
 
   const longDescription = `${course.description} Each lesson is short and interactive: you learn a few words with audio and examples, practise them through listening, matching, sentence building and dictation, say them out loud with instant feedback, and finish with a real dialogue. Words you learn go into your spaced-review deck so you keep them for the long term.`;
@@ -179,7 +199,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                           const done = isDone(l.id);
                           return (
                             <li key={l.id}>
-                              <Link href={locked ? `/checkout/?course=${slug}` : `/learn/${slug}/${l.id}/`} className="flex items-center gap-4 px-6 py-4 transition hover:bg-brand-50/50">
+                              <Link href={locked ? `/checkout/?course=${slug}` : lessonHref(slug, l.id)} className="flex items-center gap-4 px-6 py-4 transition hover:bg-brand-50/50">
                                 <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold ${done ? "bg-emerald-500 text-white" : "bg-brand-100 text-brand-700"}`}>
                                   {done ? <Check className="h-5 w-5" /> : globalIndex}
                                 </span>
@@ -200,6 +220,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                       </ul>
                     </div>
                   ))}
+                  <CourseMaterials course={course} locked={locked} />
                 </div>
               )}
 
@@ -255,7 +276,7 @@ export function CourseDetail({ slug }: { slug: string }) {
                       </Link>
                     )}
                     {!locked && (
-                      <Link href={`/learn/${slug}/${nextLesson.id}/`} className="btn-primary flex w-full items-center justify-center gap-2 py-3.5 text-base">
+                      <Link href={lessonHref(slug, nextLesson.id)} className="btn-primary flex w-full items-center justify-center gap-2 py-3.5 text-base">
                         <Play className="h-5 w-5 fill-white" />
                         {doneCount === 0 ? "Start Learning" : doneCount === lessons.length ? "Review the course" : "Continue Learning"}
                       </Link>

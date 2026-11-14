@@ -5,6 +5,7 @@ import { ClipboardCheck, Play, RotateCcw } from "lucide-react";
 import { courseLessons, courses, levels } from "@/data/courses";
 import { AccountShell } from "@/components/account/AccountShell";
 import { useMounted, useProgress } from "@/lib/store";
+import { lessonHref } from "@/data/courses";
 
 export default function Assessments() {
   const mounted = useMounted();
@@ -76,7 +77,7 @@ export default function Assessments() {
                   <div className="truncate text-xs text-slate-500">{c.title} · {new Date(r.at).toLocaleDateString("en-GB")}</div>
                 </div>
                 <span className={`rounded-full px-3 py-1 text-xs font-bold ${cls}`}>{Math.round(r.accuracy * 100)}% · {label}</span>
-                <Link href={`/learn/${c.slug}/${l.id}/`} className="w-16 text-right text-sm font-bold text-brand-600">Retry</Link>
+                <Link href={lessonHref(c.slug, l.id)} className="w-16 text-right text-sm font-bold text-brand-600">Retry</Link>
               </div>
             );
           })

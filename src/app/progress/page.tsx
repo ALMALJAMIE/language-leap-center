@@ -7,6 +7,7 @@ import { CourseCover } from "@/components/CourseCard";
 import { dueCards, todayKey, useMounted, useProgress } from "@/lib/store";
 import { AccountShell } from "@/components/account/AccountShell";
 import { Analytics } from "@/components/account/Analytics";
+import { lessonHref } from "@/data/courses";
 
 const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -145,7 +146,7 @@ export default function ProgressPage() {
                     <div className="mt-1 text-xs text-slate-500">{done} / {total} lessons</div>
                   </div>
                   {next ? (
-                    <Link href={`/learn/${c.slug}/${next.id}/`} className="btn-primary px-4 py-2 text-sm">Continue</Link>
+                    <Link href={lessonHref(c.slug, next.id)} className="btn-primary px-4 py-2 text-sm">Continue</Link>
                   ) : (
                     <span className="flex items-center gap-1 text-sm font-bold text-emerald-600"><Trophy className="h-4 w-4" /> Completed</span>
                   )}

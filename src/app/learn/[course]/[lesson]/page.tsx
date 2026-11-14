@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { courseLessons, courses, findLesson } from "@/data/courses";
-import { LessonGate } from "@/components/lesson/LessonGate";
+import { LessonRoute } from "@/components/lesson/LessonRoute";
 
 export const dynamicParams = false;
 
@@ -21,5 +21,5 @@ export default async function Page({ params }: P) {
   const { course, lesson } = await params;
   const f = findLesson(course, lesson);
   if (!f) notFound();
-  return <LessonGate key={`${course}/${lesson}`} course={f.course} lesson={f.lesson} nextId={f.next?.id} />;
+  return <LessonRoute courseSlug={course} lessonId={lesson} />;
 }

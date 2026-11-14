@@ -7,6 +7,7 @@ import { AccountShell, SignInPrompt } from "@/components/account/AccountShell";
 import { certificateId, courseProgress } from "@/lib/account";
 import { useAuth } from "@/lib/auth";
 import { useMounted, useProgress } from "@/lib/store";
+import { courseHref } from "@/data/courses";
 
 export default function Certificates() {
   const mounted = useMounted();
@@ -65,7 +66,7 @@ export default function Certificates() {
                 {pr.done}/{pr.total + pr.upcoming} lessons{pr.upcoming ? ` · ${pr.upcoming} still being prepared` : ""}
               </div>
             </div>
-            <Link href={`/courses/${c.slug}/`} className="text-sm font-bold text-brand-600">Open →</Link>
+            <Link href={courseHref(c.slug)} className="text-sm font-bold text-brand-600">Open →</Link>
           </div>
         ))}
       </div>

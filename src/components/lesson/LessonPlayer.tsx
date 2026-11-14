@@ -16,6 +16,7 @@ import {
   BuildEx, ChoiceMeaningEx, ChoiceWordEx, DialogueEx, DictationEx, FillEx, GrammarEx, ListenEx, MatchEx, NewWordEx, SpeakEx,
   type Status, type Verdict,
 } from "./Exercises";
+import { courseHref, lessonHref } from "@/data/courses";
 
 /* Short feedback sounds without audio files */
 function tone(ok: boolean) {
@@ -154,13 +155,13 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
         </p>
         <div className="mt-8 flex w-full max-w-md flex-col gap-3">
           {nextId ? (
-            <Link href={`/learn/${course.slug}/${nextId}/`} className="btn-primary py-3.5 text-lg">Next lesson</Link>
+            <Link href={lessonHref(course.slug, nextId)} className="btn-primary py-3.5 text-lg">Next lesson</Link>
           ) : (
-            <Link href={`/courses/${course.slug}/`} className="btn-primary py-3.5 text-lg">Back to course</Link>
+            <Link href={courseHref(course.slug)} className="btn-primary py-3.5 text-lg">Back to course</Link>
           )}
           {role ? <Link href="/staff/" className="btn-gold py-3">Back to workspace</Link> : <Link href="/review/" className="btn-gold py-3">Review words now</Link>}
           <LessonQuestions course={course.slug} lesson={lesson.id} title={lesson.title} variant="button" />
-          <Link href={`/courses/${course.slug}/`} className="py-2 font-bold text-slate-500">Course content</Link>
+          <Link href={courseHref(course.slug)} className="py-2 font-bold text-slate-500">Course content</Link>
         </div>
       </div>
     );
@@ -266,7 +267,7 @@ export function LessonPlayer({ course, lesson, nextId }: { course: Course; lesso
             <h3 className="mt-3 text-xl font-bold">Leave the lesson?</h3>
             <p className="mt-2 text-slate-500">Your progress in this lesson will not be saved.</p>
             <button onClick={() => setConfirmExit(false)} className="btn-primary mt-6 w-full py-3">Keep learning</button>
-            <Link href={`/courses/${course.slug}/`} className="mt-3 block py-2 font-bold text-red-500">Leave</Link>
+            <Link href={courseHref(course.slug)} className="mt-3 block py-2 font-bold text-red-500">Leave</Link>
           </div>
         </div>
       )}

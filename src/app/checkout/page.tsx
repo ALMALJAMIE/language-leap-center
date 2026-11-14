@@ -12,6 +12,7 @@ import { displayName, useAuth } from "@/lib/auth";
 import { payments, site } from "@/lib/site";
 import { useMounted } from "@/lib/store";
 import { useEnrollments } from "@/lib/enrollments";
+import { courseHref } from "@/data/courses";
 
 const money = (n: number) => `$${n.toFixed(2)}`;
 
@@ -33,7 +34,7 @@ function Checkout() {
       <div className="mx-auto max-w-xl px-6 py-16 text-center">
         <h1 className="text-2xl font-bold">{course ? "This course is free" : "Course not found"}</h1>
         <p className="mt-2 text-slate-600">{course ? "No payment is needed — you can start learning right away." : "Choose a course to enroll in."}</p>
-        <Link href={course ? `/courses/${course.slug}/` : "/courses/"} className="btn-primary mt-6 inline-block px-6 py-3">{course ? "Open the course" : "Browse courses"}</Link>
+        <Link href={course ? courseHref(course.slug) : "/courses/"} className="btn-primary mt-6 inline-block px-6 py-3">{course ? "Open the course" : "Browse courses"}</Link>
       </div>
     );
   if (!user)
@@ -48,7 +49,7 @@ function Checkout() {
       <div className="mx-auto max-w-xl px-6 py-16 text-center">
         <h1 className="text-2xl font-bold">You&apos;re already enrolled</h1>
         <p className="mt-2 text-slate-600">{course.title} is open in your account.</p>
-        <Link href={`/courses/${course.slug}/`} className="btn-primary mt-6 inline-block px-6 py-3">Go to the course</Link>
+        <Link href={courseHref(course.slug)} className="btn-primary mt-6 inline-block px-6 py-3">Go to the course</Link>
       </div>
     );
 
@@ -113,7 +114,7 @@ function Checkout() {
           <div className="flex gap-4">
             <CourseCover course={course} className="h-20 w-20 shrink-0 rounded-xl" mini />
             <div>
-              <Link href={`/courses/${course.slug}/`} className="text-xl font-bold hover:text-brand-700">{course.title}</Link>
+              <Link href={courseHref(course.slug)} className="text-xl font-bold hover:text-brand-700">{course.title}</Link>
               <p className="text-sm text-slate-500">{programs[course.program].name} · {course.code} {levels[course.level].name}</p>
               <p className="mt-1 flex items-center gap-3 text-xs text-slate-400">
                 <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {course.hours}h</span>

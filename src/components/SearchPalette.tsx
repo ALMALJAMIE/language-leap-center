@@ -11,6 +11,7 @@ import {
   Compass,
 } from "lucide-react";
 import { courseLessons, courses, levels } from "@/data/courses";
+import { courseHref, lessonHref } from "@/data/courses";
 
 type Item = {
   href: string;
@@ -54,14 +55,14 @@ const pages: Item[] = [
 
 const index: Item[] = [
   ...courses.map((c) => ({
-    href: `/courses/${c.slug}/`,
+    href: courseHref(c.slug),
     title: c.title,
     sub: `${c.level} · ${levels[c.level].name}`,
     kind: "course" as const,
   })),
   ...courses.flatMap((c) =>
     courseLessons(c).map((l) => ({
-      href: `/learn/${c.slug}/${l.id}/`,
+      href: lessonHref(c.slug, l.id),
       title: l.title,
       sub: `${c.title} · ${l.words
         .map((w) => w.en)
@@ -99,7 +100,7 @@ function Palette({ onClose }: { onClose: () => void }) {
       return [
         ...courses
           .slice(0, 4)
-          .map((c) => index.find((i) => i.href === `/courses/${c.slug}/`)!),
+          .map((c) => index.find((i) => i.href === courseHref(c.slug))!),
         ...pages.slice(0, 2),
       ];
     // also match words taught inside lessons

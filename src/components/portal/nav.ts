@@ -65,7 +65,7 @@ export const portalNav: NavItem[][] = [
 /* ------------------------------------------------------------------ */
 /* Team workspace (/staff/) — the sidebar depends on the account's role */
 
-type StaffRole = "admin" | "teacher" | "finance" | "academic" | "support";
+type StaffRole = "admin" | "teacher" | "finance" | "academic" | "support" | "supervisor";
 const s = (key: string) => `/staff/soon/?f=${key}`;
 
 const it = {
@@ -73,7 +73,10 @@ const it = {
   users: { label: "Learners & Users", href: "/staff/users/", icon: Users, color: "text-sky-600" },
   team: { label: "Team & Roles", href: "/staff/team/", icon: ShieldCheck, color: "text-indigo-600" },
   enrollments: { label: "Course Access", href: "/staff/enrollments/", icon: Ticket, color: "text-emerald-600" },
-  courses: { label: "Courses & Lessons", href: "/staff/courses/", icon: BookOpen, color: "text-violet-600" },
+  courses: { label: "Course Builder", href: "/staff/courses/", icon: BookOpen, color: "text-violet-600" },
+  supClasses: { label: "Supervised Classes", href: s("sv-classes"), icon: Presentation, color: "text-teal-600", soon: true },
+  supAttendance: { label: "Attendance Approvals", href: s("sv-attendance"), icon: ListChecks, color: "text-emerald-600", soon: true },
+  supGrades: { label: "Grade Approvals", href: s("sv-grades"), icon: FileCheck2, color: "text-gold-600", soon: true },
   inbox: { label: "Support Inbox", href: "/staff/inbox/", icon: Headset, color: "text-gold-600" },
   instructors: { label: "Instructor Profiles", href: s("st-instructors"), icon: GraduationCap, color: "text-pink-600", soon: true },
   payments: { label: "Payments", href: s("st-payments"), icon: Receipt, color: "text-lime-600", soon: true },
@@ -121,6 +124,8 @@ export function staffNav(role: StaffRole | null): NavItem[][] {
       return [[it.overview, it.courses, it.questions, it.teachers, it.users], [it.placement, it.certificates, it.quality], common];
     case "support":
       return [[it.overview, it.inbox, it.users], [it.tickets, it.system], common];
+    case "supervisor":
+      return [[it.overview], [it.supClasses, it.supAttendance, it.supGrades, it.quality], common];
     default:
       return [[it.overview], common];
   }
@@ -138,6 +143,9 @@ export const comingSoon: Record<string, { title: string; icon: LucideIcon; text:
   "st-certificates": { staff: true, title: "Certificates", icon: FileCheck2, text: "Issued certificates, a lookup to verify a certificate ID, and revoking a certificate." },
   "st-quality": { staff: true, title: "Teaching Quality", icon: Star, text: "Learner ratings and lesson reviews for each teacher." },
   "st-tickets": { staff: true, title: "Tickets", icon: LifeBuoy, text: "Turn a chat into a ticket, assign it to a team member and track it until it's solved." },
+  "sv-classes": { staff: true, title: "Supervised Classes", icon: Presentation, text: "The live classes you follow: timetable, teacher, learners, attendance and grades at a glance." },
+  "sv-attendance": { staff: true, title: "Attendance Approvals", icon: ListChecks, text: "Attendance sheets sent by teachers after each session, waiting for your approval." },
+  "sv-grades": { staff: true, title: "Grade Approvals", icon: FileCheck2, text: "Final grades of each class to review and approve before learners see their results." },
   "st-system": { staff: true, title: "System Status", icon: ServerCog, text: "Site health, database status and recent errors." },
   "st-settings": { staff: true, title: "Site Settings", icon: UserCog, text: "Contact details, social links and payment links — edited here instead of in the code." },
   "t-students": { staff: true, title: "My Students", icon: Users, text: "The learners you teach, their level, their progress in each course and what they find hard." },

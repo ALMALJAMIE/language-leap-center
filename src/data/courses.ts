@@ -213,6 +213,22 @@ export const courses: Course[] = [
 
 export const getCourse = (slug: string) => courses.find((c) => c.slug === slug);
 
+/* ------------------------------------------------------------------ */
+/* Courses edited in the Course Builder live in the database and replace */
+/* or extend this list at runtime (src/lib/catalog.ts). Pages built at   */
+/* deploy time exist only for these built-in courses and lessons; any    */
+/* other course or lesson opens through the /view/ pages.                */
+
+export const builtInCourses: Course[] = courses.map((c) => ({ ...c }));
+const builtSlugs = new Set(courses.map((c) => c.slug));
+const builtLessons = new Set(courses.flatMap((c) => c.modules.flatMap((m) => m.lessons.map((l) => `${c.slug}/${l.id}`))));
+
+export const courseHref = (slug: string) => (builtSlugs.has(slug) ? `/courses/${slug}/` : `/courses/view/?c=${encodeURIComponent(slug)}`);
+export const lessonHref = (slug: string, lessonId: string) =>
+  builtLessons.has(`${slug}/${lessonId}`)
+    ? `/learn/${slug}/${lessonId}/`
+    : `/learn/view/?c=${encodeURIComponent(slug)}&l=${encodeURIComponent(lessonId)}`;
+
 export const courseLessons = (c: Course) => c.modules.flatMap((m) => m.lessons);
 
 export const lessonCount = (c: Course) =>

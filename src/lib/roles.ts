@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { supabase } from "./auth";
 
-export type Role = "admin" | "teacher" | "finance" | "academic" | "support";
+export type Role = "admin" | "teacher" | "finance" | "academic" | "support" | "supervisor";
 
 export const roleInfo: Record<Role, { label: string; badge: string; desc: string }> = {
   admin: { label: "Platform Admin", badge: "bg-brand-900 text-white", desc: "Full access to every part of the workspace." },
@@ -11,6 +11,7 @@ export const roleInfo: Record<Role, { label: string; badge: string; desc: string
   finance: { label: "Finance", badge: "bg-gold-100 text-gold-800", desc: "Payments, course access and reports." },
   academic: { label: "Academic", badge: "bg-violet-100 text-violet-800", desc: "Courses, lessons, levels and certificates." },
   support: { label: "Support", badge: "bg-sky-100 text-sky-800", desc: "Answers learners and fixes account problems." },
+  supervisor: { label: "Academic Supervisor", badge: "bg-teal-100 text-teal-800", desc: "Follows live classes: approves attendance and grades, observes lessons." },
 };
 export const roles = Object.keys(roleInfo) as Role[];
 
@@ -30,7 +31,10 @@ export async function loadRole(userId: string | null) {
   const { data } = await supabase.from("staff").select("*").eq("user_id", userId).maybeSingle();
   if (current !== userId) return;
   // before roles.sql is run the table has no role column: the owner's row counts as admin
-  useRole.setState({ role: data ? ((data.role as Role | undefined) ?? "admin") : null, loaded: true });
+  const role = data ? ((data.role as Role | undefined) ?? "admin") : null;
+  useRole.setState({ role, loaded: true });
+  // team members also see draft courses (for previews and the Course Builder)
+  if (role) import("./catalog").then((m) => m.loadCatalog(true));
 }
 
 /** Which roles may open each workspace page (admin may open all) */
@@ -40,6 +44,7 @@ export const pageAccess: Record<string, Role[]> = {
   "/staff/team/": [],
   "/staff/enrollments/": ["finance"],
   "/staff/courses/": ["academic", "finance"],
+  "/staff/courses/edit/": ["academic", "finance"],
   "/staff/inbox/": ["support"],
   "/staff/teachers/": ["finance", "academic"],
   "/staff/payouts/": ["finance"],

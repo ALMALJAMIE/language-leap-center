@@ -9,6 +9,7 @@ import { courseProgress, startedCourses } from "@/lib/account";
 import { displayName, useAuth } from "@/lib/auth";
 import { dueCards, todayKey, useMounted, useProgress } from "@/lib/store";
 import { usePortalPrefs } from "@/lib/ui";
+import { courseHref, lessonHref } from "@/data/courses";
 
 function greeting() {
   const h = new Date().getHours();
@@ -88,7 +89,7 @@ export default function LearnerDashboard() {
               </div>
               <span className="text-sm text-brand-200">{current.pr.done}/{current.pr.total}</span>
             </div>
-            <Link href={`/learn/${current.c.slug}/${current.pr.next!.id}/`} className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 font-bold text-ink shadow-lg hover:bg-gold-50">
+            <Link href={lessonHref(current.c.slug, current.pr.next!.id)} className="mt-7 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 font-bold text-ink shadow-lg hover:bg-gold-50">
               <Play className="h-5 w-5 fill-ink" /> Continue lesson
             </Link>
           </div>
@@ -150,7 +151,7 @@ export default function LearnerDashboard() {
         {started.length === 0 ? (
           <div className="grid gap-4 sm:grid-cols-3">
             {courses.filter((c) => c.price === 0 || c.isNew).slice(0, 3).map((c) => (
-              <Link key={c.slug} href={`/courses/${c.slug}/`} className="overflow-hidden rounded-2xl border border-slate-100 transition hover:shadow-md">
+              <Link key={c.slug} href={courseHref(c.slug)} className="overflow-hidden rounded-2xl border border-slate-100 transition hover:shadow-md">
                 <CourseCover course={c} className="h-24" />
                 <div className="p-3">
                   <div className="text-xs font-bold text-gold-600">{c.level} · {levels[c.level].name}</div>
@@ -162,7 +163,7 @@ export default function LearnerDashboard() {
         ) : (
           <div className="space-y-3">
             {started.map(({ c, pr }) => (
-              <Link key={c.slug} href={pr.next ? `/learn/${c.slug}/${pr.next.id}/` : `/courses/${c.slug}/`} className="flex items-center gap-4 rounded-2xl border border-slate-100 p-3 transition hover:bg-slate-50">
+              <Link key={c.slug} href={pr.next ? lessonHref(c.slug, pr.next.id) : courseHref(c.slug)} className="flex items-center gap-4 rounded-2xl border border-slate-100 p-3 transition hover:bg-slate-50">
                 <CourseCover course={c} className="h-14 w-20 shrink-0 rounded-xl" mini />
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-semibold">{c.title}</div>

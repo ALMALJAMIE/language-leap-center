@@ -10,6 +10,7 @@ import { certificateId, courseProgress } from "@/lib/account";
 import { displayName, useAuth } from "@/lib/auth";
 import { useMounted, useProgress } from "@/lib/store";
 import { SignInPrompt } from "@/components/account/AccountShell";
+import { courseHref } from "@/data/courses";
 
 export function CertificateView() {
   const params = useSearchParams();
@@ -27,7 +28,7 @@ export function CertificateView() {
     return (
       <div className="mx-auto max-w-xl px-6 py-16 text-center text-slate-600">
         Finish every lesson in {course.title} to unlock this certificate.
-        <div><Link href={`/courses/${course.slug}/`} className="btn-primary mt-6 inline-block px-6 py-3">Go to the course</Link></div>
+        <div><Link href={courseHref(course.slug)} className="btn-primary mt-6 inline-block px-6 py-3">Go to the course</Link></div>
       </div>
     );
 

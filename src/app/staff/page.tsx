@@ -24,7 +24,7 @@ const liveText: Record<string, string> = {
   "/staff/users/": "Find any learner: when they joined, last sign-in, and paid courses.",
   "/staff/team/": "Add team members and choose what each one can see.",
   "/staff/enrollments/": "Open a paid course for a learner after payment, or remove access.",
-  "/staff/courses/": "Every course with its lessons, price, status and paid learners.",
+  "/staff/courses/": "Build courses: units, lessons, words, grammar, dialogues and materials. Publish when ready.",
   "/staff/inbox/": "Answer visitors and learners in real time.",
   "/staff/teachers/": "Publish teacher profiles and set learner prices and teacher pay.",
   "/staff/payouts/": "Teacher balances, payments to teachers and learner lesson payments.",
@@ -49,7 +49,7 @@ function Home() {
   const role = useRole((s) => s.role) as Role;
   const [data, setData] = useState<Overview | null>(null);
   const [err, setErr] = useState("");
-  const showStats = role !== "teacher";
+  const showStats = role !== "teacher" && role !== "supervisor";
 
   useEffect(() => {
     if (!showStats) return;

@@ -8,6 +8,7 @@ import type { Level } from "@/lib/types";
 import { courses, levels } from "@/data/courses";
 import { useProgress } from "@/lib/store";
 import { SpeakBtn } from "@/components/lesson/Exercises";
+import { courseHref } from "@/data/courses";
 
 type Q = { level: Level; q: string; options: string[]; answer: number; audio?: string; hint?: string };
 
@@ -96,7 +97,7 @@ export default function Placement() {
           <div className="text-sm font-bold text-gold-600">Recommended course</div>
           <div className="mt-1 text-xl font-bold">{rec.title}</div>
           <p className="mt-2 text-sm text-slate-600">{rec.description}</p>
-          <Link href={`/courses/${rec.slug}/`} className="btn-primary mt-5 inline-block px-6 py-3">Go to the course</Link>
+          <Link href={courseHref(rec.slug)} className="btn-primary mt-5 inline-block px-6 py-3">Go to the course</Link>
         </div>
         <button onClick={() => { setStage("intro"); setI(0); setAns(Array(questions.length).fill(null)); }} className="mt-6 text-sm font-bold text-slate-500">
           Retake the test

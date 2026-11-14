@@ -9,6 +9,7 @@ import { CourseCover } from "@/components/CourseCard";
 import { AccountShell } from "@/components/account/AccountShell";
 import { courseProgress, startedCourses } from "@/lib/account";
 import { useMounted, useProgress } from "@/lib/store";
+import { courseHref, lessonHref } from "@/data/courses";
 
 type Tab = "all" | "active" | "completed" | "wishlist";
 const TABS: Tab[] = ["all", "active", "completed", "wishlist"];
@@ -90,9 +91,9 @@ function MyCoursesInner() {
                   <span className="text-sm text-slate-500">{Math.round(pr.pct * 100)}% complete</span>
                 )}
                 {pr.next ? (
-                  <Link href={`/learn/${c.slug}/${pr.next.id}/`} className="flex items-center gap-1.5 text-sm font-bold text-brand-600"><Play className="h-4 w-4" /> {pr.done ? "Continue" : "Start"}</Link>
+                  <Link href={lessonHref(c.slug, pr.next.id)} className="flex items-center gap-1.5 text-sm font-bold text-brand-600"><Play className="h-4 w-4" /> {pr.done ? "Continue" : "Start"}</Link>
                 ) : (
-                  <Link href={`/courses/${c.slug}/`} className="text-sm font-bold text-brand-600">Open course →</Link>
+                  <Link href={courseHref(c.slug)} className="text-sm font-bold text-brand-600">Open course →</Link>
                 )}
               </div>
             </div>

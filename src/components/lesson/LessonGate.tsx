@@ -7,6 +7,7 @@ import { formatPrice } from "@/data/courses";
 import { useCourseAccess } from "@/lib/enrollments";
 import { useAuth } from "@/lib/auth";
 import { LessonPlayer } from "./LessonPlayer";
+import { courseHref } from "@/data/courses";
 
 /** Paid courses: the lesson only opens for enrolled learners */
 export function LessonGate({ course, lesson, nextId }: { course: Course; lesson: LessonSpec; nextId?: string }) {
@@ -23,7 +24,7 @@ export function LessonGate({ course, lesson, nextId }: { course: Course; lesson:
 
   return (
     <div className="relative grid min-h-screen place-items-center bg-gradient-to-b from-brand-50 to-white px-6">
-      <Link href={`/courses/${course.slug}/`} aria-label="Close" className="absolute left-6 top-6 text-slate-400 hover:text-slate-600"><X className="h-7 w-7" /></Link>
+      <Link href={courseHref(course.slug)} aria-label="Close" className="absolute left-6 top-6 text-slate-400 hover:text-slate-600"><X className="h-7 w-7" /></Link>
       <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-xl">
         <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-gold-50 text-gold-600"><Lock className="h-8 w-8" /></div>
         <h1 className="mt-5 text-2xl font-extrabold">This lesson is part of a paid course</h1>

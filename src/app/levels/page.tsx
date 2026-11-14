@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { ArrowRight, BookOpen, ChevronRight, Compass, Filter, GraduationCap, Layers, Lightbulb, LayoutGrid } from "lucide-react";
 import { courseLessons, courses, levels, programs } from "@/data/courses";
 import type { Course, Level, ProgramId } from "@/lib/types";
+import { courseHref } from "@/data/courses";
 
 type Stage = "Foundation" | "Building" | "Confident" | "Fluent" | "Mastery";
 
@@ -163,7 +164,7 @@ export default function LevelsPage() {
                   <ul className="mt-4 space-y-1.5">
                     {l.courses.map((course) => (
                       <li key={course.slug}>
-                        <Link href={`/courses/${course.slug}/`} className="relative z-10 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm font-semibold text-ink transition hover:bg-brand-50 hover:text-brand-700">
+                        <Link href={courseHref(course.slug)} className="relative z-10 flex items-center gap-2 rounded-lg bg-slate-50 px-3 py-2 text-sm font-semibold text-ink transition hover:bg-brand-50 hover:text-brand-700">
                           <span>{course.cover.icon}</span>
                           <span className="flex-1 truncate">{course.title}</span>
                           <ChevronRight className="h-4 w-4 text-slate-400" />

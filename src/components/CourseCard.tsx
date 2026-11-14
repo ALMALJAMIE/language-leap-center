@@ -7,6 +7,7 @@ import mark from "@/assets/logo-mark-t.png";
 import type { Course } from "@/lib/types";
 import { courseLessons, courseTypes, formatPrice, isAvailable, lessonCount, levels, programs } from "@/data/courses";
 import { useMounted, useProgress } from "@/lib/store";
+import { courseHref } from "@/data/courses";
 
 export function CourseCover({ course, className = "", mini = false }: { course: Course; className?: string; mini?: boolean }) {
   return (
@@ -35,7 +36,7 @@ export function CourseCard({ course }: { course: Course }) {
 
   return (
     <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-900/10">
-      <Link href={`/courses/${course.slug}/`} className="block">
+      <Link href={courseHref(course.slug)} className="block">
         <CourseCover course={course} className="h-40" />
       </Link>
 
@@ -59,7 +60,7 @@ export function CourseCard({ course }: { course: Course }) {
           {course.isNew && <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">New</span>}
         </div>
 
-        <Link href={`/courses/${course.slug}/`}>
+        <Link href={courseHref(course.slug)}>
           <h3 className="text-lg font-bold leading-snug text-ink group-hover:text-brand-600">{course.title}</h3>
         </Link>
         <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{course.description}</p>
@@ -102,7 +103,7 @@ export function CourseCard({ course }: { course: Course }) {
             )}
           </span>
           {available ? (
-            <Link href={`/courses/${course.slug}/`} className="whitespace-nowrap text-sm font-bold text-brand-600 hover:text-brand-800">
+            <Link href={courseHref(course.slug)} className="whitespace-nowrap text-sm font-bold text-brand-600 hover:text-brand-800">
               {done > 0 ? "Continue →" : course.price > 0 ? "View course →" : "Start course →"}
             </Link>
           ) : (

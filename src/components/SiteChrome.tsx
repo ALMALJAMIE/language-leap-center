@@ -14,6 +14,7 @@ import { startAuth } from "@/lib/auth";
 import { basePath } from "@/lib/site";
 import { isPortal, useUI } from "@/lib/ui";
 import { staffPublicAllowed, useRole } from "@/lib/roles";
+import { loadCatalog, useCatalog } from "@/lib/catalog";
 
 /** Chooses the public-site layout or the learner-portal layout for each page */
 export function SiteChrome({ children }: { children: React.ReactNode }) {
@@ -22,6 +23,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     startAuth();
+    loadCatalog();
     const h = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -34,6 +36,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   const lesson = path?.startsWith("/learn/");
   const role = useRole((s) => s.role);
+  const catalogVersion = useCatalog((s) => s.version);
   const router = useRouter();
   // team accounts don't use the learner-facing site: send them to their workspace
   const staffBlocked = !!role && !isPortal(path) && !staffPublicAllowed.some((p) => path === p || path?.startsWith(p + "/"));
@@ -44,7 +47,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   return (
     <>
       {isPortal(path) ? (
-        <PortalChrome>{children}</PortalChrome>
+        <PortalChrome><div key={path?.startsWith("/staff") ? "staff" : catalogVersion}>{children}</div></PortalChrome>
       ) : (
         <>
           {!lesson && <TopBar />}
@@ -55,7 +58,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
               <a href={`${basePath}/staff/`} className="font-bold text-gold-300 hover:underline">Back to workspace</a>
             </div>
           )}
-          <main>{staffBlocked ? <div className="min-h-[60vh]" /> : children}</main>
+          <main key={catalogVersion}>{staffBlocked ? <div className="min-h-[60vh]" /> : children}</main>
           {!lesson && <Footer />}
         </>
       )}
